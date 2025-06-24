@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package carelink.medicalhistory;
+
+option java_multiple_files = true;
+option java_package = "com.carelink.grpc.medicalhistory";
+option java_outer_classname = "MedicalHistoryProto";
+
+// Service for managing medical history records
+service MedicalHistoryService {
+
+  // Adds a new medical record for a patient
+  rpc AddMedicalRecord (AddMedicalRecordRequest) returns (AddMedicalRecordResponse);
+
+  // Retrieves full medical history of a patient
+  rpc GetMedicalHistory (GetMedicalHistoryRequest) returns (GetMedicalHistoryResponse);
+}
+
+// Request to add a new medical record
+message AddMedicalRecordRequest {
+  string record_id = 1;      // Medical record ID
+  string patient_id = 2;     // Patient ID
+  string record_date = 3;    // Record date (ISO 8601 string recommended)
+  string description = 4;    // General description
+  string diagnosis = 5;      // Diagnosed condition
+  string treatment = 6;      // Treatment details
+}
+
+// Response after adding medical record
+message AddMedicalRecordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request to retrieve medical history
+message GetMedicalHistoryRequest {
+  string patient_id = 1;
+}
+
+// Response containing list of medical records
+message GetMedicalHistoryResponse {
+  repeated MedicalRecord records = 1;
+}
+
+// Medical record object
+message MedicalRecord {
+  string record_id = 1;
+  string patient_id = 2;
+  string record_date = 3;
+  string description = 4;
+  string diagnosis = 5;
+  string treatment = 6;
+}

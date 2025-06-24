@@ -1,0 +1,12 @@
+--java_out=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/target/generated-sources/protobuf
+--plugin=protoc-gen-PNMJk3CFgK1A0pgzU7nDrY4HBOY=/Users/vinicius/.m2/repository/io/grpc/protoc-gen-grpc-java/1.72.0/protoc-gen-grpc-java-1.72.0-osx-aarch_64.exe
+--PNMJk3CFgK1A0pgzU7nDrY4HBOY_out=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/target/generated-sources/protobuf
+--PNMJk3CFgK1A0pgzU7nDrY4HBOY_opt=jakarta_omit,@generated=omit
+/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/src/main/proto/medical_history_service.proto
+/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/src/main/proto/account_service.proto
+/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/src/main/proto/appointment_service.proto
+/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/src/main/proto/notification_service.proto
+--proto_path=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/src/main/proto
+--proto_path=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/target/protobuf-maven-plugin/generate/generate/archives/grpc-services-1.72.0-mH0l6tyAu62eGXiwPl3kfRWwRsQ
+--proto_path=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/target/protobuf-maven-plugin/generate/generate/archives/protobuf-java-4.30.2-L67T0qMMlpjTOn55ehzM_DMBWQc
+--proto_path=/Users/vinicius/Library/CloudStorage/OneDrive-Personal/Documents/Educação/NCI - HDSC/Project/CareLinkPlus/target/protobuf-maven-plugin/generate/generate/archives/proto-google-common-protos-2.54.1-yyjdmcTLRsRM7D_R8-b2vysVYIc
