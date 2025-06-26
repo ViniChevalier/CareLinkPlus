@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package carelink.appointment;
+
+option java_multiple_files = true;
+option java_package = "com.carelink.grpc.appointment";
+option java_outer_classname = "AppointmentProto";
+
+// Service for appointment scheduling and management
+service AppointmentService {
+
+  // Schedules a new appointment between patient and doctor
+  rpc ScheduleAppointment (ScheduleAppointmentRequest) returns (ScheduleAppointmentResponse);
+
+  // Retrieves appointments for a given user (patient or doctor)
+  rpc GetAppointments (GetAppointmentsRequest) returns (GetAppointmentsResponse);
+
+  // Cancels an existing appointment
+  rpc CancelAppointment (CancelAppointmentRequest) returns (CancelAppointmentResponse);
+}
+
+// Request to schedule an appointment
+message ScheduleAppointmentRequest {
+  string appointment_id = 1;   // Appointment ID (can be generated client or server-side)
+  string patient_id = 2;       // ID of the patient
+  string doctor_id = 3;        // ID of the doctor
+  string appointment_time = 4; // Scheduled time (ISO 8601 string recommended)
+  string reason = 5;           // Reason for the appointment
+}
+
+// Response for scheduling appointment
+message ScheduleAppointmentResponse {
+  bool success = 1;            // Was scheduling successful
+  string message = 2;          // Optional message
+}
+
+// Request to retrieve all appointments for a user
+message GetAppointmentsRequest {
+  string user_id = 1;          // ID of the requesting user
+}
+
+// Response containing list of appointments
+message GetAppointmentsResponse {
+  repeated Appointment appointments = 1;  // List of appointments
+}
+
+// Appointment object
+message Appointment {
+  string appointment_id = 1;
+  string patient_id = 2;
+  string doctor_id = 3;
+  string appointment_time = 4;
+  string reason = 5;
+  string status = 6;           // e.g. Scheduled, Cancelled, Completed
+}
+
+// Request to cancel an appointment
+message CancelAppointmentRequest {
+  string appointment_id = 1;
+}
+
+// Response for cancellation
+message CancelAppointmentResponse {
+  bool success = 1;
+  string message = 2;
+}

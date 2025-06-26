@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package carelink.notification;
+
+option java_multiple_files = true;
+option java_package = "com.carelink.grpc.notification";
+option java_outer_classname = "NotificationProto";
+
+// Service for sending simple notifications to users
+service NotificationService {
+
+  // Sends a notification to a specific recipient
+  rpc SendNotification (NotificationRequest) returns (NotificationResponse);
+}
+
+// Request message to send a notification
+message NotificationRequest {
+  string recipient_id = 1;   // User ID of the recipient
+  string message = 2;        // Notification message content
+  string timestamp = 3;      // Timestamp of when sent (ISO 8601 string)
+}
+
+// Response after sending notification
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;        // Optional status message
+}

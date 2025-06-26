@@ -1,0 +1,33 @@
+# === BACKEND: Java + Maven ===
+backend/target/
+*.class
+*.jar
+*.war
+*.log
+*.iml
+
+# Maven wrapper logs
+.mvn/
+!backend/.mvn/wrapper/maven-wrapper.jar
+
+# === FRONTEND: Node.js frameworks (React, Vue, etc) ===
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/.cache/
+
+# === OS & IDE/Editor files ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
+*~
+
+# === Environment & Config secrets ===
+*.env
+*.env.local
+.env.production
+.env.development
