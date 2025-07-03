@@ -10,5 +10,4 @@ class CarelinkApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
