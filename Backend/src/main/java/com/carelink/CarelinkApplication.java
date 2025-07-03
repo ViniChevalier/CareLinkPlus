@@ -20,9 +20,9 @@ public class CarelinkApplication implements org.springframework.boot.CommandLine
     private final JwtUtil jwtUtil;
 
     public CarelinkApplication(AppointmentRepository appointmentRepository,
-                               UserRepository userRepository,
-                               UserCredentialsRepository credentialsRepository,
-                               JwtUtil jwtUtil) {
+            UserRepository userRepository,
+            UserCredentialsRepository credentialsRepository,
+            JwtUtil jwtUtil) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
@@ -35,6 +35,10 @@ public class CarelinkApplication implements org.springframework.boot.CommandLine
 
     @Override
     public void run(String... args) throws Exception {
+        String activeProfile = System.getProperty("spring.profiles.active", "default");
+        if ("test".equals(activeProfile)) {
+            return; // pula gRPC no teste
+        }
         Server server = ServerBuilder.forPort(9090)
                 .addService(new AppointmentServiceImpl(appointmentRepository))
                 .addService(new AccountServiceImpl(userRepository, credentialsRepository, jwtUtil))
