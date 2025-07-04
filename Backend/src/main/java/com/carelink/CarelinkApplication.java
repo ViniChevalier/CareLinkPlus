@@ -12,6 +12,8 @@ import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.security.JwtUtil;
 import com.carelink.medicalhistory.service.MedicalHistoryServiceImpl;
 import com.carelink.medicalhistory.repository.MedicalRecordRepository;
+import com.carelink.notification.service.NotificationService;
+import com.carelink.notification.controller.NotificationServiceImpl;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -27,6 +29,8 @@ public class CarelinkApplication implements CommandLineRunner {
     private final Environment environment;
     private final MedicalRecordRepository medicalRecordRepository;
     private final MedicalHistoryServiceImpl medicalHistoryServiceImpl;
+    private final NotificationService notificationService;
+    private final NotificationServiceImpl notificationServiceImpl;
 
     public CarelinkApplication(AppointmentRepository appointmentRepository,
                                UserRepository userRepository,
@@ -34,7 +38,9 @@ public class CarelinkApplication implements CommandLineRunner {
                                JwtUtil jwtUtil,
                                Environment environment,
                                MedicalRecordRepository medicalRecordRepository,
-                               MedicalHistoryServiceImpl medicalHistoryServiceImpl) {
+                               MedicalHistoryServiceImpl medicalHistoryServiceImpl,
+                               NotificationService notificationService,
+                               NotificationServiceImpl notificationServiceImpl) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
@@ -42,6 +48,8 @@ public class CarelinkApplication implements CommandLineRunner {
         this.environment = environment;
         this.medicalRecordRepository = medicalRecordRepository;
         this.medicalHistoryServiceImpl = medicalHistoryServiceImpl;
+        this.notificationService = notificationService;
+        this.notificationServiceImpl = notificationServiceImpl;
     }
 
     public static void main(String[] args) {
@@ -58,6 +66,7 @@ public class CarelinkApplication implements CommandLineRunner {
                 .addService(new AppointmentServiceImpl(appointmentRepository))
                 .addService(new AccountServiceImpl(userRepository, credentialsRepository, jwtUtil))
                 .addService(medicalHistoryServiceImpl)
+                .addService(notificationServiceImpl)
                 .build();
 
         server.start();
