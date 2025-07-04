@@ -10,6 +10,8 @@ import com.carelink.appointment.service.AppointmentServiceImpl;
 import com.carelink.account.repository.UserRepository;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.security.JwtUtil;
+import com.carelink.medicalhistory.service.MedicalHistoryServiceImpl;
+import com.carelink.medicalhistory.repository.MedicalRecordRepository;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -23,17 +25,23 @@ public class CarelinkApplication implements CommandLineRunner {
     private final UserCredentialsRepository credentialsRepository;
     private final JwtUtil jwtUtil;
     private final Environment environment;
+    private final MedicalRecordRepository medicalRecordRepository;
+    private final MedicalHistoryServiceImpl medicalHistoryServiceImpl;
 
     public CarelinkApplication(AppointmentRepository appointmentRepository,
                                UserRepository userRepository,
                                UserCredentialsRepository credentialsRepository,
                                JwtUtil jwtUtil,
-                               Environment environment) {
+                               Environment environment,
+                               MedicalRecordRepository medicalRecordRepository,
+                               MedicalHistoryServiceImpl medicalHistoryServiceImpl) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
         this.jwtUtil = jwtUtil;
         this.environment = environment;
+        this.medicalRecordRepository = medicalRecordRepository;
+        this.medicalHistoryServiceImpl = medicalHistoryServiceImpl;
     }
 
     public static void main(String[] args) {
@@ -42,14 +50,14 @@ public class CarelinkApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Checa se profile "test" está ativo
         if (List.of(environment.getActiveProfiles()).contains("test")) {
-            return; // Não inicializa gRPC no teste
+            return;
         }
 
         Server server = ServerBuilder.forPort(9090)
                 .addService(new AppointmentServiceImpl(appointmentRepository))
                 .addService(new AccountServiceImpl(userRepository, credentialsRepository, jwtUtil))
+                .addService(medicalHistoryServiceImpl)
                 .build();
 
         server.start();
