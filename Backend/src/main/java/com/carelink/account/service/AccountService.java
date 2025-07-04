@@ -2,60 +2,23 @@ package com.carelink.account.service;
 
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
-import com.carelink.account.repository.UserCredentialsRepository;
-import com.carelink.account.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+public interface AccountService {
+    User createUser(User user);
 
-@Service
-public class AccountService {
+    boolean validateLogin(String username, String password);
 
-    @Autowired
-    private UserRepository userRepository;
+    User getUserById(Integer id);
 
-    @Autowired
-    private UserCredentialsRepository credentialsRepository;
+    User getUserByEmail(String email);
 
-    public User createUser(User user, String username, String password) {
-        String salt = BCrypt.gensalt();
-        String hashedPassword = BCrypt.hashpw(password, salt);
+    User getUserByPhoneNumber(String phoneNumber);
 
-        User savedUser = userRepository.save(user);
+    User updateUser(User user);
 
-        UserCredentials credentials = new UserCredentials();
-        credentials.setUser(savedUser);
-        credentials.setUsername(username);
-        credentials.setPasswordHash(hashedPassword);
-        credentials.setPasswordSalt(salt);
+    UserCredentials getUserCredentialsByUser(User user);
 
-        credentialsRepository.save(credentials);
+    UserCredentials getUserCredentialsByUsername(String username);
 
-        return savedUser;
-    }
-
-    public boolean validateLogin(String username, String password) {
-        UserCredentials creds = credentialsRepository.findByUsername(username);
-        if (creds == null)
-            return false;
-        return BCrypt.checkpw(password, creds.getPasswordHash());
-    }
-
-    public Optional<User> getUserById(Integer id) {
-        return userRepository.findById(id);
-    }
-
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public User getUserByPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber);
-    }
-
-    public User updateUser(User user) {
-        return userRepository.save(user);
-    }
+    UserCredentials updateUserCredentials(UserCredentials creds);
 }

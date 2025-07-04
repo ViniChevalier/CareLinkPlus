@@ -4,123 +4,91 @@ import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.repository.UserRepository;
-import com.carelink.grpc.account.AccountServiceGrpc;
-import com.carelink.grpc.account.LoginRequest;
-import com.carelink.grpc.account.LoginResponse;
-import com.carelink.grpc.account.RegisterUserRequest;
-import com.carelink.grpc.account.RegisterUserResponse;
-import com.carelink.grpc.account.UserProfileRequest;
-import com.carelink.grpc.account.UserProfileResponse;
-import com.carelink.security.JwtUtil;
-import io.grpc.stub.StreamObserver;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Random;
+
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class AccountServiceImpl extends AccountServiceGrpc.AccountServiceImplBase {
+public class AccountServiceImpl implements AccountService {
 
     private final UserRepository userRepository;
     private final UserCredentialsRepository credentialsRepository;
-    private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AccountServiceImpl(UserRepository userRepository, UserCredentialsRepository credentialsRepository,
-            JwtUtil jwtUtil) {
+    public AccountServiceImpl(UserRepository userRepository, UserCredentialsRepository credentialsRepository) {
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
-        this.jwtUtil = jwtUtil;
-    }
-
-    public AccountServiceImpl() {
-        this.userRepository = null;
-        this.credentialsRepository = null;
-        this.jwtUtil = null;
     }
 
     @Override
-    public void registerUser(RegisterUserRequest request, StreamObserver<RegisterUserResponse> responseObserver) {
-        RegisterUserResponse.Builder response = RegisterUserResponse.newBuilder();
+    @Transactional
+    public User createUser(User user) {
+        User savedUser = userRepository.save(user);
 
-        User existingUser = userRepository.findByEmail(request.getEmail());
-        if (existingUser != null) {
-            response.setSuccess(false).setMessage("Email already registered");
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
-            return;
-        }
+        String firstNamePart = savedUser.getFirstName() != null
+                ? savedUser.getFirstName().toLowerCase().replaceAll("[^a-zA-Z0-9]", "")
+                : "user";
+        String generatedUsername = firstNamePart + savedUser.getUserID();
 
-        UserCredentials existingCreds = credentialsRepository.findByUsername(request.getUsername());
-        if (existingCreds != null) {
-            response.setSuccess(false).setMessage("Username already taken");
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
-            return;
-        }
+        String randomPassword = String.format("%04d", new Random().nextInt(10000));
 
-        User user = new User();
-        // Se request tiver fullName, separar em firstName e lastName
-        String[] nameParts = request.getFullName().split(" ", 2);
-        user.setFirstName(nameParts[0]);
-        user.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhone());
-        user.setRole(request.getRole());
-        userRepository.save(user);
+        String hashedPassword = BCrypt.hashpw(randomPassword, BCrypt.gensalt());
 
-        UserCredentials credentials = new UserCredentials();
-        credentials.setUsername(request.getUsername());
-        credentials.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        credentials.setUser(user);
-        credentialsRepository.save(credentials);
+        UserCredentials creds = new UserCredentials();
+        creds.setUser(savedUser);
+        creds.setUsername(generatedUsername);
+        creds.setPasswordHash(hashedPassword);
+        creds.setPasswordSalt(BCrypt.gensalt());
 
-        response.setSuccess(true).setMessage("User registered successfully");
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+        credentialsRepository.save(creds);
+
+        savedUser.setTransientPassword(randomPassword);
+
+        return savedUser;
     }
 
     @Override
-    public void loginUser(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
-        LoginResponse.Builder response = LoginResponse.newBuilder();
-
-        UserCredentials credentials = credentialsRepository.findByUsername(request.getUsername());
-        if (credentials == null || !passwordEncoder.matches(request.getPassword(), credentials.getPasswordHash())) {
-            response.setSuccess(false).setMessage("Invalid username or password");
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
-            return;
-        }
-
-        String jwt = jwtUtil.generateToken(credentials.getUsername());
-
-        response.setSuccess(true).setJwtToken(jwt).setMessage("Login successful");
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+    public boolean validateLogin(String username, String password) {
+        UserCredentials creds = credentialsRepository.findByUsername(username);
+        if (creds == null)
+            return false;
+        return BCrypt.checkpw(password, creds.getPasswordHash());
     }
 
     @Override
-    public void getUserProfile(UserProfileRequest request, StreamObserver<UserProfileResponse> responseObserver) {
-        User user = userRepository.findById(Integer.parseInt(request.getUserId())).orElse(null);
-        UserProfileResponse.Builder response = UserProfileResponse.newBuilder();
-
-        if (user == null) {
-            responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
-            return;
-        }
-
-        response.setUserId(String.valueOf(user.getUserID()))
-                .setUsername(getUsernameByUser(user))
-                .setFullName(user.getFirstName() + " " + user.getLastName())
-                .setEmail(user.getEmail())
-                .setPhone(user.getPhoneNumber())
-                .setRole(user.getRole());
-
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+    public User getUserById(Integer id) {
+        return userRepository.findById(id).orElse(null);
     }
 
-    private String getUsernameByUser(User user) {
-        UserCredentials credentials = credentialsRepository.findByUser(user);
-        return credentials != null ? credentials.getUsername() : "";
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User getUserByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public UserCredentials getUserCredentialsByUser(User user) {
+        return credentialsRepository.findByUser(user);
+    }
+
+    @Override
+    public UserCredentials getUserCredentialsByUsername(String username) {
+        return credentialsRepository.findByUsername(username);
+    }
+
+    @Override
+    public UserCredentials updateUserCredentials(UserCredentials creds) {
+        return credentialsRepository.save(creds);
     }
 }

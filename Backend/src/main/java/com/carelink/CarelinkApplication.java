@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
-import com.carelink.account.service.AccountServiceImpl;
 import com.carelink.appointment.repository.AppointmentRepository;
 import com.carelink.appointment.service.AppointmentServiceImpl;
 import com.carelink.account.repository.UserRepository;
+import com.carelink.account.grpc.AccountGrpcService;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.security.JwtUtil;
 import com.carelink.medicalhistory.service.MedicalHistoryServiceImpl;
@@ -31,16 +31,18 @@ public class CarelinkApplication implements CommandLineRunner {
     private final MedicalHistoryServiceImpl medicalHistoryServiceImpl;
     private final NotificationService notificationService;
     private final NotificationServiceImpl notificationServiceImpl;
+    private final AccountGrpcService accountGrpcService;
 
     public CarelinkApplication(AppointmentRepository appointmentRepository,
-                               UserRepository userRepository,
-                               UserCredentialsRepository credentialsRepository,
-                               JwtUtil jwtUtil,
-                               Environment environment,
-                               MedicalRecordRepository medicalRecordRepository,
-                               MedicalHistoryServiceImpl medicalHistoryServiceImpl,
-                               NotificationService notificationService,
-                               NotificationServiceImpl notificationServiceImpl) {
+            UserRepository userRepository,
+            UserCredentialsRepository credentialsRepository,
+            JwtUtil jwtUtil,
+            Environment environment,
+            MedicalRecordRepository medicalRecordRepository,
+            MedicalHistoryServiceImpl medicalHistoryServiceImpl,
+            NotificationService notificationService,
+            NotificationServiceImpl notificationServiceImpl,
+            AccountGrpcService accountGrpcService) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
@@ -50,6 +52,7 @@ public class CarelinkApplication implements CommandLineRunner {
         this.medicalHistoryServiceImpl = medicalHistoryServiceImpl;
         this.notificationService = notificationService;
         this.notificationServiceImpl = notificationServiceImpl;
+        this.accountGrpcService = accountGrpcService;
     }
 
     public static void main(String[] args) {
@@ -64,7 +67,7 @@ public class CarelinkApplication implements CommandLineRunner {
 
         Server server = ServerBuilder.forPort(9090)
                 .addService(new AppointmentServiceImpl(appointmentRepository))
-                .addService(new AccountServiceImpl(userRepository, credentialsRepository, jwtUtil))
+                .addService(accountGrpcService)
                 .addService(medicalHistoryServiceImpl)
                 .addService(notificationServiceImpl)
                 .build();

@@ -1,75 +1,29 @@
-package com.carelink.account.model;
+package com.carelink.account.dto;
 
-import jakarta.persistence.*;
-import java.util.Date;
-
-@Entity
-@Table(name = "users")
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userID;
-
-    @Column(nullable = false, length = 50)
+public class UserResponse {
+    private Long userId;
     private String firstName;
-
-    @Column(nullable = false, length = 50)
     private String lastName;
-
-    @Column(nullable = false, unique = true, length = 100)
     private String email;
-
-    @Column(length = 20)
     private String phoneNumber;
-
-    @Temporal(TemporalType.DATE)
-    private Date dateOfBirth;
-
-    @Column(length = 10)
+    private String dateOfBirth;
     private String gender;
-
-    @Column(length = 255)
     private String address;
-
-    @Column(length = 50)
     private String city;
-
-    @Column(length = 50)
     private String country;
-
-    @Column(nullable = false, length = 20)
     private String role;
+    private String notificationPreference;
+    private String token;
+    private String username;
+    private String generatedPassword;
 
-    @Column(length = 20)
-    private String notificationPreference = "Email";
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = new Date();
+    // Getters and setters
+    public Long getUserId() {
+        return userId;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = new Date();
-    }
-
-    @Transient
-    private String transientPassword;
-
-    // Getters and Setters
-    public Integer getUserID() {
-        return userID;
-    }
-
-    public void setUserID(Integer userID) {
-        this.userID = userID;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getFirstName() {
@@ -104,11 +58,11 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public Date getDateOfBirth() {
+    public String getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -160,19 +114,27 @@ public class User {
         this.notificationPreference = notificationPreference;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public String getToken() {
+        return token;
     }
 
-    public Date getUpdatedAt() {
-        return updatedAt;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public String getTransientPassword() {
-        return transientPassword;
+    public String getUsername() {
+        return username;
     }
 
-    public void setTransientPassword(String transientPassword) {
-        this.transientPassword = transientPassword;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getGeneratedPassword() {
+        return generatedPassword;
+    }
+
+    public void setGeneratedPassword(String generatedPassword) {
+        this.generatedPassword = generatedPassword;
     }
 }
