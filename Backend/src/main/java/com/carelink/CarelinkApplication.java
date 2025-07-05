@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
+
+import com.carelink.appointment.grpc.AppointmentGrpcService;
 import com.carelink.appointment.repository.AppointmentRepository;
 import com.carelink.appointment.service.AppointmentServiceImpl;
 import com.carelink.account.repository.UserRepository;
@@ -32,7 +34,7 @@ public class CarelinkApplication implements CommandLineRunner {
     private final NotificationService notificationService;
     private final NotificationServiceImpl notificationServiceImpl;
     private final AccountGrpcService accountGrpcService;
-
+    private final AppointmentServiceImpl appointmentServiceImpl;
     public CarelinkApplication(AppointmentRepository appointmentRepository,
             UserRepository userRepository,
             UserCredentialsRepository credentialsRepository,
@@ -42,7 +44,8 @@ public class CarelinkApplication implements CommandLineRunner {
             MedicalHistoryServiceImpl medicalHistoryServiceImpl,
             NotificationService notificationService,
             NotificationServiceImpl notificationServiceImpl,
-            AccountGrpcService accountGrpcService) {
+            AccountGrpcService accountGrpcService,
+            AppointmentServiceImpl appointmentServiceImpl) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
@@ -53,6 +56,7 @@ public class CarelinkApplication implements CommandLineRunner {
         this.notificationService = notificationService;
         this.notificationServiceImpl = notificationServiceImpl;
         this.accountGrpcService = accountGrpcService;
+        this.appointmentServiceImpl = appointmentServiceImpl;
     }
 
     public static void main(String[] args) {
@@ -66,7 +70,7 @@ public class CarelinkApplication implements CommandLineRunner {
         }
 
         Server server = ServerBuilder.forPort(9090)
-                .addService(new AppointmentServiceImpl(appointmentRepository))
+                .addService(new AppointmentGrpcService(appointmentServiceImpl))
                 .addService(accountGrpcService)
                 .addService(medicalHistoryServiceImpl)
                 .addService(notificationServiceImpl)

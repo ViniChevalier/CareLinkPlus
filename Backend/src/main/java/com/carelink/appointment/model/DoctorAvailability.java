@@ -1,32 +1,80 @@
 package com.carelink.appointment.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
+@Entity
+@Table(name = "doctoravailability")
 public class DoctorAvailability {
-    private String doctorId;
-    private List<String> availableSlots = new ArrayList<>();
 
-    public DoctorAvailability() {}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "AvailabilityID")
+    private Integer id;
 
-    public DoctorAvailability(String doctorId, List<String> availableSlots) {
-        this.doctorId = doctorId;
-        this.availableSlots = availableSlots;
+    @Column(name = "DoctorID", nullable = false)
+    private Integer doctorId;
+
+    @Column(name = "AvailableDate", nullable = false)
+    private LocalDate availableDate;
+
+    @Column(name = "StartTime", nullable = false)
+    private LocalTime startTime;
+
+    @Column(name = "EndTime", nullable = false)
+    private LocalTime endTime;
+
+    @Column(name = "IsBooked")
+    private Boolean isBooked = false;
+
+    // 🔥 Getters e setters
+
+    public Integer getId() {
+        return id;
     }
 
-    public String getDoctorId() {
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getDoctorId() {
         return doctorId;
     }
 
-    public void setDoctorId(String doctorId) {
+    public void setDoctorId(Integer doctorId) {
         this.doctorId = doctorId;
     }
 
-    public List<String> getAvailableSlots() {
-        return availableSlots;
+    public LocalDate getAvailableDate() {
+        return availableDate;
     }
 
-    public void setAvailableSlots(List<String> availableSlots) {
-        this.availableSlots = availableSlots;
+    public void setAvailableDate(LocalDate availableDate) {
+        this.availableDate = availableDate;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Boolean getIsBooked() {
+        return isBooked;
+    }
+
+    public void setIsBooked(Boolean isBooked) {
+        this.isBooked = isBooked;
     }
 }

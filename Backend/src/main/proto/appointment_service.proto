@@ -15,13 +15,22 @@ service AppointmentService {
   // Retrieves appointments for a given user (patient or doctor)
   rpc GetAppointments (GetAppointmentsRequest) returns (GetAppointmentsResponse);
 
+  // Retrieves all appointments (admin use)
+  rpc GetAllAppointments (Empty) returns (GetAppointmentsResponse);
+
+  // Retrieves an appointment by ID
+  rpc GetAppointmentById (GetAppointmentByIdRequest) returns (Appointment);
+
+  // Updates an existing appointment
+  rpc UpdateAppointment (UpdateAppointmentRequest) returns (UpdateAppointmentResponse);
+
   // Cancels an existing appointment
   rpc CancelAppointment (CancelAppointmentRequest) returns (CancelAppointmentResponse);
 }
 
 // Request to schedule an appointment
 message ScheduleAppointmentRequest {
-  string appointment_id = 1;   // Appointment ID (can be generated client or server-side)
+  string appointment_id = 1;   // Appointment ID (optional — can be generated server-side)
   string patient_id = 2;       // ID of the patient
   string doctor_id = 3;        // ID of the doctor
   string appointment_time = 4; // Scheduled time (ISO 8601 string recommended)
@@ -34,14 +43,20 @@ message ScheduleAppointmentResponse {
   string message = 2;          // Optional message
 }
 
-// Request to retrieve all appointments for a user
+// Request to retrieve appointments for a user
 message GetAppointmentsRequest {
-  string user_id = 1;          // ID of the requesting user
+  string user_id = 1;          // ID of the user (patient or doctor)
+  string role = 2;             // "PATIENT" or "DOCTOR"
 }
 
 // Response containing list of appointments
 message GetAppointmentsResponse {
-  repeated Appointment appointments = 1;  // List of appointments
+  repeated Appointment appointments = 1;
+}
+
+// Request to get appointment by ID
+message GetAppointmentByIdRequest {
+  string appointment_id = 1;
 }
 
 // Appointment object
@@ -54,7 +69,20 @@ message Appointment {
   string status = 6;           // e.g. Scheduled, Cancelled, Completed
 }
 
-// Request to cancel an appointment
+// Request to update appointment
+message UpdateAppointmentRequest {
+  string appointment_id = 1;
+  string appointment_time = 2;
+  string reason = 3;
+}
+
+// Response for update
+message UpdateAppointmentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request to cancel appointment
 message CancelAppointmentRequest {
   string appointment_id = 1;
 }
@@ -64,3 +92,6 @@ message CancelAppointmentResponse {
   bool success = 1;
   string message = 2;
 }
+
+// Empty message for admin listing
+message Empty {}
