@@ -6,35 +6,34 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "notifications")
 public class Notification {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NotificationID")
-    private Integer id;
+    private Integer notificationId;
 
     @Column(name = "UserID", nullable = false)
     private Integer userId;
 
-    @Column(name = "NotificationType", length = 50)
+    @Column(name = "NotificationType")
     private String notificationType;
 
-    @Column(name = "Message", length = 255)
+    @Column(name = "Message")
     private String message;
 
     @Column(name = "IsRead")
     private Boolean isRead = false;
 
-    @Column(name = "CreatedAt", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Getters and setters
+    // Getters e setters
 
-    public Integer getId() {
-        return id;
+    public Integer getNotificationId() {
+        return notificationId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setNotificationId(Integer notificationId) {
+        this.notificationId = notificationId;
     }
 
     public Integer getUserId() {
@@ -71,9 +70,5 @@ public class Notification {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 }

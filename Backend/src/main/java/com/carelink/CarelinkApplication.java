@@ -17,7 +17,8 @@ import com.carelink.medicalhistory.service.MedicalRecordServiceImpl;
 import com.carelink.medicalhistory.grpc.MedicalHistoryGrpcService;
 import com.carelink.medicalhistory.repository.MedicalRecordRepository;
 import com.carelink.notification.service.NotificationService;
-import com.carelink.notification.controller.NotificationServiceImpl;
+import com.carelink.notification.service.NotificationServiceImpl;
+import com.carelink.notification.grpc.NotificationGrpcService;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -73,7 +74,7 @@ public class CarelinkApplication implements CommandLineRunner {
                 .addService(new AppointmentGrpcService(appointmentServiceImpl))
                 .addService(accountGrpcService)
                 .addService(new MedicalHistoryGrpcService(medicalRecordServiceImpl))
-                .addService(notificationServiceImpl)
+                .addService(new NotificationGrpcService(notificationServiceImpl))
                 .build();
 
         server.start();

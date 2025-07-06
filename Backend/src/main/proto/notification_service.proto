@@ -9,19 +9,41 @@ option java_outer_classname = "NotificationProto";
 // Service for sending simple notifications to users
 service NotificationService {
 
-  // Sends a notification to a specific recipient
-  rpc SendNotification (NotificationRequest) returns (NotificationResponse);
+  rpc CreateNotification (NotificationRequest) returns (NotificationResponse);
+  rpc GetNotification (NotificationIdRequest) returns (NotificationResponse);
+  rpc GetUserNotifications (UserNotificationsRequest) returns (NotificationListResponse);
+  rpc MarkAsRead (NotificationIdRequest) returns (NotificationResponse);
+  rpc DeleteNotification (NotificationIdRequest) returns (Empty);
 }
 
-// Request message to send a notification
 message NotificationRequest {
-  string recipient_id = 1;   // User ID of the recipient
-  string message = 2;        // Notification message content
-  string timestamp = 3;      // Timestamp of when sent (ISO 8601 string)
+  int32 userId = 1;
+  string notificationType = 2;
+  string message = 3;
+  string userEmail = 4;
+  string userPhone = 5;
 }
 
-// Response after sending notification
 message NotificationResponse {
-  bool success = 1;
-  string message = 2;        // Optional status message
+  int32 notificationId = 1;
+  int32 userId = 2;
+  string notificationType = 3;
+  string message = 4;
+  bool isRead = 5;
+  string createdAt = 6;
 }
+
+message NotificationIdRequest {
+  int32 notificationId = 1;
+}
+
+message UserNotificationsRequest {
+  int32 userId = 1;
+  bool isRead = 2;
+}
+
+message NotificationListResponse {
+  repeated NotificationResponse notifications = 1;
+}
+
+message Empty {}
