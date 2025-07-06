@@ -32,11 +32,11 @@ public class DoctorAvailabilityService {
         return savedSlots;
     }
 
-    public List<DoctorAvailability> getAvailabilityByDoctor(Long doctorId) {
+    public List<DoctorAvailability> getAvailabilityByDoctor(Integer doctorId) {
         return availabilityRepository.findByDoctorId(doctorId);
     }
 
-    public void deleteAvailability(Long availabilityId) {
+    public void deleteAvailability(Integer availabilityId) {
         availabilityRepository.deleteById(availabilityId);
     }
 }

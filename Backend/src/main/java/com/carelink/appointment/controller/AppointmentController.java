@@ -33,31 +33,31 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByPatient(@PathVariable Long patientId) {
+    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByPatient(@PathVariable int patientId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId));
     }
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByDoctor(@PathVariable Long doctorId) {
+    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByDoctor(@PathVariable int doctorId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByDoctor(doctorId));
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<AppointmentEntity> getAppointmentById(@PathVariable Long id) {
+    public ResponseEntity<AppointmentEntity> getAppointmentById(@PathVariable int id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AppointmentEntity> updateAppointment(@PathVariable Long id, @RequestBody AppointmentRequestDTO dto) {
+    public ResponseEntity<AppointmentEntity> updateAppointment(@PathVariable int id, @RequestBody AppointmentRequestDTO dto) {
         return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAppointment(@PathVariable int id) {
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();
     }

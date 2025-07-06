@@ -2,7 +2,9 @@ package com.carelink.appointment.service;
 
 import com.carelink.appointment.dto.AppointmentRequestDTO;
 import com.carelink.appointment.model.AppointmentEntity;
+import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.repository.AppointmentRepository;
+import com.carelink.appointment.repository.DoctorAvailabilityRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,63 +13,143 @@ import java.util.List;
 @Service
 public class AppointmentServiceImpl {
 
-        private final AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final DoctorAvailabilityRepository doctorAvailabilityRepository;
 
-        public AppointmentServiceImpl(AppointmentRepository appointmentRepository) {
-                this.appointmentRepository = appointmentRepository;
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, DoctorAvailabilityRepository doctorAvailabilityRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.doctorAvailabilityRepository = doctorAvailabilityRepository;
+    }
+
+    /**
+     * Creates a new appointment using the provided availability slot.
+     * Marks the slot as booked after successful creation.
+     */
+    public AppointmentEntity createAppointment(AppointmentRequestDTO dto) {
+        Integer availabilityIdInt = dto.getAvailabilityId() != null ? dto.getAvailabilityId().intValue() : null;
+
+        DoctorAvailability availabilitySlot = doctorAvailabilityRepository.findById(availabilityIdInt)
+                .orElseThrow(() -> new RuntimeException("Availability slot not found"));
+
+        if (availabilitySlot.getIsBooked()) {
+            throw new RuntimeException("This slot is already booked");
         }
 
-        public AppointmentEntity createAppointment(AppointmentRequestDTO dto) {
-                AppointmentEntity appointment = new AppointmentEntity();
-                appointment.setPatientId(dto.getPatientId() != null ? dto.getPatientId().intValue() : null);
-                appointment.setDoctorId(dto.getDoctorId() != null ? dto.getDoctorId().intValue() : null);
-                appointment.setAppointmentDateTime(dto.getAppointmentDate());
-                appointment.setReason(dto.getReason());
-                return appointmentRepository.save(appointment);
+        AppointmentEntity appointment = new AppointmentEntity();
+        appointment.setPatientId(dto.getPatientId() != null ? dto.getPatientId().intValue() : null);
+        appointment.setDoctorId(availabilitySlot.getDoctorId());
+        appointment.setAppointmentDateTime(LocalDateTime.of(availabilitySlot.getAvailableDate(), availabilitySlot.getStartTime()));
+        appointment.setReason(dto.getReason());
+        appointment.setAppointmentStatus("SCHEDULED");
+        appointment.setAvailabilityId(availabilityIdInt);
+
+        // Mark slot as booked
+        availabilitySlot.setIsBooked(true);
+        doctorAvailabilityRepository.save(availabilitySlot);
+
+        return appointmentRepository.save(appointment);
+    }
+
+    /**
+     * Retrieves all appointments.
+     */
+    public List<AppointmentEntity> getAllAppointments() {
+        return appointmentRepository.findAll();
+    }
+
+    /**
+     * Retrieves appointments by patient ID.
+     */
+    public List<AppointmentEntity> getAppointmentsByPatient(int patientId) {
+        return appointmentRepository.findByPatientId(patientId);
+    }
+
+    /**
+     * Retrieves appointments by doctor ID.
+     */
+    public List<AppointmentEntity> getAppointmentsByDoctor(int doctorId) {
+        return appointmentRepository.findByDoctorId(doctorId);
+    }
+
+    /**
+     * Updates an existing appointment by changing its slot and/or reason.
+     * Frees the old slot and books the new one if applicable.
+     */
+    public AppointmentEntity updateAppointment(int id, AppointmentRequestDTO dto) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        if (dto.getAvailabilityId() != null) {
+            Integer availabilityIdInt = dto.getAvailabilityId().intValue();
+
+            // Free the old slot
+            DoctorAvailability oldAvailabilitySlot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
+                .orElseThrow(() -> new RuntimeException("Old availability slot not found"));
+
+            oldAvailabilitySlot.setIsBooked(false);
+            doctorAvailabilityRepository.save(oldAvailabilitySlot);
+
+            // Reserve the new slot
+            DoctorAvailability newAvailabilitySlot = doctorAvailabilityRepository.findById(availabilityIdInt)
+                .orElseThrow(() -> new RuntimeException("New availability slot not found"));
+
+            if (newAvailabilitySlot.getIsBooked()) {
+                throw new RuntimeException("This slot is already booked");
+            }
+
+            appointment.setDoctorId(newAvailabilitySlot.getDoctorId());
+            appointment.setAppointmentDateTime(LocalDateTime.of(newAvailabilitySlot.getAvailableDate(), newAvailabilitySlot.getStartTime()));
+            appointment.setAvailabilityId(availabilityIdInt);
+
+            newAvailabilitySlot.setIsBooked(true);
+            doctorAvailabilityRepository.save(newAvailabilitySlot);
         }
 
-        public List<AppointmentEntity> getAllAppointments() {
-                return appointmentRepository.findAll();
+        if (dto.getReason() != null) {
+            appointment.setReason(dto.getReason());
         }
 
-        public List<AppointmentEntity> getAppointmentsByPatient(Long patientId) {
-                return appointmentRepository.findByPatientId(patientId);
+        return appointmentRepository.save(appointment);
+    }
+
+    /**
+     * Deletes an appointment and frees the associated slot.
+     */
+    public void deleteAppointment(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        DoctorAvailability slot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
+            .orElseThrow(() -> new RuntimeException("Slot not found"));
+
+        slot.setIsBooked(false);
+        doctorAvailabilityRepository.save(slot);
+
+        appointmentRepository.deleteById(id);
+    }
+
+    /**
+     * Creates an appointment directly from an entity and marks its slot as booked.
+     */
+    public AppointmentEntity createAppointmentFromEntity(AppointmentEntity entity) {
+        DoctorAvailability slot = doctorAvailabilityRepository.findById(entity.getAvailabilityId())
+            .orElseThrow(() -> new RuntimeException("Availability slot not found"));
+
+        if (slot.getIsBooked()) {
+            throw new RuntimeException("This slot is already booked");
         }
 
-        public List<AppointmentEntity> getAppointmentsByDoctor(Long doctorId) {
-                return appointmentRepository.findByDoctorId(doctorId);
-        }
+        slot.setIsBooked(true);
+        doctorAvailabilityRepository.save(slot);
 
-        public AppointmentEntity updateAppointment(Long id, AppointmentRequestDTO dto) {
-                AppointmentEntity appointment = appointmentRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        return appointmentRepository.save(entity);
+    }
 
-                appointment.setAppointmentDateTime(dto.getAppointmentDate());
-                appointment.setReason(dto.getReason());
-                return appointmentRepository.save(appointment);
-        }
-
-        public void deleteAppointment(Long id) {
-                appointmentRepository.deleteById(id);
-        }
-
-        public AppointmentEntity createAppointmentFromEntity(AppointmentEntity entity) {
-                return appointmentRepository.save(entity);
-        }
-
-        public AppointmentEntity getAppointmentById(Long id) {
-                return appointmentRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Appointment not found"));
-        }
-
-        public AppointmentEntity updateAppointment(Long id, LocalDateTime appointmentDate, String reason) {
-                AppointmentEntity appointment = getAppointmentById(id);
-                if (appointmentDate != null) {
-                        appointment.setAppointmentDateTime(appointmentDate);
-                }
-                if (reason != null) {
-                        appointment.setReason(reason);
-                }
-                return appointmentRepository.save(appointment);
-        }
+    /**
+     * Retrieves an appointment by its ID.
+     */
+    public AppointmentEntity getAppointmentById(int id) {
+        return appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+    }
 }

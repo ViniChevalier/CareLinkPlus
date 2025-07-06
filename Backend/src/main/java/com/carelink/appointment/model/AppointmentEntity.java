@@ -30,15 +30,21 @@ public class AppointmentEntity {
     @Column(name = "CreatedAt", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public AppointmentEntity() {}
+    @Column(name = "AvailabilityID")
+    private Integer availabilityId;
 
-    public AppointmentEntity(Integer appointmentId, Integer patientId, Integer doctorId, LocalDateTime appointmentDateTime, String appointmentStatus, String reason) {
+    public AppointmentEntity() {
+    }
+
+    public AppointmentEntity(Integer appointmentId, Integer patientId, Integer doctorId,
+            LocalDateTime appointmentDateTime, String appointmentStatus, String reason, Integer availabilityId) {
         this.appointmentId = appointmentId;
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.appointmentDateTime = appointmentDateTime;
         this.appointmentStatus = appointmentStatus;
         this.reason = reason;
+        this.availabilityId = availabilityId;
     }
 
     // Getters e setters
@@ -92,5 +98,13 @@ public class AppointmentEntity {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Integer getAvailabilityId() {
+        return availabilityId;
+    }
+
+    public void setAvailabilityId(Integer availabilityId) {
+        this.availabilityId = availabilityId;
     }
 }

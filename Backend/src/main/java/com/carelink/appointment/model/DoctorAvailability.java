@@ -28,7 +28,7 @@ public class DoctorAvailability {
     @Column(name = "IsBooked")
     private Boolean isBooked = false;
 
-    // 🔥 Getters e setters
+    // Getters e setters
 
     public Integer getId() {
         return id;

@@ -1,5 +1,6 @@
 package com.carelink.appointment.grpc;
 
+import com.carelink.appointment.dto.AppointmentRequestDTO;
 import com.carelink.appointment.model.AppointmentEntity;
 import com.carelink.appointment.service.AppointmentServiceImpl;
 import com.carelink.grpc.appointment.Appointment;
@@ -63,9 +64,9 @@ public class AppointmentGrpcService extends AppointmentServiceGrpc.AppointmentSe
         List<AppointmentEntity> appointments;
 
         if ("PATIENT".equalsIgnoreCase(request.getRole())) {
-            appointments = appointmentService.getAppointmentsByPatient(Long.parseLong(request.getUserId()));
+            appointments = appointmentService.getAppointmentsByPatient((int) Long.parseLong(request.getUserId()));
         } else if ("DOCTOR".equalsIgnoreCase(request.getRole())) {
-            appointments = appointmentService.getAppointmentsByDoctor(Long.parseLong(request.getUserId()));
+            appointments = appointmentService.getAppointmentsByDoctor((int) Long.parseLong(request.getUserId()));
         } else {
             appointments = List.of();
         }
@@ -94,7 +95,7 @@ public class AppointmentGrpcService extends AppointmentServiceGrpc.AppointmentSe
 
     @Override
     public void getAppointmentById(GetAppointmentByIdRequest request, StreamObserver<Appointment> responseObserver) {
-        AppointmentEntity entity = appointmentService.getAppointmentById(Long.parseLong(request.getAppointmentId()));
+        AppointmentEntity entity = appointmentService.getAppointmentById((int) Long.parseLong(request.getAppointmentId()));
 
         Appointment appointment = buildAppointmentMessage(entity);
 
@@ -105,11 +106,13 @@ public class AppointmentGrpcService extends AppointmentServiceGrpc.AppointmentSe
     @Override
     public void updateAppointment(UpdateAppointmentRequest request, StreamObserver<UpdateAppointmentResponse> responseObserver) {
         try {
-            AppointmentEntity updated = appointmentService.updateAppointment(
-                Long.parseLong(request.getAppointmentId()),
-                request.getAppointmentTime() != null ? LocalDateTime.parse(request.getAppointmentTime(), DateTimeFormatter.ISO_DATE_TIME) : null,
-                request.getReason()
-            );
+            Integer appointmentId = Integer.parseInt(request.getAppointmentId());
+            String reason = request.getReason();
+
+            AppointmentRequestDTO dto = new AppointmentRequestDTO();
+            dto.setReason(reason);
+
+            AppointmentEntity updated = appointmentService.updateAppointment(appointmentId, dto);
 
             UpdateAppointmentResponse response = UpdateAppointmentResponse.newBuilder()
                 .setSuccess(true)
@@ -132,7 +135,7 @@ public class AppointmentGrpcService extends AppointmentServiceGrpc.AppointmentSe
     @Override
     public void cancelAppointment(CancelAppointmentRequest request, StreamObserver<CancelAppointmentResponse> responseObserver) {
         try {
-            appointmentService.deleteAppointment(Long.parseLong(request.getAppointmentId()));
+            appointmentService.deleteAppointment((int) Long.parseLong(request.getAppointmentId()));
 
             CancelAppointmentResponse response = CancelAppointmentResponse.newBuilder()
                 .setSuccess(true)

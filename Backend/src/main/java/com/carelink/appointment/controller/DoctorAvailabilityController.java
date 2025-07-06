@@ -27,13 +27,13 @@ public class DoctorAvailabilityController {
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<DoctorAvailability>> getDoctorAvailability(@PathVariable Long doctorId) {
+    public ResponseEntity<List<DoctorAvailability>> getDoctorAvailability(@PathVariable Integer doctorId) {
         return ResponseEntity.ok(availabilityService.getAvailabilityByDoctor(doctorId));
     }
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     @DeleteMapping("/{availabilityId}")
-    public ResponseEntity<Void> deleteAvailability(@PathVariable Long availabilityId) {
+    public ResponseEntity<Void> deleteAvailability(@PathVariable Integer availabilityId) {
         availabilityService.deleteAvailability(availabilityId);
         return ResponseEntity.noContent().build();
     }

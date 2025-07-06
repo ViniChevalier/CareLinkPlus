@@ -1,38 +1,27 @@
 package com.carelink.appointment.dto;
 
-import java.time.LocalDateTime;
-
 public class AppointmentRequestDTO {
 
-    private Long patientId;
-    private Long doctorId;
-    private LocalDateTime appointmentDate;
+    private Integer patientId;
+    private Integer availabilityId;
     private String reason;
 
     // Getters and setters
 
-    public Long getPatientId() {
+    public Integer getPatientId() {
         return patientId;
     }
 
-    public void setPatientId(Long patientId) {
+    public void setPatientId(Integer patientId) {
         this.patientId = patientId;
     }
 
-    public Long getDoctorId() {
-        return doctorId;
+    public Integer getAvailabilityId() {
+        return availabilityId;
     }
 
-    public void setDoctorId(Long doctorId) {
-        this.doctorId = doctorId;
-    }
-
-    public LocalDateTime getAppointmentDate() {
-        return appointmentDate;
-    }
-
-    public void setAppointmentDate(LocalDateTime appointmentDate) {
-        this.appointmentDate = appointmentDate;
+    public void setAvailabilityId(Integer availabilityId) {
+        this.availabilityId = availabilityId;
     }
 
     public String getReason() {
