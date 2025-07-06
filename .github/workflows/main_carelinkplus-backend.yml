@@ -40,7 +40,12 @@ jobs:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-  
+
+    env:
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -61,4 +66,3 @@ jobs:
           app-name: 'carelinkplus-backend'
           slot-name: 'Production'
           package: '*.jar'
-          
