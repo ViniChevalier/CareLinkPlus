@@ -9,46 +9,62 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer recordID;
+    @Column(name = "RecordID")
+    private Integer recordId;
 
-    private Integer patientID;
+    @Column(name = "PatientID", nullable = false)
+    private Integer patientId;
 
-    private Integer doctorID;
+    @Column(name = "DoctorID", nullable = false)
+    private Integer doctorId;
 
+    @Column(name = "RecordDate", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp recordDate;
 
     @Lob
+    @Column(name = "notes", columnDefinition = "LONGTEXT")
     private String notes;
 
     @Lob
+    @Column(name = "prescriptions", columnDefinition = "LONGTEXT")
     private String prescriptions;
 
-    @Lob
-    private byte[] attachments;
+    @Column(name = "attachmentUrl")
+    private String attachmentUrl;
+
+    @Column(name = "LastUpdated", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private Timestamp lastUpdated;
+
+    @Column(name = "UpdatedBy")
+    private String updatedBy;
+
+    @Column(name = "HistoryID")
+    private Integer historyId;
 
     // Getters and setters
-    public Integer getRecordID() {
-        return recordID;
+
+    public Integer getRecordId() {
+        return recordId;
     }
 
-    public void setRecordID(Integer recordID) {
-        this.recordID = recordID;
+    public void setRecordId(Integer recordId) {
+        this.recordId = recordId;
     }
 
-    public Integer getPatientID() {
-        return patientID;
+    public Integer getPatientId() {
+        return patientId;
     }
 
-    public void setPatientID(Integer patientID) {
-        this.patientID = patientID;
+    public void setPatientId(Integer patientId) {
+        this.patientId = patientId;
     }
 
-    public Integer getDoctorID() {
-        return doctorID;
+    public Integer getDoctorId() {
+        return doctorId;
     }
 
-    public void setDoctorID(Integer doctorID) {
-        this.doctorID = doctorID;
+    public void setDoctorId(Integer doctorId) {
+        this.doctorId = doctorId;
     }
 
     public Timestamp getRecordDate() {
@@ -75,11 +91,35 @@ public class MedicalRecord {
         this.prescriptions = prescriptions;
     }
 
-    public byte[] getAttachments() {
-        return attachments;
+    public String getAttachmentUrl() {
+        return attachmentUrl;
     }
 
-    public void setAttachments(byte[] attachments) {
-        this.attachments = attachments;
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = attachmentUrl;
+    }
+
+    public Timestamp getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Timestamp lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Integer getHistoryId() {
+        return historyId;
+    }
+
+    public void setHistoryId(Integer historyId) {
+        this.historyId = historyId;
     }
 }

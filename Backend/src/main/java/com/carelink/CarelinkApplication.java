@@ -12,7 +12,8 @@ import com.carelink.account.repository.UserRepository;
 import com.carelink.account.grpc.AccountGrpcService;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.security.JwtUtil;
-import com.carelink.medicalhistory.service.MedicalHistoryServiceImpl;
+import com.carelink.medicalhistory.service.MedicalRecordServiceImpl;
+import com.carelink.medicalhistory.grpc.MedicalHistoryGrpcService;
 import com.carelink.medicalhistory.repository.MedicalRecordRepository;
 import com.carelink.notification.service.NotificationService;
 import com.carelink.notification.controller.NotificationServiceImpl;
@@ -30,7 +31,7 @@ public class CarelinkApplication implements CommandLineRunner {
     private final JwtUtil jwtUtil;
     private final Environment environment;
     private final MedicalRecordRepository medicalRecordRepository;
-    private final MedicalHistoryServiceImpl medicalHistoryServiceImpl;
+    private final MedicalRecordServiceImpl medicalRecordServiceImpl;
     private final NotificationService notificationService;
     private final NotificationServiceImpl notificationServiceImpl;
     private final AccountGrpcService accountGrpcService;
@@ -41,7 +42,7 @@ public class CarelinkApplication implements CommandLineRunner {
             JwtUtil jwtUtil,
             Environment environment,
             MedicalRecordRepository medicalRecordRepository,
-            MedicalHistoryServiceImpl medicalHistoryServiceImpl,
+            MedicalRecordServiceImpl medicalRecordServiceImpl,
             NotificationService notificationService,
             NotificationServiceImpl notificationServiceImpl,
             AccountGrpcService accountGrpcService,
@@ -52,7 +53,7 @@ public class CarelinkApplication implements CommandLineRunner {
         this.jwtUtil = jwtUtil;
         this.environment = environment;
         this.medicalRecordRepository = medicalRecordRepository;
-        this.medicalHistoryServiceImpl = medicalHistoryServiceImpl;
+        this.medicalRecordServiceImpl = medicalRecordServiceImpl;
         this.notificationService = notificationService;
         this.notificationServiceImpl = notificationServiceImpl;
         this.accountGrpcService = accountGrpcService;
@@ -72,7 +73,7 @@ public class CarelinkApplication implements CommandLineRunner {
         Server server = ServerBuilder.forPort(9090)
                 .addService(new AppointmentGrpcService(appointmentServiceImpl))
                 .addService(accountGrpcService)
-                .addService(medicalHistoryServiceImpl)
+                .addService(new MedicalHistoryGrpcService(medicalRecordServiceImpl))
                 .addService(notificationServiceImpl)
                 .build();
 

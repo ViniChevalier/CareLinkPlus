@@ -6,48 +6,89 @@ option java_multiple_files = true;
 option java_package = "com.carelink.grpc.medicalhistory";
 option java_outer_classname = "MedicalHistoryProto";
 
-// Service for managing medical history records
+// Service definition
 service MedicalHistoryService {
-
-  // Adds a new medical record for a patient
   rpc AddMedicalRecord (AddMedicalRecordRequest) returns (AddMedicalRecordResponse);
-
-  // Retrieves full medical history of a patient
+  rpc GetMedicalRecord (GetMedicalRecordRequest) returns (GetMedicalRecordResponse);
   rpc GetMedicalHistory (GetMedicalHistoryRequest) returns (GetMedicalHistoryResponse);
+  rpc UpdateMedicalRecord (UpdateMedicalRecordRequest) returns (UpdateMedicalRecordResponse);
+  rpc DeleteMedicalRecord (DeleteMedicalRecordRequest) returns (DeleteMedicalRecordResponse);
 }
 
-// Request to add a new medical record
+// Add record request
 message AddMedicalRecordRequest {
-  string record_id = 1;      // Medical record ID
-  string patient_id = 2;     // Patient ID
-  string record_date = 3;    // Record date (ISO 8601 string recommended)
-  string description = 4;    // General description
-  string diagnosis = 5;      // Diagnosed condition
-  string treatment = 6;      // Treatment details
+  int32 patientId = 1;
+  int32 doctorId = 2;
+  string notes = 3;
+  string prescriptions = 4;
+  string updatedBy = 5;
+  string attachmentUrl = 6;
+  int32 historyId = 7;
 }
 
-// Response after adding medical record
 message AddMedicalRecordResponse {
-  bool success = 1;
+  int32 recordId = 1;
   string message = 2;
 }
 
-// Request to retrieve medical history
+// Get record by ID
+message GetMedicalRecordRequest {
+  int32 recordId = 1;
+}
+
+message GetMedicalRecordResponse {
+  int32 recordId = 1;
+  int32 patientId = 2;
+  int32 doctorId = 3;
+  string notes = 4;
+  string prescriptions = 5;
+  string updatedBy = 6;
+  string attachmentUrl = 7;
+  int32 historyId = 8;
+}
+
+// Get full history by patient
 message GetMedicalHistoryRequest {
-  string patient_id = 1;
+  int32 patientId = 1;
 }
 
-// Response containing list of medical records
 message GetMedicalHistoryResponse {
-  repeated MedicalRecord records = 1;
+  repeated MedicalRecordMessage records = 1;
 }
 
-// Medical record object
-message MedicalRecord {
-  string record_id = 1;
-  string patient_id = 2;
-  string record_date = 3;
-  string description = 4;
-  string diagnosis = 5;
-  string treatment = 6;
+// Reusable record message
+message MedicalRecordMessage {
+  int32 recordId = 1;
+  int32 patientId = 2;
+  int32 doctorId = 3;
+  string notes = 4;
+  string prescriptions = 5;
+  string updatedBy = 6;
+  string attachmentUrl = 7;
+  int32 historyId = 8;
+}
+
+// Update record
+message UpdateMedicalRecordRequest {
+  int32 recordId = 1;
+  int32 patientId = 2;
+  int32 doctorId = 3;
+  string notes = 4;
+  string prescriptions = 5;
+  string updatedBy = 6;
+  string attachmentUrl = 7;
+  int32 historyId = 8;
+}
+
+message UpdateMedicalRecordResponse {
+  string message = 1;
+}
+
+// Delete record
+message DeleteMedicalRecordRequest {
+  int32 recordId = 1;
+}
+
+message DeleteMedicalRecordResponse {
+  string message = 1;
 }
