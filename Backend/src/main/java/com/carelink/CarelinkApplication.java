@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.carelink.appointment.grpc.AppointmentGrpcService;
 import com.carelink.appointment.repository.AppointmentRepository;
@@ -25,40 +26,38 @@ import java.util.List;
 @SpringBootApplication
 public class CarelinkApplication implements CommandLineRunner {
 
-    private final AppointmentRepository appointmentRepository;
-    private final UserRepository userRepository;
-    private final UserCredentialsRepository credentialsRepository;
-    private final JwtUtil jwtUtil;
-    private final Environment environment;
-    private final MedicalRecordRepository medicalRecordRepository;
-    private final MedicalRecordServiceImpl medicalRecordServiceImpl;
-    private final NotificationService notificationService;
-    private final NotificationServiceImpl notificationServiceImpl;
-    private final AccountGrpcService accountGrpcService;
-    private final AppointmentServiceImpl appointmentServiceImpl;
-    public CarelinkApplication(AppointmentRepository appointmentRepository,
-            UserRepository userRepository,
-            UserCredentialsRepository credentialsRepository,
-            JwtUtil jwtUtil,
-            Environment environment,
-            MedicalRecordRepository medicalRecordRepository,
-            MedicalRecordServiceImpl medicalRecordServiceImpl,
-            NotificationService notificationService,
-            NotificationServiceImpl notificationServiceImpl,
-            AccountGrpcService accountGrpcService,
-            AppointmentServiceImpl appointmentServiceImpl) {
-        this.appointmentRepository = appointmentRepository;
-        this.userRepository = userRepository;
-        this.credentialsRepository = credentialsRepository;
-        this.jwtUtil = jwtUtil;
-        this.environment = environment;
-        this.medicalRecordRepository = medicalRecordRepository;
-        this.medicalRecordServiceImpl = medicalRecordServiceImpl;
-        this.notificationService = notificationService;
-        this.notificationServiceImpl = notificationServiceImpl;
-        this.accountGrpcService = accountGrpcService;
-        this.appointmentServiceImpl = appointmentServiceImpl;
-    }
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserCredentialsRepository credentialsRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
+
+    @Autowired
+    private MedicalRecordServiceImpl medicalRecordServiceImpl;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private NotificationServiceImpl notificationServiceImpl;
+
+    @Autowired
+    private AccountGrpcService accountGrpcService;
+
+    @Autowired
+    private AppointmentServiceImpl appointmentServiceImpl;
 
     public static void main(String[] args) {
         SpringApplication.run(CarelinkApplication.class, args);
