@@ -1,29 +1,35 @@
 package com.carelink.medicalhistory.controller;
 
+import com.carelink.medicalhistory.dto.MedicalRecordDto;
+import com.carelink.medicalhistory.entity.MedicalRecord;
 import com.carelink.medicalhistory.service.AzureBlobService;
-import com.carelink.grpc.medicalhistory.*;
+import com.carelink.medicalhistory.service.MedicalRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/medical-history")
 public class MedicalHistoryController {
 
-    private final MedicalHistoryServiceGrpc.MedicalHistoryServiceBlockingStub grpcStub;
+    private final MedicalRecordService medicalRecordService;
     private final AzureBlobService azureBlobService;
 
     @Autowired
-    public MedicalHistoryController(MedicalHistoryServiceGrpc.MedicalHistoryServiceBlockingStub grpcStub,
+    public MedicalHistoryController(MedicalRecordService medicalRecordService,
                                     AzureBlobService azureBlobService) {
-        this.grpcStub = grpcStub;
+        this.medicalRecordService = medicalRecordService;
         this.azureBlobService = azureBlobService;
     }
 
     @PostMapping
-    public ResponseEntity<?> createRecord(
+    public ResponseEntity<MedicalRecordDto> createRecord(
             @RequestParam Integer patientId,
             @RequestParam Integer doctorId,
             @RequestParam(required = false) String notes,
@@ -32,66 +38,55 @@ public class MedicalHistoryController {
             @RequestParam(required = false) Integer historyId,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        try {
-            String fileUrl = "";
-            if (file != null && !file.isEmpty()) {
+        String fileUrl = "";
+        if (file != null && !file.isEmpty()) {
+            try {
                 fileUrl = azureBlobService.uploadFile(file);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
             }
-
-            AddMedicalRecordRequest request = AddMedicalRecordRequest.newBuilder()
-                    .setPatientId(patientId)
-                    .setDoctorId(doctorId)
-                    .setNotes(notes != null ? notes : "")
-                    .setPrescriptions(prescriptions != null ? prescriptions : "")
-                    .setUpdatedBy(updatedBy != null ? updatedBy : "System")
-                    .setAttachmentUrl(fileUrl)
-                    .setHistoryId(historyId != null ? historyId : 0)
-                    .build();
-
-            AddMedicalRecordResponse response = grpcStub.addMedicalRecord(request);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating record: " + e.getMessage());
         }
+
+        MedicalRecord record = new MedicalRecord();
+        record.setPatientId(patientId);
+        record.setDoctorId(doctorId);
+        record.setNotes(notes);
+        record.setPrescriptions(prescriptions);
+        record.setUpdatedBy(updatedBy != null ? updatedBy : "System");
+        record.setAttachmentUrl(fileUrl);
+        record.setHistoryId(historyId);
+
+        MedicalRecord saved = medicalRecordService.save(record);
+        return ResponseEntity.ok(convertToDto(saved));
     }
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<?> getRecordsByPatient(@PathVariable Integer patientId) {
-        GetMedicalHistoryRequest request = GetMedicalHistoryRequest.newBuilder()
-                .setPatientId(patientId)
-                .build();
-
-        GetMedicalHistoryResponse response = grpcStub.getMedicalHistory(request);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<MedicalRecordDto>> getRecordsByPatient(@PathVariable Integer patientId) {
+        List<MedicalRecordDto> dtos = medicalRecordService.findByPatientId(patientId)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllRecords() {
-        GetMedicalHistoryRequest request = GetMedicalHistoryRequest.newBuilder()
-                .setPatientId(0) // Busca todos
-                .build();
-
-        GetMedicalHistoryResponse response = grpcStub.getMedicalHistory(request);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<MedicalRecordDto>> getAllRecords() {
+        List<MedicalRecordDto> dtos = medicalRecordService.findAll()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{recordId}")
-    public ResponseEntity<?> getRecordById(@PathVariable Integer recordId) {
-        GetMedicalRecordRequest request = GetMedicalRecordRequest.newBuilder()
-                .setRecordId(recordId)
-                .build();
-
-        GetMedicalRecordResponse response = grpcStub.getMedicalRecord(request);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<MedicalRecordDto> getRecordById(@PathVariable Integer recordId) {
+        Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
+        return optionalRecord.map(record -> ResponseEntity.ok(convertToDto(record)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{recordId}")
-    public ResponseEntity<?> updateRecord(
+    public ResponseEntity<MedicalRecordDto> updateRecord(
             @PathVariable Integer recordId,
             @RequestParam Integer patientId,
             @RequestParam Integer doctorId,
@@ -101,41 +96,49 @@ public class MedicalHistoryController {
             @RequestParam(required = false) Integer historyId,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        try {
-            String fileUrl = "";
-            if (file != null && !file.isEmpty()) {
-                fileUrl = azureBlobService.uploadFile(file);
-            }
-
-            UpdateMedicalRecordRequest request = UpdateMedicalRecordRequest.newBuilder()
-                    .setRecordId(recordId)
-                    .setPatientId(patientId)
-                    .setDoctorId(doctorId)
-                    .setNotes(notes != null ? notes : "")
-                    .setPrescriptions(prescriptions != null ? prescriptions : "")
-                    .setUpdatedBy(updatedBy != null ? updatedBy : "System")
-                    .setAttachmentUrl(fileUrl)
-                    .setHistoryId(historyId != null ? historyId : 0)
-                    .build();
-
-            UpdateMedicalRecordResponse response = grpcStub.updateMedicalRecord(request);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating record: " + e.getMessage());
+        Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
+        if (!optionalRecord.isPresent()) {
+            return ResponseEntity.notFound().build();
         }
+
+        MedicalRecord record = optionalRecord.get();
+        record.setPatientId(patientId);
+        record.setDoctorId(doctorId);
+        record.setNotes(notes);
+        record.setPrescriptions(prescriptions);
+        record.setUpdatedBy(updatedBy != null ? updatedBy : "System");
+        record.setHistoryId(historyId);
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                String fileUrl = azureBlobService.uploadFile(file);
+                record.setAttachmentUrl(fileUrl);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
+            }
+        }
+
+        MedicalRecord updated = medicalRecordService.save(record);
+        return ResponseEntity.ok(convertToDto(updated));
     }
 
     @DeleteMapping("/{recordId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteRecord(@PathVariable Integer recordId) {
-        DeleteMedicalRecordRequest request = DeleteMedicalRecordRequest.newBuilder()
-                .setRecordId(recordId)
-                .build();
+    public ResponseEntity<String> deleteRecord(@PathVariable Integer recordId) {
+        medicalRecordService.deleteById(recordId);
+        return ResponseEntity.ok("Record deleted successfully.");
+    }
 
-        DeleteMedicalRecordResponse response = grpcStub.deleteMedicalRecord(request);
-
-        return ResponseEntity.ok(response);
+    private MedicalRecordDto convertToDto(MedicalRecord record) {
+        MedicalRecordDto dto = new MedicalRecordDto();
+        dto.setRecordId(record.getRecordId());
+        dto.setPatientId(record.getPatientId());
+        dto.setDoctorId(record.getDoctorId());
+        dto.setNotes(record.getNotes());
+        dto.setPrescriptions(record.getPrescriptions());
+        dto.setUpdatedBy(record.getUpdatedBy());
+        dto.setAttachmentUrl(record.getAttachmentUrl());
+        dto.setHistoryId(record.getHistoryId());
+        return dto;
     }
 }

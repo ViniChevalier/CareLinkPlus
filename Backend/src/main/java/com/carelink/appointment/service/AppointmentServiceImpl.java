@@ -40,7 +40,7 @@ public class AppointmentServiceImpl {
         appointment.setDoctorId(availabilitySlot.getDoctorId());
         appointment.setAppointmentDateTime(LocalDateTime.of(availabilitySlot.getAvailableDate(), availabilitySlot.getStartTime()));
         appointment.setReason(dto.getReason());
-        appointment.setAppointmentStatus("SCHEDULED");
+        appointment.setAppointmentStatus("Scheduled");
         appointment.setAvailabilityId(availabilityIdInt);
 
         // Mark slot as booked

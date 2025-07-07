@@ -7,7 +7,8 @@ import java.util.Optional;
 
 public interface MedicalRecordService {
     MedicalRecord save(MedicalRecord record);
-    Optional<MedicalRecord> findById(Integer id);
+    Optional<MedicalRecord> findById(Integer recordId);
     List<MedicalRecord> findByPatientId(Integer patientId);
-    void deleteById(Integer id);
+    void deleteById(Integer recordId);
+    List<MedicalRecord> findAll();
 }
