@@ -22,7 +22,14 @@ public class PatientMedicalHistory {
 
     private String status;
 
+    @Column(name = "CreatedAt", updatable = false, insertable = false)
     private Timestamp createdAt;
+
+    @Column(name = "LastUpdated", insertable = false, updatable = false)
+    private Timestamp lastUpdated;
+
+    @Column(name = "UpdatedBy")
+    private String updateBy;
 
     // Getters and setters
     public Integer getHistoryID() {
@@ -79,5 +86,17 @@ public class PatientMedicalHistory {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+    public Timestamp getLastUpdated() {
+        return lastUpdated;
+    }
+    public void setLastUpdated(Timestamp lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+    public String getUpdateBy() {
+        return updateBy;
+    }
+    public void setUpdateBy(String updateBy) {
+        this.updateBy = updateBy;
     }
 }

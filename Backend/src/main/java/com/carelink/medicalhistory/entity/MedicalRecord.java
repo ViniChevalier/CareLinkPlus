@@ -18,7 +18,7 @@ public class MedicalRecord {
     @Column(name = "DoctorID", nullable = false)
     private Integer doctorId;
 
-    @Column(name = "RecordDate", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "recordDate", insertable = false, updatable = false)
     private Timestamp recordDate;
 
     @Lob
@@ -29,10 +29,10 @@ public class MedicalRecord {
     @Column(name = "prescriptions", columnDefinition = "LONGTEXT")
     private String prescriptions;
 
-    @Column(name = "attachmentUrl")
-    private String attachmentUrl;
+    @Column(name = "attachment_name")
+    private String attachmentName;
 
-    @Column(name = "LastUpdated", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "LastUpdated", insertable = false, updatable = false)
     private Timestamp lastUpdated;
 
     @Column(name = "UpdatedBy")
@@ -91,12 +91,12 @@ public class MedicalRecord {
         this.prescriptions = prescriptions;
     }
 
-    public String getAttachmentUrl() {
-        return attachmentUrl;
+    public String getAttachmentName() {
+        return attachmentName;
     }
 
-    public void setAttachmentUrl(String attachmentUrl) {
-        this.attachmentUrl = attachmentUrl;
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
     }
 
     public Timestamp getLastUpdated() {

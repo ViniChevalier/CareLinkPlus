@@ -24,7 +24,7 @@ public class MedicalHistoryGrpcService extends MedicalHistoryServiceGrpc.Medical
         record.setNotes(request.getNotes());
         record.setPrescriptions(request.getPrescriptions());
         record.setUpdatedBy(request.getUpdatedBy());
-        record.setAttachmentUrl(request.getAttachmentUrl());
+        record.setAttachmentName(request.getAttachmentUrl());
         record.setHistoryId(request.getHistoryId() > 0 ? request.getHistoryId() : null);
 
         MedicalRecord savedRecord = medicalRecordService.save(record);
@@ -51,7 +51,7 @@ public class MedicalHistoryGrpcService extends MedicalHistoryServiceGrpc.Medical
                     .setNotes(record.getNotes())
                     .setPrescriptions(record.getPrescriptions())
                     .setUpdatedBy(record.getUpdatedBy() != null ? record.getUpdatedBy() : "")
-                    .setAttachmentUrl(record.getAttachmentUrl() != null ? record.getAttachmentUrl() : "")
+                    .setAttachmentUrl(record.getAttachmentName() != null ? record.getAttachmentName() : "")
                     .setHistoryId(record.getHistoryId() != null ? record.getHistoryId() : 0)
                     .build();
             responseObserver.onNext(response);
@@ -77,7 +77,7 @@ public class MedicalHistoryGrpcService extends MedicalHistoryServiceGrpc.Medical
                     .setNotes(record.getNotes())
                     .setPrescriptions(record.getPrescriptions())
                     .setUpdatedBy(record.getUpdatedBy() != null ? record.getUpdatedBy() : "")
-                    .setAttachmentUrl(record.getAttachmentUrl() != null ? record.getAttachmentUrl() : "")
+                    .setAttachmentUrl(record.getAttachmentName() != null ? record.getAttachmentName() : "")
                     .setHistoryId(record.getHistoryId() != null ? record.getHistoryId() : 0)
                     .build();
             responseBuilder.addRecords(msg);
@@ -98,7 +98,7 @@ public class MedicalHistoryGrpcService extends MedicalHistoryServiceGrpc.Medical
             record.setNotes(request.getNotes());
             record.setPrescriptions(request.getPrescriptions());
             record.setUpdatedBy(request.getUpdatedBy());
-            record.setAttachmentUrl(request.getAttachmentUrl());
+            record.setAttachmentName(request.getAttachmentUrl());
             record.setHistoryId(request.getHistoryId() > 0 ? request.getHistoryId() : null);
 
             medicalRecordService.save(record);

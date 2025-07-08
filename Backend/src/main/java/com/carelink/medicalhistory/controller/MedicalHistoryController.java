@@ -1,6 +1,7 @@
 package com.carelink.medicalhistory.controller;
 
 import com.carelink.medicalhistory.dto.MedicalRecordDto;
+import com.carelink.medicalhistory.dto.MedicalRecordUpdateDto;
 import com.carelink.medicalhistory.entity.MedicalRecord;
 import com.carelink.medicalhistory.service.AzureBlobService;
 import com.carelink.medicalhistory.service.MedicalRecordService;
@@ -38,10 +39,10 @@ public class MedicalHistoryController {
             @RequestParam(required = false) Integer historyId,
             @RequestParam(value = "file", required = false) MultipartFile file
     ) {
-        String fileUrl = "";
+        String blobName = "";
         if (file != null && !file.isEmpty()) {
             try {
-                fileUrl = azureBlobService.uploadFile(file);
+                blobName = azureBlobService.uploadFile(file);
             } catch (Exception e) {
                 return ResponseEntity.status(500).build();
             }
@@ -53,7 +54,7 @@ public class MedicalHistoryController {
         record.setNotes(notes);
         record.setPrescriptions(prescriptions);
         record.setUpdatedBy(updatedBy != null ? updatedBy : "System");
-        record.setAttachmentUrl(fileUrl);
+        record.setAttachmentName(blobName);
         record.setHistoryId(historyId);
 
         MedicalRecord saved = medicalRecordService.save(record);
@@ -87,14 +88,8 @@ public class MedicalHistoryController {
 
     @PutMapping("/{recordId}")
     public ResponseEntity<MedicalRecordDto> updateRecord(
-            @PathVariable Integer recordId,
-            @RequestParam Integer patientId,
-            @RequestParam Integer doctorId,
-            @RequestParam(required = false) String notes,
-            @RequestParam(required = false) String prescriptions,
-            @RequestParam(required = false) String updatedBy,
-            @RequestParam(required = false) Integer historyId,
-            @RequestParam(value = "file", required = false) MultipartFile file
+        @PathVariable Integer recordId,
+        @RequestBody MedicalRecordUpdateDto request
     ) {
         Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
         if (!optionalRecord.isPresent()) {
@@ -102,20 +97,18 @@ public class MedicalHistoryController {
         }
 
         MedicalRecord record = optionalRecord.get();
-        record.setPatientId(patientId);
-        record.setDoctorId(doctorId);
-        record.setNotes(notes);
-        record.setPrescriptions(prescriptions);
-        record.setUpdatedBy(updatedBy != null ? updatedBy : "System");
-        record.setHistoryId(historyId);
 
-        if (file != null && !file.isEmpty()) {
-            try {
-                String fileUrl = azureBlobService.uploadFile(file);
-                record.setAttachmentUrl(fileUrl);
-            } catch (Exception e) {
-                return ResponseEntity.status(500).build();
-            }
+        if (request.getNotes() != null) {
+            record.setNotes(request.getNotes());
+        }
+        if (request.getPrescriptions() != null) {
+            record.setPrescriptions(request.getPrescriptions());
+        }
+        if (request.getUpdatedBy() != null) {
+            record.setUpdatedBy(request.getUpdatedBy());
+        }
+        if (request.getHistoryId() != null) {
+            record.setHistoryId(request.getHistoryId());
         }
 
         MedicalRecord updated = medicalRecordService.save(record);
@@ -137,8 +130,15 @@ public class MedicalHistoryController {
         dto.setNotes(record.getNotes());
         dto.setPrescriptions(record.getPrescriptions());
         dto.setUpdatedBy(record.getUpdatedBy());
-        dto.setAttachmentUrl(record.getAttachmentUrl());
         dto.setHistoryId(record.getHistoryId());
+
+        if (record.getAttachmentName() != null && !record.getAttachmentName().isEmpty()) {
+            String sasUrl = azureBlobService.generateSasUrl(record.getAttachmentName());
+            dto.setAttachmentUrl(sasUrl);
+        } else {
+            dto.setAttachmentUrl(null);
+        }
+
         return dto;
     }
 }

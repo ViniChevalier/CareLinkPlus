@@ -9,6 +9,7 @@ public class PatientMedicalHistoryDto {
     private String description;
     private Date diagnosisDate;
     private String status;
+    private String updatedBy;
 
     // Getters and setters
 
@@ -58,5 +59,11 @@ public class PatientMedicalHistoryDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+    public void setUpdateBy(String updatedBy) {
+        this.updatedBy = updatedBy;
     }
 }

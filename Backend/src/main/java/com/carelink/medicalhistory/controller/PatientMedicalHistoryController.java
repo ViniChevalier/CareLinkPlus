@@ -50,10 +50,21 @@ public class PatientMedicalHistoryController {
 
         if (optional.isPresent()) {
             PatientMedicalHistory existing = optional.get();
-            existing.setDiagnosis(dto.getDiagnosis());
-            existing.setDescription(dto.getDescription());
-            existing.setDiagnosisDate(dto.getDiagnosisDate());
-            existing.setStatus(dto.getStatus());
+            if (dto.getDiagnosis() != null) {
+                existing.setDiagnosis(dto.getDiagnosis());
+            }
+            if (dto.getDescription() != null) {
+                existing.setDescription(dto.getDescription());
+            }
+            if (dto.getDiagnosisDate() != null) {
+                existing.setDiagnosisDate(dto.getDiagnosisDate());
+            }
+            if (dto.getStatus() != null) {
+                existing.setStatus(dto.getStatus());
+            }
+            if (dto.getUpdatedBy() != null) {
+                existing.setUpdateBy(dto.getUpdatedBy());
+            }
 
             service.save(existing);
             return ResponseEntity.ok(existing);

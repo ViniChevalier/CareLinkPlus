@@ -44,21 +44,11 @@ public class User {
     @Column(length = 20)
     private String notificationPreference = "Email";
 
-    @Temporal(TemporalType.TIMESTAMP)
+     @Column(name = "createdAt", insertable = false, updatable = false)
     private Date createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
+     @Column(name = "updatedAt", insertable = false, updatable = false)
     private Date updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = new Date();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = new Date();
-    }
 
     @Transient
     private String transientPassword;

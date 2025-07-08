@@ -2,6 +2,7 @@ package com.carelink.medicalhistory.service;
 
 import com.carelink.medicalhistory.entity.MedicalRecord;
 import com.carelink.medicalhistory.repository.MedicalRecordRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,4 +43,5 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     public List<MedicalRecord> findAll() {
         return medicalRecordRepository.findAll();
     }
+
 }
