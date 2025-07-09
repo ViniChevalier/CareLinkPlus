@@ -24,6 +24,12 @@ service AccountService {
 
   // Admin resets a user's password directly
   rpc AdminResetPassword (AdminResetPasswordRequest) returns (AdminResetPasswordResponse);
+
+  // User changes password via reset token (e.g., from email link)
+  rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse);
+
+  // User updates password while logged in
+  rpc UpdatePassword (UpdatePasswordRequest) returns (UpdatePasswordResponse);
 }
 
 // Request message to register a new user
@@ -88,6 +94,29 @@ message AdminResetPasswordRequest {
 }
 
 message AdminResetPasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Message for changing password via reset token
+message ChangePasswordRequest {
+  string token = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Message for updating password while logged in
+message UpdatePasswordRequest {
+  string username = 1;
+  string old_password = 2;
+  string new_password = 3;
+}
+
+message UpdatePasswordResponse {
   bool success = 1;
   string message = 2;
 }

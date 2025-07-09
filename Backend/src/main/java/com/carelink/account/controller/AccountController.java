@@ -1,11 +1,13 @@
 package com.carelink.account.controller;
 
 import com.carelink.account.dto.AdminResetDto;
+import com.carelink.account.dto.ChangePasswordRequest;
 import com.carelink.account.dto.LoginRequest;
 import com.carelink.account.dto.RegisterRequest;
 import com.carelink.account.dto.RequestResetDto;
-import com.carelink.account.dto.UserResponse;
+import com.carelink.account.dto.UpdatePasswordRequest;
 import com.carelink.account.dto.UpdateRoleRequest;
+import com.carelink.account.dto.UserResponse;
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
 import com.carelink.account.repository.UserCredentialsRepository;
@@ -238,5 +240,53 @@ public class AccountController {
         return ResponseEntity.ok("Password reset successfully and email sent to user.");
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        if (request.getToken() == null || request.getToken().isEmpty()) {
+            return ResponseEntity.badRequest().body("Token must not be empty.");
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("New password must not be empty.");
+        }
+
+        UserCredentials creds = accountService.getUserCredentialsByResetToken(request.getToken());
+        if (creds == null) {
+            return ResponseEntity.status(404).body("Invalid or expired token.");
+        }
+
+        String hashedPassword = accountService.encodePassword(request.getNewPassword());
+        creds.setPasswordHash(hashedPassword);
+        creds.setResetPasswordToken(null); // Invalidate token
+
+        accountService.updateUserCredentials(creds);
+
+        return ResponseEntity.ok("Password has been successfully changed.");
+    }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (request.getOldPassword() == null || request.getOldPassword().isEmpty() ||
+            request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("Old and new passwords must not be empty.");
+        }
+
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null) {
+            return ResponseEntity.status(404).body("User not found.");
+        }
+
+        if (!BCrypt.checkpw(request.getOldPassword(), creds.getPasswordHash())) {
+            return ResponseEntity.status(401).body("Old password is incorrect.");
+        }
+
+        String hashedPassword = accountService.encodePassword(request.getNewPassword());
+        creds.setPasswordHash(hashedPassword);
+
+        accountService.updateUserCredentials(creds);
+
+        return ResponseEntity.ok("Password updated successfully.");
+    }
 
 }

@@ -20,6 +20,8 @@ public interface AccountService {
 
     UserCredentials getUserCredentialsByUsername(String username);
 
+    UserCredentials getUserCredentialsByResetToken(String token);
+
     UserCredentials updateUserCredentials(UserCredentials creds);
 
     String encodePassword(String rawPassword);

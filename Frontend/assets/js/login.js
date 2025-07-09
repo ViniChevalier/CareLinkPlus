@@ -7,7 +7,7 @@ loginForm.addEventListener('submit', async (e) => {
   message.textContent = 'Logging in...';
 
   try {
-    const response = await fetch('https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net/api/account/login', {
+    const response = await fetch('http://localhost:8080/api/account/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

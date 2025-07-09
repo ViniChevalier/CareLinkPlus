@@ -94,6 +94,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public UserCredentials getUserCredentialsByResetToken(String token) {
+        return credentialsRepository.findByResetPasswordToken(token);
+    }
+
+    @Override
     public UserCredentials updateUserCredentials(UserCredentials creds) {
         return credentialsRepository.save(creds);
     }

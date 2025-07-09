@@ -8,4 +8,6 @@ public interface UserCredentialsRepository extends JpaRepository<UserCredentials
     UserCredentials findByUsername(String username);
 
     UserCredentials findByUser(User user);
+
+    UserCredentials findByResetPasswordToken(String token);
 }

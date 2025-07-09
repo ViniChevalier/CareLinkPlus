@@ -13,6 +13,11 @@ import com.carelink.grpc.account.UserProfileResponse;
 import com.carelink.security.JwtUtil;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Service;
+import com.carelink.grpc.account.ChangePasswordRequest;
+import com.carelink.grpc.account.ChangePasswordResponse;
+import com.carelink.grpc.account.UpdatePasswordRequest;
+import com.carelink.grpc.account.UpdatePasswordResponse;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Service
 public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBase {
@@ -153,6 +158,57 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
 
             accountService.sendEmail(user.getEmail(), subject, body);
             response.setSuccess(true).setMessage("Password reset successfully and email sent to user");
+        }
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest request, StreamObserver<ChangePasswordResponse> responseObserver) {
+        ChangePasswordResponse.Builder response = ChangePasswordResponse.newBuilder();
+
+        if (request.getToken() == null || request.getToken().isEmpty()) {
+            response.setSuccess(false).setMessage("Token must not be empty.");
+        } else if (request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+            response.setSuccess(false).setMessage("New password must not be empty.");
+        } else {
+            UserCredentials creds = accountService.getUserCredentialsByResetToken(request.getToken());
+            if (creds == null) {
+                response.setSuccess(false).setMessage("Invalid or expired token.");
+            } else {
+                String hashedPassword = accountService.encodePassword(request.getNewPassword());
+                creds.setPasswordHash(hashedPassword);
+                creds.setResetPasswordToken(null);
+                creds.setTokenExpiration(null);
+
+                accountService.updateUserCredentials(creds);
+                response.setSuccess(true).setMessage("Password has been successfully changed.");
+            }
+        }
+
+        responseObserver.onNext(response.build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void updatePassword(UpdatePasswordRequest request, StreamObserver<UpdatePasswordResponse> responseObserver) {
+        UpdatePasswordResponse.Builder response = UpdatePasswordResponse.newBuilder();
+
+        UserCredentials creds = accountService.getUserCredentialsByUsername(request.getUsername());
+        if (creds == null) {
+            response.setSuccess(false).setMessage("User not found.");
+        } else if (request.getOldPassword() == null || request.getOldPassword().isEmpty() ||
+                   request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+            response.setSuccess(false).setMessage("Old and new passwords must not be empty.");
+        } else if (!BCrypt.checkpw(request.getOldPassword(), creds.getPasswordHash())) {
+            response.setSuccess(false).setMessage("Old password is incorrect.");
+        } else {
+            String hashedPassword = accountService.encodePassword(request.getNewPassword());
+            creds.setPasswordHash(hashedPassword);
+
+            accountService.updateUserCredentials(creds);
+            response.setSuccess(true).setMessage("Password updated successfully.");
         }
 
         responseObserver.onNext(response.build());
