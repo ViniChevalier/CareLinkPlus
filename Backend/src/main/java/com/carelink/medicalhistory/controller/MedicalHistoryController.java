@@ -30,6 +30,7 @@ public class MedicalHistoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<MedicalRecordDto> createRecord(
             @RequestParam Integer patientId,
             @RequestParam Integer doctorId,
@@ -62,6 +63,7 @@ public class MedicalHistoryController {
     }
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<List<MedicalRecordDto>> getRecordsByPatient(@PathVariable Integer patientId) {
         List<MedicalRecordDto> dtos = medicalRecordService.findByPatientId(patientId)
                 .stream()
@@ -71,6 +73,7 @@ public class MedicalHistoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<MedicalRecordDto>> getAllRecords() {
         List<MedicalRecordDto> dtos = medicalRecordService.findAll()
                 .stream()
@@ -80,6 +83,7 @@ public class MedicalHistoryController {
     }
 
     @GetMapping("/{recordId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<MedicalRecordDto> getRecordById(@PathVariable Integer recordId) {
         Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
         return optionalRecord.map(record -> ResponseEntity.ok(convertToDto(record)))
@@ -87,6 +91,7 @@ public class MedicalHistoryController {
     }
 
     @PutMapping("/{recordId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<MedicalRecordDto> updateRecord(
         @PathVariable Integer recordId,
         @RequestBody MedicalRecordUpdateDto request

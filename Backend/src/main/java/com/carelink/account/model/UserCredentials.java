@@ -27,6 +27,12 @@ public class UserCredentials {
     @Column
     private Timestamp lastLogin;
 
+    @Column(name = "reset_password_token", length = 255)
+    private String resetPasswordToken;
+
+    @Column(name = "token_expiration")
+    private Timestamp tokenExpiration;
+
     // Getters and Setters
     public Integer getCredentialID() {
         return credentialID;
@@ -75,4 +81,17 @@ public class UserCredentials {
     public void setLastLogin(Timestamp lastLogin) {
         this.lastLogin = lastLogin;
     }
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
+    }
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
+    }
+    public Timestamp getTokenExpiration() {
+        return tokenExpiration;
+    }
+    public void setTokenExpiration(Timestamp tokenExpiration) {
+        this.tokenExpiration = tokenExpiration;
+    }
+    
 }

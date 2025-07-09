@@ -21,4 +21,8 @@ public interface AccountService {
     UserCredentials getUserCredentialsByUsername(String username);
 
     UserCredentials updateUserCredentials(UserCredentials creds);
+
+    String encodePassword(String rawPassword);
+
+    void sendEmail(String to, String subject, String body);
 }

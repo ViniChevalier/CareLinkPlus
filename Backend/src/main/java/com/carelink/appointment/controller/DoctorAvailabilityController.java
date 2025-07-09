@@ -25,7 +25,7 @@ public class DoctorAvailabilityController {
         return ResponseEntity.ok(availabilityService.addAvailability(dto));
     }
 
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT') or hasRole('RECEPTIONIST')")
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<DoctorAvailability>> getDoctorAvailability(@PathVariable Integer doctorId) {
         return ResponseEntity.ok(availabilityService.getAvailabilityByDoctor(doctorId));

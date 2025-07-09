@@ -10,12 +10,18 @@ import java.util.Random;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
     private final UserRepository userRepository;
     private final UserCredentialsRepository credentialsRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public AccountServiceImpl(UserRepository userRepository, UserCredentialsRepository credentialsRepository) {
         this.userRepository = userRepository;
@@ -90,5 +96,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public UserCredentials updateUserCredentials(UserCredentials creds) {
         return credentialsRepository.save(creds);
+    }
+
+    @Override
+    public String encodePassword(String rawPassword) {
+        return BCrypt.hashpw(rawPassword, BCrypt.gensalt());
+    }
+
+    @Override
+    public void sendEmail(String to, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
     }
 }

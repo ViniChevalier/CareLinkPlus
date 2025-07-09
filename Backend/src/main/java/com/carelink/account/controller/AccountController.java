@@ -1,29 +1,40 @@
 package com.carelink.account.controller;
 
+import com.carelink.account.dto.AdminResetDto;
 import com.carelink.account.dto.LoginRequest;
 import com.carelink.account.dto.RegisterRequest;
+import com.carelink.account.dto.RequestResetDto;
 import com.carelink.account.dto.UserResponse;
+import com.carelink.account.dto.UpdateRoleRequest;
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
+import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.service.AccountService;
 import com.carelink.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/account")
 public class AccountController {
 
+    private final UserCredentialsRepository userCredentialsRepository;
+
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
 
-    public AccountController(AccountService accountService, JwtUtil jwtUtil) {
+    public AccountController(AccountService accountService, JwtUtil jwtUtil, UserCredentialsRepository userCredentialsRepository) {
         this.accountService = accountService;
         this.jwtUtil = jwtUtil;
+        this.userCredentialsRepository = userCredentialsRepository;
     }
 
     @PostMapping("/register")
@@ -32,7 +43,7 @@ public class AccountController {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        user.setRole("USER");
+        user.setRole("Patient");
 
         User createdUser = accountService.createUser(user);
 
@@ -58,13 +69,14 @@ public class AccountController {
             throw new BadCredentialsException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(credentials.getUsername());
+        String token = jwtUtil.generateToken(credentials.getUsername(), credentials.getUser().getRole());
 
         User user = credentials.getUser();
 
         UserResponse response = new UserResponse();
         response.setUsername(credentials.getUsername());
         response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
         response.setToken(token);
         response.setGeneratedPassword(null);
 
@@ -72,47 +84,36 @@ public class AccountController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<UserResponse> getProfile() {
         try {
-            String token = authHeader.replace("Bearer ", "");
-            String username = jwtUtil.getUsernameFromToken(token);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
             UserCredentials creds = accountService.getUserCredentialsByUsername(username);
-            if (creds == null) {
+            if (creds == null)
                 return ResponseEntity.status(404).body(null);
-            }
 
             User user = creds.getUser();
-            if (user == null) {
+            if (user == null)
                 return ResponseEntity.status(404).body(null);
-            }
 
             UserResponse response = new UserResponse();
             response.setUsername(creds.getUsername());
-
-            if (user.getUserID() != null) {
+            if (user.getUserID() != null)
                 response.setUserId(user.getUserID().longValue());
-            }
-
             response.setFirstName(user.getFirstName());
             response.setLastName(user.getLastName());
             response.setEmail(user.getEmail());
             response.setPhoneNumber(user.getPhoneNumber());
-
             if (user.getDateOfBirth() != null) {
-
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 response.setDateOfBirth(sdf.format(user.getDateOfBirth()));
-
             }
-
             response.setGender(user.getGender());
             response.setAddress(user.getAddress());
             response.setCity(user.getCity());
             response.setCountry(user.getCountry());
             response.setRole(user.getRole());
             response.setNotificationPreference(user.getNotificationPreference());
-            response.setGeneratedPassword(null);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -121,49 +122,34 @@ public class AccountController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<UserResponse> updateProfile(@RequestHeader("Authorization") String authHeader,
-            @RequestBody UserResponse updatedInfo) {
+    public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
         try {
-            String token = authHeader.replace("Bearer ", "");
-            String username = jwtUtil.getUsernameFromToken(token);
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
             UserCredentials creds = accountService.getUserCredentialsByUsername(username);
-            if (creds == null) {
+            if (creds == null)
                 return ResponseEntity.status(404).body(null);
-            }
 
             User user = creds.getUser();
-            if (user == null) {
+            if (user == null)
                 return ResponseEntity.status(404).body(null);
-            }
 
-            if (updatedInfo.getEmail() != null) {
+            if (updatedInfo.getEmail() != null)
                 user.setEmail(updatedInfo.getEmail());
-            }
-            if (updatedInfo.getLastName() != null) {
+            if (updatedInfo.getLastName() != null)
                 user.setLastName(updatedInfo.getLastName());
-            }
-            if (updatedInfo.getPhoneNumber() != null) {
+            if (updatedInfo.getPhoneNumber() != null)
                 user.setPhoneNumber(updatedInfo.getPhoneNumber());
-            }
-            if (updatedInfo.getGender() != null) {
+            if (updatedInfo.getGender() != null)
                 user.setGender(updatedInfo.getGender());
-            }
-            if (updatedInfo.getAddress() != null) {
+            if (updatedInfo.getAddress() != null)
                 user.setAddress(updatedInfo.getAddress());
-            }
-            if (updatedInfo.getCity() != null) {
+            if (updatedInfo.getCity() != null)
                 user.setCity(updatedInfo.getCity());
-            }
-            if (updatedInfo.getCountry() != null) {
+            if (updatedInfo.getCountry() != null)
                 user.setCountry(updatedInfo.getCountry());
-            }
-            if (updatedInfo.getRole() != null) {
-                user.setRole(updatedInfo.getRole());
-            }
-            if (updatedInfo.getNotificationPreference() != null) {
+            if (updatedInfo.getNotificationPreference() != null)
                 user.setNotificationPreference(updatedInfo.getNotificationPreference());
-            }
 
             accountService.updateUser(user);
 
@@ -184,5 +170,73 @@ public class AccountController {
             return ResponseEntity.status(401).body(null);
         }
     }
+
+     @PostMapping("/reset")
+    public ResponseEntity<String> requestPasswordReset(@RequestBody RequestResetDto dto) {
+        String username = dto.getUsername();
+        if (username == null || username.isEmpty()) {
+            return ResponseEntity.badRequest().body("Username must not be empty.");
+        }
+
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null || creds.getUser() == null) {
+            return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
+        }
+
+        User user = creds.getUser();
+        String token = java.util.UUID.randomUUID().toString();
+        creds.setResetPasswordToken(token);
+        accountService.updateUser(user);
+
+        String resetLink = "https://yourdomain.com/reset-password?token=" + token;
+
+        String subject = "CareLink+ Password Reset Request";
+        String body = String.format(
+                "Hello %s,\n\nWe received a request to reset your password.\nPlease click the link below to set a new password:\n\n%s\n\nIf you did not request this, please ignore this email.",
+                user.getFirstName() != null ? user.getFirstName() : "User",
+                resetLink);
+
+        accountService.sendEmail(user.getEmail(), subject, body);
+
+        return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/reset")
+    public ResponseEntity<String> adminResetPassword(@RequestBody AdminResetDto dto) {
+        String username = dto.getUsername();
+        String newPassword = dto.getNewPassword();
+        if (username == null || username.isEmpty()) {
+            return ResponseEntity.badRequest().body("Username must not be empty.");
+        }
+
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null || creds.getUser() == null) {
+            return ResponseEntity.status(404).body("User not found.");
+        }
+
+        User user = creds.getUser();
+        String generatedPassword = (newPassword != null && !newPassword.isEmpty())
+                ? newPassword
+                : java.util.UUID.randomUUID().toString().substring(0, 8);
+
+        String hashedPassword = accountService.encodePassword(generatedPassword);
+        creds.setPasswordHash(hashedPassword);
+        creds.setResetPasswordToken(null);
+
+        accountService.updateUserCredentials(creds);
+        accountService.updateUser(user);
+
+        String subject = "Your CareLink+ account password has been reset";
+        String body = String.format(
+                "Hello %s,\n\nYour password has been reset by an administrator.\n\nYour new password is: %s\n\nPlease log in and change your password as soon as possible for security.",
+                user.getFirstName() != null ? user.getFirstName() : "User",
+                generatedPassword);
+
+        accountService.sendEmail(user.getEmail(), subject, body);
+
+        return ResponseEntity.ok("Password reset successfully and email sent to user.");
+    }
+
 
 }

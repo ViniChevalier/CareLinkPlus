@@ -20,6 +20,7 @@ public class PatientMedicalHistoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<?> createHistory(@RequestBody PatientMedicalHistoryDto dto) {
         PatientMedicalHistory history = new PatientMedicalHistory();
         history.setPatientID(dto.getPatientId());
@@ -33,6 +34,7 @@ public class PatientMedicalHistoryController {
     }
 
     @GetMapping("/{historyId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<?> getHistoryById(@PathVariable Integer historyId) {
         Optional<PatientMedicalHistory> optional = service.findById(historyId);
         return optional.map(ResponseEntity::ok)
@@ -40,11 +42,13 @@ public class PatientMedicalHistoryController {
     }
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<?> getHistoriesByPatient(@PathVariable Integer patientId) {
         return ResponseEntity.ok(service.findByPatientId(patientId));
     }
 
     @PutMapping("/{historyId}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<?> updateHistory(@PathVariable Integer historyId, @RequestBody PatientMedicalHistoryDto dto) {
         Optional<PatientMedicalHistory> optional = service.findById(historyId);
 
