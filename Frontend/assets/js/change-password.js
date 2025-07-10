@@ -1,3 +1,5 @@
+import { updatePassword } from './apiService.js';
+
 document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
@@ -18,27 +20,14 @@ document.getElementById('changePasswordForm').addEventListener('submit', async f
   }
 
   try {
-    const response = await fetch('/api/account/change-password', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({
-        currentPassword: currentPassword,
-        newPassword: newPassword,
-        confirmPassword: confirmPassword
-      })
+    await updatePassword({
+      oldPassword: currentPassword,
+      newPassword: newPassword
     });
 
-    if (response.ok) {
-      messageDiv.innerHTML = '<span style="color:green;">Password changed successfully.</span>';
-      document.getElementById('changePasswordForm').reset();
-    } else {
-      const data = await response.json();
-      messageDiv.innerHTML = `<span style="color:red;">${data.message || 'Error changing password.'}</span>`;
-    }
+    messageDiv.innerHTML = '<span style="color:green;">Password changed successfully.</span>';
+    document.getElementById('changePasswordForm').reset();
   } catch (error) {
-    messageDiv.innerHTML = '<span style="color:red;">Server error. Please try again later.</span>';
+    messageDiv.innerHTML = `<span style="color:red;">${error.message || 'Error changing password.'}</span>`;
   }
 });

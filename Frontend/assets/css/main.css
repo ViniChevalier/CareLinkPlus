@@ -1772,6 +1772,21 @@ p {
   padding: 0 15px;
 }
 
+.about-img-crop {
+  width: 100%;          /* ou valor fixo, ex: 1920px */
+  max-width: 1920px;    /* exemplo de comprimento máximo */
+  height: 494px;        /* altura que você quer mostrar */
+  overflow: hidden;     /* esconde a parte que passar */
+  position: relative;
+}
+
+.about-img-crop img {
+  width: 100%;          /* ou auto para manter proporção, dependendo do caso */
+  height: auto;
+  position: relative;
+  top: -100px;          /* ajuste para mover para cima ou para baixo */
+}
+
 @media (max-width: 767px) {
   .about-section .about-content p {
     padding: 0;

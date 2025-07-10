@@ -1,3 +1,5 @@
+import { login } from './apiService.js';
+
 const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -7,30 +9,17 @@ loginForm.addEventListener('submit', async (e) => {
   message.textContent = 'Logging in...';
 
   try {
-    const response = await fetch('http://localhost:8080/api/account/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
+    const data = await login({ username, password });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      message.textContent = 'Login successful! Redirecting...';
-      message.style.color = 'green';
+    localStorage.setItem('token', data.token);
+    message.textContent = 'Login successful! Redirecting...';
+    message.style.color = 'green';
 
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    } else {
-      const errorData = await response.json();
-      message.textContent = errorData.message || 'Invalid credentials';
-      message.style.color = 'red';
-    }
+    setTimeout(() => {
+      window.location.href = 'patient-Dashboard.html';
+    }, 1500);
   } catch (error) {
-    message.textContent = 'Error connecting to server';
+    message.textContent = error.message || 'Invalid credentials';
     message.style.color = 'red';
   }
 });

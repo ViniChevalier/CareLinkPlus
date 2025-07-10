@@ -1,10 +1,16 @@
-import { fetchAppointments, fetchMedications } from './apiService.js';
+import { getAppointmentsByPatient } from './apiService.js';
 import { loadPatientName } from './userProfile.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   loadPatientName();
 
-  fetchAppointments()
+  const patientId = localStorage.getItem("patientId");
+  if (!patientId) {
+    document.getElementById("appointments").innerHTML = "<p>Patient ID not found.</p>";
+    return;
+  }
+
+  getAppointmentsByPatient(patientId)
     .then(data => {
       const el = document.getElementById("appointments");
       if (data.length === 0) {
@@ -12,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         el.innerHTML = data.map(app => `
           <div class="mb-2">
-            <strong>${app.appointmentDate}</strong> at ${app.startTime}<br>
+            <strong>${app.appointmentDateTime}</strong><br>
             Reason: ${app.reason}
           </div>
         `).join("");
@@ -22,7 +28,10 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("appointments").innerHTML = "<p>Error loading appointments.</p>";
     });
 
-  fetchMedications()
+  // Placeholder for medications
+  // You will need to implement getMedications() in apiService.js
+  /*
+  getMedications()
     .then(data => {
       const el = document.getElementById("medications");
       if (data.length === 0) {
@@ -38,4 +47,5 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(error => {
       document.getElementById("medications").innerHTML = "<p>Error loading medications.</p>";
     });
+  */
 });

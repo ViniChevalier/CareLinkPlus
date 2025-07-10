@@ -1,15 +1,7 @@
+import { getProfile } from './apiService.js';
+
 export function loadPatientName() {
-  fetch('/api/user/profile', {
-    headers: {
-      'Authorization': 'Bearer ' + localStorage.getItem('token')
-    }
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch profile: ${response.status}`);
-      }
-      return response.json();
-    })
+  getProfile()
     .then(data => {
       const name = data.name || 'Patient';
       const greeting = getGreeting();
