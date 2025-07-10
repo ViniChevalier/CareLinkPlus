@@ -17,6 +17,7 @@ public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.addAllowedOrigin("http://127.0.0.1:5500");
     configuration.addAllowedOrigin("http://localhost:5500");
+    configuration.addAllowedOrigin("https://calm-sky-0157a6e03.1.azurestaticapps.net");
     configuration.addAllowedMethod("*");
     configuration.addAllowedHeader("*");
     configuration.setAllowCredentials(true);

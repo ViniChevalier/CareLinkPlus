@@ -3,7 +3,7 @@ import { getProfile } from './apiService.js';
 export function loadPatientName() {
   getProfile()
     .then(data => {
-      const name = data.name || 'Patient';
+      const name = data.firstName || 'Patient';
       const greeting = getGreeting();
       document.getElementById('patient-name').innerText = `${greeting}, ${name}!`;
     })

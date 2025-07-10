@@ -43,11 +43,18 @@ async function del(endpoint) {
 }
 
 async function handleResponse(response) {
-    // Always try to parse JSON, even if the status is not ok
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "API request failed");
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (e) {
+        // If the response is not JSON, keep data as empty object
     }
+
+    if (!response.ok) {
+        const errorMsg = data.message || data.error || "API request failed";
+        throw new Error(errorMsg);
+    }
+
     return data;
 }
 
@@ -189,8 +196,27 @@ export function register(data) {
     return post("/api/account/register", data);
 }
 
-export function login(data) {
-    return post("/api/account/login", data);
+async function handleLoginResponse(response) {
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (e) {}
+
+    if (!response.ok) {
+        const errorMsg = data.message || "Invalid credentials";
+        throw new Error(errorMsg);
+    }
+
+    return data;
+}
+
+export async function login(data) {
+    const response = await fetch(`${BASE_URL}/api/account/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+        body: JSON.stringify(data),
+    });
+    return handleLoginResponse(response);
 }
 
 export function getProfile() {
