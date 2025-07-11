@@ -2,182 +2,183 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CareLink+ - Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareLink+ - Dashboard</title>
 
-    <!-- ========================= CSS here ========================= -->
-    <link rel="stylesheet" href="assets/css/bootstrap-5.0.5-alpha.min.css">
-    <link rel="stylesheet" href="assets/css/LineIcons.2.0.css">
-    <link rel="stylesheet" href="assets/css/main.css">
+  <!-- ========================= CSS here ========================= -->
+  <link rel="stylesheet" href="assets/css/bootstrap-5.0.5-alpha.min.css">
+  <link rel="stylesheet" href="assets/css/LineIcons.2.0.css">
+  <link rel="stylesheet" href="assets/css/main.css">
 </head>
 
 <body>
-    <!-- ========================= header start ========================= -->
-    <header id="home" class="header">
-        <div class="header-wrapper">
-            <div class="navbar-area">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <nav class="navbar navbar-expand-lg">
-                                <a class="navbar-brand" href="index.html">
-                                    <img src="assets/img/CareLink_Logo.png" alt="Logo">
-                                </a>
-                                <button class="navbar-toggler" type="button" data-toggle="collapse"
-                                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                                    aria-expanded="false" aria-label="Toggle navigation">
-                                    <span class="toggler-icon"></span>
-                                    <span class="toggler-icon"></span>
-                                    <span class="toggler-icon"></span>
-                                </button>
+  <!-- ========================= header start ========================= -->
+  <header id="home" class="header">
+    <div class="header-wrapper">
+      <div class="navbar-area">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-12">
+              <nav class="navbar navbar-expand-lg">
+                <a class="navbar-brand" href="index.html">
+                  <img src="assets/img/CareLink_Logo.png" alt="Logo">
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                  data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                  aria-label="Toggle navigation">
+                  <span class="toggler-icon"></span>
+                  <span class="toggler-icon"></span>
+                  <span class="toggler-icon"></span>
+                </button>
 
-                                <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
-                                    <ul id="nav" class="navbar-nav ml-auto">
-                                        <li class="nav-item">
-                                            <a href="update-profile.html">Update Profile</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="change-password.html">Change Password</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="logout.html">Logout</a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </nav>
-                        </div>
-                    </div>
+                <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                  <ul id="nav" class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                      <a href="update-profile.html">Update Profile</a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="change-password.html">Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="#" id="logout-link">Logout</a>
+                    </li>
+                  </ul>
                 </div>
+              </nav>
             </div>
-        </div>
-
-        <!-- ========================= dashboard section start ========================= -->
-        <section id="dashboard" class="pt-75 pb-75">
-            <div class="container">
-                <div class="section-title text-center mb-55">
-                    <h2><span id="patient-name">Loading...</span></h2>
-                    <p>Manage your health in one place.</p>
-                </div>
-
-                <div class="row g-4">
-
-                    <!-- Medicamentos atuais -->
-                    <div class="col-lg-6">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Prescriptions</h5>
-                                <div id="prescriptions">
-                                    <p>Loading your prescriptions...</p>
-                                </div>
-                                <a href="prescriptions.html" class="btn btn-outline-primary mt-2">View All
-                                    Prescriptions</a>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <!-- Histórico médico -->
-                    <div class="col-lg-6">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Medical History</h5>
-                                <div id="medicalHistory">
-                                    <p>Loading your medical history...</p>
-                                </div>
-                                <a href="medical-history.html" class="btn btn-outline-primary mt-2">View Full History</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Próximos agendamentos -->
-                    <div class="col-lg-12">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">Upcoming Appointments</h5>
-                                <div id="appointments">
-                                    <p>Loading your appointments...</p>
-                                </div>
-                                <div class="d-grid gap-2">
-                                    <a href="schedule-appointment.html" class="btn theme-btn">Schedule New Appointment</a>
-                                    <a href="reschedule-appointment.html" class="btn theme-btn">Reschedule Appointment</a>
-                                    <a href="cancel-appointment.html" class="btn theme-btn">Cancel Appointment</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-        <!-- ========================= dashboard section end ========================= -->
-
-        <!-- ========================= footer start ========================= -->
-<footer class="footer pt-95 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">
-  <div class="container">
-    <div class="footer-widget-wrapper">
-      <div class="row">
-        <div class="col-xl-4 col-lg-5 col-md-7">
-          <div class="footer-widget mb-30">
-            <a href="index.html" class="logo">
-              <img src="assets/img/CareLink_Logo.png" alt="CareLink+ Logo">
-            </a>
-            <p>
-              Transforming healthcare through intelligent connection. At CareLink+, we empower you to manage your health seamlessly, with trusted professionals and advanced technology at your side.
-            </p>
-            <div class="footer-social-links">
-              <ul>
-                <li><a href="#"><i class="lni lni-facebook-filled"></i></a></li>
-                <li><a href="#"><i class="lni lni-twitter-filled"></i></a></li>
-                <li><a href="#"><i class="lni lni-linkedin-original"></i></a></li>
-                <li><a href="#"><i class="lni lni-instagram-original"></i></a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xl-2 col-lg-3 col-md-7 mx-auto">
-          <div class="footer-widget mb-30">
-            <h4>Quick Links</h4>
-            <ul class="footer-links">
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#services">Services</a></li>
-              <li><a href="login.html">Login</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-4 col-md-7 ms-auto">
-          <div class="footer-widget mb-30">
-            <h4>Contact Us</h4>
-            <ul class="footer-contact">
-              <li>Email: <a href="mailto:support@carelinkplus.com">support@carelinkplus.com</a></li>
-              <li>Phone: +353 1 234 5678</li>
-              <li>Address: Dublin, Ireland</li>
-            </ul>
           </div>
         </div>
       </div>
     </div>
-    <div class="footer-bottom text-center pt-20 pb-20">
-      <p>&copy; 2025 CareLink+. All rights reserved. Empowering your health journey.</p>
+
+    <!-- ========================= dashboard section start ========================= -->
+    <section id="dashboard" class="pt-75 pb-75">
+      <div class="container">
+        <div class="section-title text-center mb-55">
+          <h2><span id="patient-name">Loading...</span></h2>
+          <p>Manage your health in one place.</p>
+        </div>
+
+        <div class="row g-4">
+
+          <!-- Medicamentos atuais -->
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Prescriptions</h5>
+                <div id="prescriptions">
+                  <p>Loading your prescriptions...</p>
+                </div>
+                <a href="prescriptions.html" class="btn btn-outline-primary mt-2">View All
+                  Prescriptions</a>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- Histórico médico -->
+          <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Medical History</h5>
+                <div id="medicalHistory">
+                  <p>Loading your medical history...</p>
+                </div>
+                <a href="medical-history.html" class="btn btn-outline-primary mt-2">View Full History</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Próximos agendamentos -->
+          <div class="col-lg-12">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">Upcoming Appointments</h5>
+                <div id="appointments">
+                  <p>Loading your appointments...</p>
+                </div>
+                <div class="d-grid gap-2">
+                  <a href="schedule-appointment.html" class="btn theme-btn">Schedule New Appointment</a>
+                  <a href="reschedule-appointment.html" class="btn theme-btn">Reschedule Appointment</a>
+                  <a href="cancel-appointment.html" class="btn theme-btn">Cancel Appointment</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+    <!-- ========================= dashboard section end ========================= -->
+
+    <!-- ========================= footer start ========================= -->
+    <footer class="footer pt-95 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">
+      <div class="container">
+        <div class="footer-widget-wrapper">
+          <div class="row">
+            <div class="col-xl-4 col-lg-5 col-md-7">
+              <div class="footer-widget mb-30">
+                <a href="index.html" class="logo">
+                  <img src="assets/img/CareLink_Logo.png" alt="CareLink+ Logo">
+                </a>
+                <p>
+                  Transforming healthcare through intelligent connection. At CareLink+, we empower you to manage your
+                  health seamlessly, with trusted professionals and advanced technology at your side.
+                </p>
+                <div class="footer-social-links">
+                  <ul>
+                    <li><a href="#"><i class="lni lni-facebook-filled"></i></a></li>
+                    <li><a href="#"><i class="lni lni-twitter-filled"></i></a></li>
+                    <li><a href="#"><i class="lni lni-linkedin-original"></i></a></li>
+                    <li><a href="#"><i class="lni lni-instagram-original"></i></a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-2 col-lg-3 col-md-7 mx-auto">
+              <div class="footer-widget mb-30">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                  <li><a href="#about">About Us</a></li>
+                  <li><a href="#services">Services</a></li>
+                  <li><a href="login.html">Login</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-7 ms-auto">
+              <div class="footer-widget mb-30">
+                <h4>Contact Us</h4>
+                <ul class="footer-contact">
+                  <li>Email: <a href="mailto:support@carelinkplus.com">support@carelinkplus.com</a></li>
+                  <li>Phone: +353 1 234 5678</li>
+                  <li>Address: Dublin, Ireland</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom text-center pt-20 pb-20">
+          <p>&copy; 2025 CareLink+. All rights reserved. Empowering your health journey.</p>
+        </div>
+      </div>
+    </footer>
+    <!-- ========================= footer end ========================= -->
+
+    <a href="#" class="scroll-top">
+      <i class="lni lni-arrow-up"></i>
+    </a>
+
+    <!-- ========================= JS here ========================= -->
+    <script src="assets/js/bootstrap.bundle-5.0.0.alpha-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/min/tiny-slider.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/dashboard_patient.js" type="module"></script>
     </div>
-  </div>
-</footer>
-        <!-- ========================= footer end ========================= -->
-
-        <a href="#" class="scroll-top">
-            <i class="lni lni-arrow-up"></i>
-        </a>
-
-        <!-- ========================= JS here ========================= -->
-        <script src="assets/js/bootstrap.bundle-5.0.0.alpha-min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/min/tiny-slider.js"></script>
-        <script src="assets/js/main.js"></script>
-        <script src="assets/js/dashboard_patient.js" type="module"></script>
-</div>
 </body>
 
 </html>

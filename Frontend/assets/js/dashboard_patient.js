@@ -133,3 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("medicalHistory").innerHTML = "<p>Error loading medical history.</p>";
     });
 });
+
+import { logout } from './logout.js';
+
+document.getElementById("logout-link").addEventListener("click", function (e) {
+  e.preventDefault();
+  logout();
+});

@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/account")
@@ -242,13 +243,8 @@ public class AccountController {
     }
 
     @PutMapping("/update-password")
-    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordRequest request) {
+    public ResponseEntity<String> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (request.getOldPassword() == null || request.getOldPassword().isEmpty() ||
-            request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
-            return ResponseEntity.badRequest().body("Old and new passwords must not be empty.");
-        }
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null) {

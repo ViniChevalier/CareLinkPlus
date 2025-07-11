@@ -1,33 +1,72 @@
 import { updatePassword } from './apiService.js';
 
-document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
-  e.preventDefault();
-
-  const currentPassword = document.getElementById('currentPassword').value;
-  const newPassword = document.getElementById('newPassword').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('changePasswordForm');
+  const currentPassword = document.getElementById('currentPassword');
+  const newPassword = document.getElementById('newPassword');
+  const confirmPassword = document.getElementById('confirmPassword');
   const messageDiv = document.getElementById('message');
 
-  if (newPassword !== confirmPassword) {
-    messageDiv.innerHTML = '<span style="color:red;">Passwords do not match.</span>';
-    return;
+  function showMessage(content, type = 'success') {
+    messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning');
+    if (type === 'success') {
+      messageDiv.classList.add('alert', 'alert-success');
+    } else if (type === 'error') {
+      messageDiv.classList.add('alert', 'alert-danger');
+    } else if (type === 'warning') {
+      messageDiv.classList.add('alert', 'alert-warning');
+    }
+    messageDiv.innerHTML = content;
   }
 
-  const token = localStorage.getItem('token');
-  if (!token) {
-    messageDiv.innerHTML = '<span style="color:red;">You are not logged in.</span>';
-    return;
+  function checkPasswordsMatch() {
+    if (newPassword.value && confirmPassword.value) {
+      if (newPassword.value === confirmPassword.value) {
+        showMessage('New passwords match!', 'success');
+      } else {
+        showMessage('New passwords do not match!', 'error');
+      }
+    } else {
+      messageDiv.classList.add('d-none');
+    }
   }
 
-  try {
-    await updatePassword({
-      oldPassword: currentPassword,
-      newPassword: newPassword
-    });
+  newPassword.addEventListener('input', checkPasswordsMatch);
+  confirmPassword.addEventListener('input', checkPasswordsMatch);
 
-    messageDiv.innerHTML = '<span style="color:green;">Password changed successfully.</span>';
-    document.getElementById('changePasswordForm').reset();
-  } catch (error) {
-    messageDiv.innerHTML = `<span style="color:red;">${error.message || 'Error changing password.'}</span>`;
-  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
+      showMessage('Please fill in all fields.', 'warning');
+      return;
+    }
+
+    if (newPassword.value !== confirmPassword.value) {
+      showMessage('New passwords do not match!', 'error');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      showMessage('You are not logged in.', 'error');
+      return;
+    }
+
+    try {
+      await updatePassword({
+        oldPassword: currentPassword.value,
+        newPassword: newPassword.value
+      });
+
+      showMessage('Password changed successfully! Redirecting...', 'success');
+      form.reset();
+
+      setTimeout(() => {
+        history.back();
+      }, 2000);
+    } catch (error) {
+      showMessage(`${error.message || 'Error changing password.'}`, 'error');
+    }
+  });
 });
