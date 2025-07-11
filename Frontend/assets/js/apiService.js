@@ -1,4 +1,5 @@
-const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
+//const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
+const BASE_URL = "http://localhost:8080";
 
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -120,7 +121,7 @@ export function deleteMedicalRecord(recordId) {
     return del(`/api/medical-history/${recordId}`);
 }
 
-export function getRecordsByPatient(patientId) {
+export function getMedicalHistoryByPatient(patientId) {
     return get(`/api/medical-history/patient/${patientId}`);
 }
 
@@ -221,6 +222,10 @@ export async function login(data) {
 
 export function getProfile() {
     return get("/api/account/profile");
+}
+
+export function getProfileById(userId) {
+    return get(`/api/account/profile/${userId}`);
 }
 
 export function updateProfile(data) {

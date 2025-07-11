@@ -6,7 +6,6 @@ import com.carelink.account.dto.LoginRequest;
 import com.carelink.account.dto.RegisterRequest;
 import com.carelink.account.dto.RequestResetDto;
 import com.carelink.account.dto.UpdatePasswordRequest;
-import com.carelink.account.dto.UpdateRoleRequest;
 import com.carelink.account.dto.UserResponse;
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
@@ -20,8 +19,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
@@ -98,26 +95,7 @@ public class AccountController {
             if (user == null)
                 return ResponseEntity.status(404).body(null);
 
-            UserResponse response = new UserResponse();
-            response.setUsername(creds.getUsername());
-            if (user.getUserID() != null)
-                response.setUserId(user.getUserID().longValue());
-            response.setFirstName(user.getFirstName());
-            response.setLastName(user.getLastName());
-            response.setEmail(user.getEmail());
-            response.setPhoneNumber(user.getPhoneNumber());
-            if (user.getDateOfBirth() != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                response.setDateOfBirth(sdf.format(user.getDateOfBirth()));
-            }
-            response.setGender(user.getGender());
-            response.setAddress(user.getAddress());
-            response.setCity(user.getCity());
-            response.setCountry(user.getCountry());
-            response.setRole(user.getRole());
-            response.setNotificationPreference(user.getNotificationPreference());
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(buildUserResponse(creds, user));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(null);
         }
@@ -289,4 +267,44 @@ public class AccountController {
         return ResponseEntity.ok("Password updated successfully.");
     }
 
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<UserResponse> getProfileById(@PathVariable Integer id) {
+        UserCredentials creds = accountService.getUserCredentialsByUserId(id);
+        if (creds == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        User user = creds.getUser();
+        if (user == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        UserResponse response = new UserResponse();
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+
+        return ResponseEntity.ok(response);
+    }
+
+    private UserResponse buildUserResponse(UserCredentials creds, User user) {
+        UserResponse response = new UserResponse();
+        response.setUsername(creds.getUsername());
+        if (user.getUserID() != null)
+            response.setUserId(user.getUserID().longValue());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        if (user.getDateOfBirth() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            response.setDateOfBirth(sdf.format(user.getDateOfBirth()));
+        }
+        response.setGender(user.getGender());
+        response.setAddress(user.getAddress());
+        response.setCity(user.getCity());
+        response.setCountry(user.getCountry());
+        response.setRole(user.getRole());
+        response.setNotificationPreference(user.getNotificationPreference());
+        return response;
+    }
 }

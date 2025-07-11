@@ -1,4 +1,4 @@
-import { login } from './apiService.js';
+import { login, getProfile } from './apiService.js';
 
 const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
@@ -12,6 +12,13 @@ loginForm.addEventListener('submit', async (e) => {
     const data = await login({ username, password });
 
     localStorage.setItem('token', data.token);
+
+    const profile = await getProfile();
+
+    localStorage.setItem('userId', profile.userId);
+    console.log('Profile received:', profile);
+    console.log('Saved userId:', localStorage.getItem('userId'));
+
     message.textContent = 'Login successful! Redirecting...';
     message.style.color = 'green';
 

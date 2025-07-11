@@ -116,4 +116,9 @@ public class AccountServiceImpl implements AccountService {
         message.setText(body);
         mailSender.send(message);
     }
+
+    @Override
+    public UserCredentials getUserCredentialsByUserId(Integer UserID) {
+        return credentialsRepository.findByUser_UserID(UserID);
+    }
 }

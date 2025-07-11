@@ -66,12 +66,12 @@
                     <div class="col-lg-6">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title">Current Medications</h5>
-                                <div id="medications">
-                                    <p>Loading your medications...</p>
+                                <h5 class="card-title">Prescriptions</h5>
+                                <div id="prescriptions">
+                                    <p>Loading your prescriptions...</p>
                                 </div>
-                                <a href="medications.html" class="btn btn-outline-secondary mt-2">View All
-                                    Medications</a>
+                                <a href="prescriptions.html" class="btn btn-outline-primary mt-2">View All
+                                    Prescriptions</a>
                             </div>
                         </div>
                     </div>
@@ -83,8 +83,10 @@
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <h5 class="card-title">Medical History</h5>
-                                <p>Access all your past consultations and treatments.</p>
-                                <a href="medical-history.html" class="btn btn-outline-primary">View Medical History</a>
+                                <div id="medicalHistory">
+                                    <p>Loading your medical history...</p>
+                                </div>
+                                <a href="medical-history.html" class="btn btn-outline-primary mt-2">View Full History</a>
                             </div>
                         </div>
                     </div>
@@ -97,8 +99,11 @@
                                 <div id="appointments">
                                     <p>Loading your appointments...</p>
                                 </div>
-                                <a href="schedule-appointment.html" class="btn theme-btn mt-3">Schedule New
-                                    Appointment</a>
+                                <div class="d-grid gap-2">
+                                    <a href="schedule-appointment.html" class="btn theme-btn">Schedule New Appointment</a>
+                                    <a href="reschedule-appointment.html" class="btn theme-btn">Reschedule Appointment</a>
+                                    <a href="cancel-appointment.html" class="btn theme-btn">Cancel Appointment</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -109,7 +114,7 @@
         <!-- ========================= dashboard section end ========================= -->
 
         <!-- ========================= footer start ========================= -->
-<footer class="footer pt-100 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">
+<footer class="footer pt-95 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">
   <div class="container">
     <div class="footer-widget-wrapper">
       <div class="row">
@@ -132,7 +137,7 @@
           </div>
         </div>
 
-        <div class="col-xl-2 col-lg-3 col-md-7">
+        <div class="col-xl-2 col-lg-3 col-md-7 mx-auto">
           <div class="footer-widget mb-30">
             <h4>Quick Links</h4>
             <ul class="footer-links">
@@ -144,7 +149,7 @@
           </div>
         </div>
 
-        <div class="col-xl-4 col-lg-4 col-md-7">
+        <div class="col-xl-3 col-lg-4 col-md-7 ms-auto">
           <div class="footer-widget mb-30">
             <h4>Contact Us</h4>
             <ul class="footer-contact">
@@ -169,8 +174,10 @@
 
         <!-- ========================= JS here ========================= -->
         <script src="assets/js/bootstrap.bundle-5.0.0.alpha-min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tiny-slider/2.9.4/min/tiny-slider.js"></script>
         <script src="assets/js/main.js"></script>
-        <script src="assets/js/dashboard.js" type="module"></script>
+        <script src="assets/js/dashboard_patient.js" type="module"></script>
+</div>
 </body>
 
 </html>
