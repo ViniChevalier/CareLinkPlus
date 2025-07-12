@@ -1,5 +1,5 @@
-//const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
+//const BASE_URL = "http://localhost:8080";
 
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -204,7 +204,11 @@ async function handleLoginResponse(response) {
     } catch (e) {}
 
     if (!response.ok) {
-        const errorMsg = data.message || "Invalid credentials";
+        // Check for status 403 specifically
+        if (response.status === 403) {
+            throw new Error("Invalid username or password. Please try again.");
+        }
+        const errorMsg = data.message || "Login failed. Please try again.";
         throw new Error(errorMsg);
     }
 

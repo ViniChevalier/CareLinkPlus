@@ -1,5 +1,7 @@
 package com.carelink.medicalhistory.dto;
 
+import java.sql.Timestamp;
+
 public class MedicalRecordDto {
 
     private Integer recordId;
@@ -10,6 +12,8 @@ public class MedicalRecordDto {
     private String updatedBy;
     private String attachmentUrl;
     private Integer historyId;
+    private Timestamp createdAt;
+    private Timestamp lastUpdated;
 
     // Getters e setters
 
@@ -74,5 +78,21 @@ public class MedicalRecordDto {
 
     public void setHistoryId(Integer historyId) {
         this.historyId = historyId;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Timestamp lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }

@@ -26,7 +26,11 @@ loginForm.addEventListener('submit', async (e) => {
       window.location.href = 'patient-Dashboard.html';
     }, 1500);
   } catch (error) {
-    message.textContent = error.message || 'Invalid credentials';
+    if (error.response && error.response.status === 403) {
+      message.textContent = 'Invalid username or password. Please try again.';
+    } else {
+      message.textContent = error.message || 'An unexpected error occurred. Please try again later.';
+    }
     message.style.color = 'red';
   }
 });

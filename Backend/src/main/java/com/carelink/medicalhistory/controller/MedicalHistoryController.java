@@ -43,7 +43,7 @@ public class MedicalHistoryController {
         String blobName = "";
         if (file != null && !file.isEmpty()) {
             try {
-                blobName = azureBlobService.uploadFile(file);
+                blobName = azureBlobService.uploadFile(file, "medical-records");
             } catch (Exception e) {
                 return ResponseEntity.status(500).build();
             }
@@ -143,6 +143,8 @@ public class MedicalHistoryController {
         } else {
             dto.setAttachmentUrl(null);
         }
+        dto.setCreatedAt(record.getRecordDate());
+        dto.setLastUpdated(record.getLastUpdated());
 
         return dto;
     }

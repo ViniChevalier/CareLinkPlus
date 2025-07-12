@@ -27,14 +27,14 @@ public class AzureBlobService {
         this.blobServiceClient = blobServiceClient;
     }
 
-    public String uploadFile(MultipartFile file) throws Exception {
+    public String uploadFile(MultipartFile file, String folder) throws Exception {
         BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
         if (!containerClient.exists()) {
             containerClient.create();
         }
 
-        String blobName = "medical-records/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+        String blobName = folder + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
         BlobClient blobClient = containerClient.getBlobClient(blobName);
         blobClient.upload(file.getInputStream(), file.getSize(), true);
 

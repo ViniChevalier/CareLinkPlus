@@ -169,7 +169,7 @@ public class AccountController {
         creds.setResetPasswordToken(token);
         accountService.updateUser(user);
 
-        String resetLink = "https://yourdomain.com/reset-password?token=" + token;
+        String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/reset-password.html?token=" + token;
 
         String subject = "CareLink+ Password Reset Request";
         String body = String.format(

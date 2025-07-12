@@ -29,7 +29,12 @@ public class PatientMedicalHistory {
     private Timestamp lastUpdated;
 
     @Column(name = "UpdatedBy")
-    private String updateBy;
+    private Integer updateBy;
+
+    private Integer doctorId;
+
+    @Column(name = "attachment_name")
+    private String attachmentName;
 
     // Getters and setters
     public Integer getHistoryID() {
@@ -93,10 +98,26 @@ public class PatientMedicalHistory {
     public void setLastUpdated(Timestamp lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
-    public String getUpdateBy() {
+    public Integer getUpdateBy() {
         return updateBy;
     }
-    public void setUpdateBy(String updateBy) {
+    public void setUpdateBy(Integer updateBy) {
         this.updateBy = updateBy;
+    }
+
+    public Integer getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Integer doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
     }
 }

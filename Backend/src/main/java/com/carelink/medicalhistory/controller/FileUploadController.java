@@ -17,8 +17,10 @@ public class FileUploadController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
-        String url = azureBlobService.uploadFile(file);
+    public ResponseEntity<String> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "folder", defaultValue = "generic-files") String folder) throws Exception {
+        String url = azureBlobService.uploadFile(file, folder);
         return ResponseEntity.ok(url);
     }
 }

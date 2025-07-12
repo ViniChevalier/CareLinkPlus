@@ -2313,3 +2313,128 @@ p {
 .footer .copyright-area a:hover {
   color: #00ADB5;
 }
+
+/* Disable link interaction when active, but keep color unchanged */
+.nav-link.active {
+  pointer-events: none;
+  cursor: default;
+}
+
+/*===========================
+    Prescription Modal Cards
+===========================*/
+#prescriptionsCards .card {
+  min-height: 250px;
+  border-radius: 12px;
+  transition: all 0.3s ease-out;
+}
+
+#prescriptionsCards .card:hover {
+  box-shadow: 0 10px 25px rgba(0, 173, 181, 0.2);
+  transform: translateY(-5px);
+}
+
+#prescriptionsCards .card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00ADB5;
+}
+
+#prescriptionsCards .card-text {
+  font-size: 16px;
+  color: #393E46;
+}
+
+#prescriptionsCards a {
+  color: #00ADB5;
+  text-decoration: underline;
+}
+
+#prescriptionsCards a:hover {
+  color: #00848a;
+}
+
+/* Responsive adjustments for prescription cards */
+@media (max-width: 480px) {
+  #prescriptionsCards .card-title {
+    font-size: 18px;
+  }
+
+  #prescriptionsCards .card-text {
+    font-size: 14px;
+  }
+}
+
+/* Improve padding inside card body */
+#prescriptionsCards .card-body {
+  padding: 20px;
+}
+
+/* Improve link styling */
+#prescriptionsCards a {
+  color: #00ADB5;
+  text-decoration: none;
+}
+
+#prescriptionsCards a:hover {
+  text-decoration: underline;
+  color: #00848a;
+}
+
+/* Add subtle border and improve hover transition */
+#prescriptionsCards .card {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+/*===========================
+    History Modal Cards
+===========================*/
+#historyCards .card {
+  min-height: 250px;
+  border-radius: 12px;
+  transition: all 0.3s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#historyCards .card:hover {
+  box-shadow: 0 10px 25px rgba(0, 173, 181, 0.2);
+  transform: translateY(-5px);
+}
+
+#historyCards .card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00ADB5;
+}
+
+#historyCards .card-text {
+  font-size: 16px;
+  color: #393E46;
+}
+
+#historyCards a {
+  color: #00ADB5;
+  text-decoration: none;
+}
+
+#historyCards a:hover {
+  text-decoration: underline;
+  color: #00848a;
+}
+
+/* Responsive adjustments for history cards */
+@media (max-width: 480px) {
+  #historyCards .card-title {
+    font-size: 18px;
+  }
+
+  #historyCards .card-text {
+    font-size: 14px;
+  }
+}
+
+/* Improve padding inside card body */
+#historyCards .card-body {
+  padding: 20px;
+}

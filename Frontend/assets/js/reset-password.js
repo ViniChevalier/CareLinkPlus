@@ -1,5 +1,12 @@
 import { changePassword } from './apiService.js';
 
+function validatePassword(password) {
+  const lengthValid = password.length >= 8;
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  return lengthValid && hasNumber && hasSymbol;
+}
+
 document.getElementById("resetPasswordForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -18,6 +25,11 @@ document.getElementById("resetPasswordForm").addEventListener("submit", function
 
   if (newPassword !== confirmPassword) {
     messageDiv.innerHTML = `<span class="text-danger">Passwords do not match.</span>`;
+    return;
+  }
+
+  if (!validatePassword(newPassword)) {
+    messageDiv.innerHTML = `<span class="text-danger">Password must be at least 8 characters, include a number and a symbol.</span>`;
     return;
   }
 

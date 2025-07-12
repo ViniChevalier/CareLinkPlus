@@ -1,5 +1,6 @@
 import { getAppointmentsByPatient, getMedicalHistoryByPatient, getPatientHistoriesByPatient, getProfileById } from './apiService.js';
 import { loadPatientName } from './userProfile.js';
+import { logout } from './logout.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   loadPatientName();
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("prescriptions").innerHTML = "<p>Error loading prescriptions.</p>";
     });
 
- getPatientHistoriesByPatient(patientId)
+  getPatientHistoriesByPatient(patientId)
     .then(data => {
       const el = document.getElementById("medicalHistory");
 
@@ -92,27 +93,27 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           // Get the last active record
           const lastRecord = activeHistories[activeHistories.length - 1];
-          
+
           const createdAt = lastRecord.createdAt
             ? new Date(lastRecord.createdAt).toLocaleString('en-IE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              })
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            })
             : "N/A";
 
           const lastUpdated = lastRecord.lastUpdated
             ? new Date(lastRecord.lastUpdated).toLocaleString('en-IE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              })
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            })
             : "N/A";
 
           el.innerHTML = `
@@ -134,9 +135,200 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-import { logout } from './logout.js';
-
 document.getElementById("logout-link").addEventListener("click", function (e) {
   e.preventDefault();
   logout();
+});
+
+// Prescriptions modal and cards display logic
+document.getElementById("viewPrescriptionsBtn").addEventListener("click", async function (e) {
+  e.preventDefault();
+
+  const modal = new bootstrap.Modal(document.getElementById("prescriptionsModal"));
+  const cardsContainer = document.getElementById("prescriptionsCards");
+  cardsContainer.innerHTML = "<p>Loading prescriptions...</p>";
+
+  const patientId = localStorage.getItem("userId");
+  if (!patientId) {
+    cardsContainer.innerHTML = "<p>Patient ID not found.</p>";
+    modal.show();
+    return;
+  }
+
+  try {
+    const data = await getMedicalHistoryByPatient(patientId);
+
+    cardsContainer.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      cardsContainer.innerHTML = "<p>No prescriptions found.</p>";
+    } else {
+      for (const record of data) {
+        let doctorName = "N/A";
+        if (record.doctorId) {
+          try {
+            const profileData = await getProfileById(record.doctorId);
+            doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+          } catch (error) {
+            console.error("Error fetching doctor profile:", error);
+          }
+        }
+
+        const lastUpdated = record.lastUpdated
+          ? new Date(record.lastUpdated).toLocaleString('en-IE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })
+          : null;
+
+        const createdAt = record.createdAt
+          ? new Date(record.createdAt).toLocaleString('en-IE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })
+          : null;
+
+        const card = document.createElement("div");
+        card.className = "col-md-6";
+        card.innerHTML = `
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title">Prescription #${record.recordId}</h5>
+              ${createdAt ? `<p class="card-text"><strong>Created At:</strong> ${createdAt}</p>` : ""}
+              <p class="card-text"><strong>Doctor:</strong> ${doctorName}</p>
+              <p class="card-text"><strong>Notes:</strong> ${record.notes || 'N/A'}</p>
+              <p class="card-text"><strong>Prescription:</strong> ${record.prescriptions || 'N/A'}</p>
+              ${lastUpdated ? `<p class="card-text"><strong>Last Updated:</strong> ${lastUpdated}</p>` : ""}
+              ${record.attachmentUrl ? `<p class="card-text"><a href="${record.attachmentUrl}" target="_blank">View Attachment</a></p>` : ""}
+
+
+            </div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      }
+    }
+  } catch (error) {
+    console.error("Error loading prescriptions:", error);
+    cardsContainer.innerHTML = "<p>Error loading prescriptions.</p>";
+  }
+
+  modal.show();
+});
+
+document.getElementById("viewFullHistoryBtn").addEventListener("click", async function (e) {
+  e.preventDefault();
+
+  const modal = new bootstrap.Modal(document.getElementById("historyModal"));
+  const cardsContainer = document.getElementById("historyCards");
+  cardsContainer.innerHTML = "<p>Loading medical history...</p>";
+
+  const patientId = localStorage.getItem("userId");
+  if (!patientId) {
+    cardsContainer.innerHTML = "<p>Patient ID not found.</p>";
+    modal.show();
+    return;
+  }
+
+  try {
+    const data = await getPatientHistoriesByPatient(patientId);
+
+    cardsContainer.innerHTML = "";
+
+    if (!data || data.length === 0) {
+      cardsContainer.innerHTML = "<p>No medical history found.</p>";
+    } else {
+      // Filter active records
+      const activeHistories = data.filter(record => record.status === "Active" || record.status === "active");
+
+      if (activeHistories.length === 0) {
+        cardsContainer.innerHTML = "<p>No active medical history found.</p>";
+      } else {
+        for (const record of activeHistories) {
+          let doctorName = "N/A";
+          if (record.updatedBy) {
+            try {
+              const profileData = await getProfileById(record.updatedBy);
+              doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+            } catch (error) {
+              console.error("Error fetching doctor profile:", error);
+              doctorName = record.updatedBy; // fallback to raw value
+            }
+          }
+
+          let doctorProfileName = "N/A";
+          if (record.doctorId) {
+            try {
+              const doctorProfile = await getProfileById(record.doctorId);
+              doctorProfileName = `${doctorProfile.firstName || ""} ${doctorProfile.lastName || ""}`.trim();
+            } catch (error) {
+              console.error("Error fetching doctor profile:", error);
+            }
+          }
+
+          const createdAt = record.createdAt
+            ? new Date(record.createdAt).toLocaleString('en-IE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              })
+            : null;
+
+          const lastUpdated = record.lastUpdated
+            ? new Date(record.lastUpdated).toLocaleString('en-IE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              })
+            : null;
+
+          const diagnosisDate = record.diagnosisDate
+            ? new Date(record.diagnosisDate).toLocaleDateString('en-IE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              })
+            : "N/A";
+
+          const card = document.createElement("div");
+          card.className = "col-md-6";
+          card.innerHTML = `
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title">History #${record.historyId}</h5>
+                ${createdAt ? `<p class="card-text"><strong>Created At:</strong> ${createdAt}</p>` : ""}
+                <p class="card-text"><strong>Doctor:</strong> ${doctorProfileName}</p>
+                <p class="card-text"><strong>Diagnosis Date:</strong> ${diagnosisDate}</p>
+                <p class="card-text"><strong>Diagnosis:</strong> ${record.diagnosis || 'N/A'}</p>
+                <p class="card-text"><strong>Description:</strong> ${record.description || 'N/A'}</p>           
+                ${lastUpdated ? `<p class="card-text"><strong>Last Updated:</strong> ${lastUpdated}</p>` : ""}
+                <p class="card-text"><strong>Updated By:</strong> ${doctorName}</p>
+                ${record.attachmentUrl ? `<p class="card-text"><a href="${record.attachmentUrl}" target="_blank" download>Download Attachment</a></p>` : ""}
+              </div>
+            </div>
+          `;
+          cardsContainer.appendChild(card);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error loading medical history:", error);
+    cardsContainer.innerHTML = "<p>Error loading medical history.</p>";
+  }
+
+  modal.show();
 });
