@@ -39,4 +39,7 @@ public class DoctorAvailabilityService {
     public void deleteAvailability(Integer availabilityId) {
         availabilityRepository.deleteById(availabilityId);
     }
+    public List<DoctorAvailability> getAllAvailabilities() {
+        return availabilityRepository.findAll();
+    }
 }

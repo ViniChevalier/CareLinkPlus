@@ -9,7 +9,7 @@ function getAuthHeaders() {
 // -----------------------------
 // Generic request helpers
 // -----------------------------
-async function get(endpoint) {
+export async function get(endpoint) {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "GET",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
@@ -17,7 +17,7 @@ async function get(endpoint) {
     return handleResponse(response);
 }
 
-async function post(endpoint, data) {
+export async function post(endpoint, data) {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
@@ -26,7 +26,7 @@ async function post(endpoint, data) {
     return handleResponse(response);
 }
 
-async function put(endpoint, data) {
+export async function put(endpoint, data) {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
@@ -35,13 +35,16 @@ async function put(endpoint, data) {
     return handleResponse(response);
 }
 
-async function del(endpoint) {
+export async function del(endpoint) {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     });
     return handleResponse(response);
 }
+
+// Export generic helpers for named import elsewhere
+// export { get, post, put, del };
 
 async function handleResponse(response) {
     let data = {};
@@ -188,6 +191,10 @@ export function getDoctorAvailability(doctorId) {
 
 export function deleteAvailability(availabilityId) {
     return del(`/api/availability/${availabilityId}`);
+}
+
+export function getAllAvailability() {
+    return get("/api/availability/all");
 }
 
 // -----------------------------

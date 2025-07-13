@@ -32,6 +32,9 @@ jobs:
                const coredemo = require('@actions/core')
                return await coredemo.getIDToken()
            result-encoding: string
+      - name: Create config.js with Google Maps API key
+        run: |
+          echo "const GOOGLE_MAPS_API_KEY = \"${{ secrets.GOOGLE_MAPS_API_KEY }}\";" > ./Frontend/assets/js/config.js
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

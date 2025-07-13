@@ -37,4 +37,9 @@ public class DoctorAvailabilityController {
         availabilityService.deleteAvailability(availabilityId);
         return ResponseEntity.noContent().build();
     }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @GetMapping("/all")
+    public ResponseEntity<List<DoctorAvailability>> getAllAvailabilities() {
+        return ResponseEntity.ok(availabilityService.getAllAvailabilities());
+    }
 }

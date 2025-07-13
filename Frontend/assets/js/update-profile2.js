@@ -1,6 +1,13 @@
+// Função para carregar Google Maps
+function loadGoogleMaps(callback) {
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+  script.defer = true;
+  script.onload = callback;
+  document.head.appendChild(script);
+}
 
-
-// Initialize intl-tel-input
+// Inicializa intl-tel-input
 if (window.intlTelInput) {
   const phoneInput = document.querySelector("#phoneNumber");
   window.iti = window.intlTelInput(phoneInput, {
@@ -12,8 +19,8 @@ if (window.intlTelInput) {
   console.error("intlTelInput not loaded");
 }
 
-// Google Maps API check
-if (window.google && window.google.maps) {
+// Função para inicializar Autocomplete
+function initAutocomplete() {
   const addressInput = document.getElementById("address");
   const autocomplete = new google.maps.places.Autocomplete(addressInput, {
     types: ["address"],
@@ -44,6 +51,7 @@ if (window.google && window.google.maps) {
     document.getElementById("city").value = city;
     document.getElementById("country").value = country;
   });
-} else {
-  console.error("Google Maps API not loaded");
 }
+
+// Carrega Google Maps e depois inicializa autocomplete
+loadGoogleMaps(initAutocomplete);
