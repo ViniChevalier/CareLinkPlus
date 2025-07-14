@@ -53,5 +53,4 @@ function initAutocomplete() {
   });
 }
 
-// Carrega Google Maps e depois inicializa autocomplete
 loadGoogleMaps(initAutocomplete);

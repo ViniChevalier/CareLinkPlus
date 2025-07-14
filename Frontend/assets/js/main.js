@@ -37,6 +37,8 @@
 		}
 	};
 
+	
+
 	// Get the navbar
 
 	//======= tiny slider for slider-active

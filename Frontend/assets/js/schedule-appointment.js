@@ -1,8 +1,3 @@
-// Redirect to dashboard when user presses browser back button
-window.addEventListener("popstate", () => {
-  window.location.href = "patient-Dashboard.html";
-});
-
 import { getAllAvailability, get, post } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -42,4 +42,11 @@ public class DoctorAvailabilityController {
     public ResponseEntity<List<DoctorAvailability>> getAllAvailabilities() {
         return ResponseEntity.ok(availabilityService.getAllAvailabilities());
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @GetMapping("/{availabilityId}")
+    public ResponseEntity<DoctorAvailability> getAvailabilityById(@PathVariable Integer availabilityId) {
+        DoctorAvailability availability = availabilityService.getAvailabilityById(availabilityId);
+        return ResponseEntity.ok(availability);
+    }
 }

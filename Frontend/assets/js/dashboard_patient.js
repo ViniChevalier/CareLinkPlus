@@ -1,6 +1,5 @@
 import { getAppointmentsByPatient, getMedicalHistoryByPatient, getPatientHistoriesByPatient, getProfileById } from './apiService.js';
 import { loadPatientName } from './userProfile.js';
-import { logout } from './logout.js';
 
 document.addEventListener("DOMContentLoaded", function () {
   loadPatientName();
@@ -12,12 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   getAppointmentsByPatient(patientId)
-    .then(data => {
+    .then(async data => {
       const el = document.getElementById("appointments");
       if (data.length === 0) {
         el.innerHTML = "<p>No upcoming appointments.</p>";
       } else {
-        el.innerHTML = data.map(app => {
+        const appointmentElements = await Promise.all(data.map(async app => {
           const date = new Date(app.appointmentDateTime);
           const formattedDate = date.toLocaleString('en-IE', {
             day: '2-digit',
@@ -28,14 +27,27 @@ document.addEventListener("DOMContentLoaded", function () {
             hour12: false
           });
 
+          let doctorName = "N/A";
+          if (app.doctorId) {
+            try {
+              const profileData = await getProfileById(app.doctorId);
+              doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
+            } catch (error) {
+              console.error("Error fetching doctor profile:", error);
+            }
+          }
+
           return `
             <div class="mb-2">
               <strong>${formattedDate}</strong><br>
+              <strong>Doctor:</strong> ${doctorName}<br>
               Reason: ${app.reason}<br>
               Status: <span class="badge bg-info">${app.appointmentStatus}</span>
             </div>
           `;
-        }).join("");
+        }));
+
+        el.innerHTML = appointmentElements.join("");
       }
     })
     .catch(error => {

@@ -24,8 +24,3 @@ function getGreeting() {
     return 'Good evening';
   }
 }
-
-document.getElementById("logout-link").addEventListener("click", function (e) {
-  e.preventDefault();
-  logout();
-});

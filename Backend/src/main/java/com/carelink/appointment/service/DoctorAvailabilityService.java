@@ -42,4 +42,9 @@ public class DoctorAvailabilityService {
     public List<DoctorAvailability> getAllAvailabilities() {
         return availabilityRepository.findAll();
     }
+
+    public DoctorAvailability getAvailabilityById(Integer id) {
+        return availabilityRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Availability not found with id " + id));
+    }
 }

@@ -1,6 +1,5 @@
 
 import { getProfile, updateProfile } from './apiService.js';
-import { logout } from './logout.js';
 
 window.addEventListener("load", async () => {
   const form = document.getElementById("updateProfileForm");
@@ -74,9 +73,4 @@ window.addEventListener("load", async () => {
       messageDiv.classList.remove("d-none");
     }
   });
-});
-
-document.getElementById("logout-link").addEventListener("click", function (e) {
-  e.preventDefault();
-  logout();
 });
