@@ -1,6 +1,9 @@
 package com.carelink.appointment.service;
 
+import com.carelink.appointment.model.AvailabilityStatus;
+
 import com.carelink.appointment.dto.AppointmentRequestDTO;
+import com.carelink.appointment.dto.AppointmentWithPatientDTO;
 import com.carelink.appointment.model.AppointmentEntity;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.repository.AppointmentRepository;
@@ -21,10 +24,7 @@ public class AppointmentServiceImpl {
         this.doctorAvailabilityRepository = doctorAvailabilityRepository;
     }
 
-    /**
-     * Creates a new appointment using the provided availability slot.
-     * Marks the slot as booked after successful creation.
-     */
+
     public AppointmentEntity createAppointment(AppointmentRequestDTO dto) {
         Integer availabilityIdInt = dto.getAvailabilityId() != null ? dto.getAvailabilityId().intValue() : null;
 
@@ -45,6 +45,7 @@ public class AppointmentServiceImpl {
 
         // Mark slot as booked
         availabilitySlot.setIsBooked(true);
+        availabilitySlot.setStatus(AvailabilityStatus.BOOKED);
         doctorAvailabilityRepository.save(availabilitySlot);
 
         return appointmentRepository.save(appointment);
@@ -87,6 +88,7 @@ public class AppointmentServiceImpl {
                 .orElseThrow(() -> new RuntimeException("Old availability slot not found"));
 
             oldAvailabilitySlot.setIsBooked(false);
+            oldAvailabilitySlot.setStatus(AvailabilityStatus.AVAILABLE);
             doctorAvailabilityRepository.save(oldAvailabilitySlot);
 
             // Reserve the new slot
@@ -102,6 +104,7 @@ public class AppointmentServiceImpl {
             appointment.setAvailabilityId(availabilityIdInt);
 
             newAvailabilitySlot.setIsBooked(true);
+            newAvailabilitySlot.setStatus(AvailabilityStatus.BOOKED);
             doctorAvailabilityRepository.save(newAvailabilitySlot);
         }
 
@@ -123,6 +126,7 @@ public class AppointmentServiceImpl {
             .orElseThrow(() -> new RuntimeException("Slot not found"));
 
         slot.setIsBooked(false);
+        slot.setStatus(AvailabilityStatus.AVAILABLE);
         doctorAvailabilityRepository.save(slot);
 
         appointmentRepository.deleteById(id);
@@ -140,6 +144,7 @@ public class AppointmentServiceImpl {
         }
 
         slot.setIsBooked(true);
+        slot.setStatus(AvailabilityStatus.BOOKED);
         doctorAvailabilityRepository.save(slot);
 
         return appointmentRepository.save(entity);
@@ -151,5 +156,9 @@ public class AppointmentServiceImpl {
     public AppointmentEntity getAppointmentById(int id) {
         return appointmentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Appointment not found"));
+    }
+
+    public List<AppointmentWithPatientDTO> getAppointmentsWithPatientNameByDoctorId(int doctorId) {
+        return appointmentRepository.findAppointmentsWithPatientNameByDoctorId(doctorId);
     }
 }

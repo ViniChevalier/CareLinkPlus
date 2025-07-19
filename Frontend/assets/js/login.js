@@ -16,6 +16,8 @@ loginForm.addEventListener('submit', async (e) => {
     const profile = await getProfile();
 
     localStorage.setItem('userId', profile.userId);
+    localStorage.setItem('role', profile.role);
+    localStorage.setItem('name', profile.firstName);
     console.log('Profile received:', profile);
     console.log('Saved userId:', localStorage.getItem('userId'));
 
@@ -23,8 +25,15 @@ loginForm.addEventListener('submit', async (e) => {
     message.style.color = 'green';
 
     setTimeout(() => {
-      window.location.href = 'patient-Dashboard.html';
-    }, 1500);
+      if (profile.role === 'DOCTOR') {
+        window.location.href = 'doctor-dashboard.html';
+      } else if (profile.role === 'PATIENT') {
+        window.location.href = 'patient-dashboard.html';
+      } else {
+        message.textContent = 'Unknown user role. Access denied.';
+        message.style.color = 'red';
+      }
+    }, 1000);
   } catch (error) {
     if (error.response && error.response.status === 403) {
       message.textContent = 'Invalid username or password. Please try again.';

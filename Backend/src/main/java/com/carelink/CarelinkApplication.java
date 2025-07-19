@@ -1,5 +1,7 @@
 package com.carelink;
 
+import org.springframework.scheduling.annotation.EnableScheduling;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +26,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.util.List;
 
+@EnableScheduling
 @SpringBootApplication
 public class CarelinkApplication implements CommandLineRunner {
 

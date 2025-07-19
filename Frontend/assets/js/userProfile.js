@@ -13,6 +13,45 @@ export function loadPatientName() {
     });
 }
 
+export function loadDoctorName() {
+  getProfile()
+    .then(data => {
+      const name = data.firstName || 'Doctor';
+      const greeting = getGreeting();
+      document.getElementById('doctor-name').innerText = `${greeting}, Dr. ${name}!`;
+    })
+    .catch(error => {
+      console.error('Error loading doctor name:', error);
+      document.getElementById('doctor-name').innerText = 'Hello, Doctor!';
+    });
+}
+
+export function loadSecretaryName() {
+  getProfile()
+    .then(data => {
+      const name = data.firstName || 'Secretary';
+      const greeting = getGreeting();
+      document.getElementById('secretary-name').innerText = `${greeting}, ${name}!`;
+    })
+    .catch(error => {
+      console.error('Error loading secretary name:', error);
+      document.getElementById('secretary-name').innerText = 'Hello, Secretary!';
+    });
+}
+
+export function loadAdminName() {
+  getProfile()
+    .then(data => {
+      const name = data.firstName || 'Admin';
+      const greeting = getGreeting();
+      document.getElementById('admin-name').innerText = `${greeting}, ${name}!`;
+    })
+    .catch(error => {
+      console.error('Error loading admin name:', error);
+      document.getElementById('admin-name').innerText = 'Hello, Admin!';
+    });
+}
+
 function getGreeting() {
   const hour = new Date().getHours();
 

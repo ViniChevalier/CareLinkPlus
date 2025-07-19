@@ -1,9 +1,7 @@
 document.getElementById('logout-link').addEventListener('click', function (e) {
     e.preventDefault();
     
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("role");
-
+    localStorage.clear();
+    
     window.location.href = "index.html";
 });

@@ -1,6 +1,7 @@
 package com.carelink.appointment.controller;
 
 import com.carelink.appointment.dto.AppointmentRequestDTO;
+import com.carelink.appointment.dto.AppointmentWithPatientDTO;
 import com.carelink.appointment.model.AppointmentEntity;
 import com.carelink.appointment.service.AppointmentServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +40,8 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByDoctor(@PathVariable int doctorId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByDoctor(doctorId));
+    public ResponseEntity<List<AppointmentWithPatientDTO>> getAppointmentsByDoctor(@PathVariable int doctorId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsWithPatientNameByDoctorId(doctorId));
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")

@@ -2,6 +2,8 @@ package com.carelink.appointment.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.carelink.account.model.User;
+import com.carelink.appointment.model.DoctorAvailability;
 
 @Entity
 @Table(name = "appointments")
@@ -14,6 +16,10 @@ public class AppointmentEntity {
 
     @Column(name = "PatientID", nullable = false)
     private Integer patientId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PatientID", referencedColumnName = "userID", insertable = false, updatable = false)
+    private User patient;
 
     @Column(name = "DoctorID", nullable = false)
     private Integer doctorId;
@@ -33,11 +39,16 @@ public class AppointmentEntity {
     @Column(name = "AvailabilityID")
     private Integer availabilityId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AvailabilityID", referencedColumnName = "availabilityId", insertable = false, updatable = false)
+    private DoctorAvailability availability;
+
     public AppointmentEntity() {
     }
 
     public AppointmentEntity(Integer appointmentId, Integer patientId, Integer doctorId,
-            LocalDateTime appointmentDateTime, String appointmentStatus, String reason, Integer availabilityId) {
+                             LocalDateTime appointmentDateTime, String appointmentStatus, String reason,
+                             Integer availabilityId) {
         this.appointmentId = appointmentId;
         this.patientId = patientId;
         this.doctorId = doctorId;
@@ -47,7 +58,6 @@ public class AppointmentEntity {
         this.availabilityId = availabilityId;
     }
 
-    // Getters e setters
     public Integer getAppointmentId() {
         return appointmentId;
     }
@@ -106,5 +116,29 @@ public class AppointmentEntity {
 
     public void setAvailabilityId(Integer availabilityId) {
         this.availabilityId = availabilityId;
+    }
+
+    public User getPatient() {
+        return patient;
+    }
+
+    public void setPatient(User patient) {
+        this.patient = patient;
+    }
+
+    public DoctorAvailability getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(DoctorAvailability availability) {
+        this.availability = availability;
+    }
+
+    public AvailabilityStatus getAvailabilityStatus() {
+        return AvailabilityStatus.valueOf(appointmentStatus.toUpperCase());
+    }
+
+    public void setAvailabilityStatus(AvailabilityStatus status) {
+        this.appointmentStatus = status.name();
     }
 }

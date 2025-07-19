@@ -1,5 +1,7 @@
 package com.carelink.appointment.model;
 
+import com.carelink.appointment.model.AvailabilityStatus;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,6 +29,10 @@ public class DoctorAvailability {
 
     @Column(name = "IsBooked")
     private Boolean isBooked = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Status", nullable = false)
+    private AvailabilityStatus status = AvailabilityStatus.AVAILABLE;
 
     // Getters e setters
 
@@ -76,5 +82,13 @@ public class DoctorAvailability {
 
     public void setIsBooked(Boolean isBooked) {
         this.isBooked = isBooked;
+    }
+
+    public AvailabilityStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AvailabilityStatus status) {
+        this.status = status;
     }
 }
