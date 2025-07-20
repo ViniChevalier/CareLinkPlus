@@ -42,11 +42,7 @@ public class PatientMedicalHistoryController {
 
         PatientMedicalHistory history = new PatientMedicalHistory();
 
-        // Debug logs for raw form values
-        System.out.println("Raw patientId: '" + form.getPatientId() + "'");
-        System.out.println("Raw doctorId: '" + form.getDoctorId() + "'");
-        System.out.println("Raw updatedBy: '" + form.getUpdatedBy() + "'");
-        System.out.println("Raw diagnosisDate: '" + form.getDiagnosisDate() + "'");
+
 
         Integer patientId = null;
         try {

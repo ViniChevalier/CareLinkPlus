@@ -139,29 +139,24 @@ export function getPatientHistoryById(historyId) {
     return get(`/api/patient-history/${historyId}`);
 }
 
-export function createPatientHistory(data) {
-    return post("/api/patient-history", data);
-}
+export function createPatientHistory(patientId, doctorId, diagnosis, description, status, updatedBy, diagnosisDate, fileObj) {
+  const formData = new FormData();
+  formData.append("patientId", patientId);
+  formData.append("doctorId", doctorId);
+  formData.append("diagnosis", diagnosis || "");
+  formData.append("description", description || "");
+  formData.append("status", status || "Active");
+  formData.append("updatedBy", updatedBy || "");
+  formData.append("diagnosisDate", diagnosisDate || "");
+  if (fileObj) {
+    formData.append("file", fileObj);
+  }
 
-export function createPatientHistoryWithForm(form) {
-    const formData = new FormData();
-    formData.append("patientId", form.patientId);
-    formData.append("doctorId", form.doctorId);
-    formData.append("diagnosis", form.diagnosis || "");
-    formData.append("description", form.description || "");
-    formData.append("status", form.status || "Active");
-    formData.append("updatedBy", form.updatedBy || "");
-    formData.append("diagnosisDate", form.diagnosisDate || "");
-
-    if (form.file) {
-        formData.append("file", form.file);
-    }
-
-    return fetch(`${BASE_URL}/api/patient-history`, {
-        method: "POST",
-        headers: { ...getAuthHeaders() },
-        body: formData,
-    }).then(handleResponse);
+  return fetch(`${BASE_URL}/api/patient-history`, {
+    method: "POST",
+    headers: { ...getAuthHeaders() },
+    body: formData,
+  }).then(handleResponse);
 }
 
 export function updatePatientHistory(historyId, data) {

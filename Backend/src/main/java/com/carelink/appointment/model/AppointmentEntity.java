@@ -24,6 +24,10 @@ public class AppointmentEntity {
     @Column(name = "DoctorID", nullable = false)
     private Integer doctorId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DoctorID", referencedColumnName = "userID", insertable = false, updatable = false)
+    private User doctor;
+
     @Column(name = "AppointmentDateTime", nullable = false)
     private LocalDateTime appointmentDateTime;
 
@@ -140,5 +144,13 @@ public class AppointmentEntity {
 
     public void setAvailabilityStatus(AvailabilityStatus status) {
         this.appointmentStatus = status.name();
+    }
+
+    public User getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(User doctor) {
+        this.doctor = doctor;
     }
 }

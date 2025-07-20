@@ -128,32 +128,34 @@
           <div class="card shadow-sm p-4">
             <div class="mb-3">
               <h5>Pre-existing Conditions</h5>
-              <ul id="preExistingConditions" class="list-group list-group-flush">
-                <li id="viewPreExistingConditions" class="list-group-item">Loading...</li>
-              </ul>
+              <p id="viewPreExistingConditionsFallback" class="text-muted d-none">Loading...</p>
+              <ul id="viewPreExistingConditions" class="list-group list-group-flush"></ul>
             </div>
             <div class="mb-3">
               <h5>Past Surgeries</h5>
-              <ul id="pastSurgeries" class="list-group list-group-flush">
-                <li id="viewPastSurgeries" class="list-group-item">Loading...</li>
-              </ul>
+              <p id="viewPastSurgeriesFallback" class="text-muted d-none">Loading...</p>
+              <ul id="viewPastSurgeries" class="list-group list-group-flush"></ul>
             </div>
             <div class="mb-3">
               <h5>Allergies</h5>
-              <ul id="allergies" class="list-group list-group-flush">
-                <li id="viewAllergies" class="list-group-item">Loading...</li>
-              </ul>
+              <p id="viewAllergiesFallback" class="text-muted d-none">Loading...</p>
+              <ul id="viewAllergies" class="list-group list-group-flush"></ul>
             </div>
             <div class="mb-3">
               <h5>Family History</h5>
-              <ul id="familyHistory" class="list-group list-group-flush">
-                <li id="viewFamilyHistory" class="list-group-item">Loading...</li>
-              </ul>
+              <p id="viewFamilyHistoryFallback" class="text-muted d-none">Loading...</p>
+              <ul id="viewFamilyHistory" class="list-group list-group-flush"></ul>
             </div>
           </div>
           <div class="text-end mt-4">
             <button id="btnAddMedicalHistory" class="btn btn-outline-primary btn-lg">+ Add Medical History</button>
           </div>
+          <div id="loadingSpinner" class="text-center my-2" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div id="feedbackMessage" class="alert d-none" role="alert"></div>
 
           <!-- Add Medical History Modal -->
           <div class="modal fade" id="medicalHistoryModal" tabindex="-1" aria-labelledby="medicalHistoryModalLabel" aria-hidden="true">
@@ -194,6 +196,7 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                   </div>
+                  <div id="medicalHistoryFeedback" class="alert d-none mt-2" role="alert"></div>
                 </form>
               </div>
             </div>
@@ -219,12 +222,23 @@
           </div>
           <div class="card shadow-sm p-4">
             <ul id="prescriptionsList" class="list-group list-group-flush">
-              <li class="list-group-item text-muted">Loading...</li>
+              <li class="list-group-item text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </li>
             </ul>
+            <div id="prescriptionFeedback" class="alert d-none mt-2" role="alert"></div>
           </div>
           <div class="text-end mt-4">
             <button id="btnAddPrescription" class="btn btn-outline-success btn-lg">+ Add Prescription</button>
           </div>
+          <div id="loadingSpinnerPrescription" class="text-center my-2" style="display: none;">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+          <div id="feedbackMessagePrescription" class="alert d-none" role="alert"></div>
         </div>
       </div>
     </div>
@@ -242,7 +256,11 @@
           </div>
           <div class="card shadow-sm p-4">
             <ul id="consultationHistoryList" class="list-group list-group-flush">
-              <li class="list-group-item text-muted">Loading...</li>
+              <li class="list-group-item text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
@@ -262,7 +280,11 @@
           </div>
           <div class="card shadow-sm p-4">
             <ul id="upcomingAppointmentsList" class="list-group list-group-flush">
-              <li class="list-group-item text-muted">Loading...</li>
+              <li class="list-group-item text-center">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
@@ -336,29 +358,8 @@
   <script src="assets/js/main.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script type="module" src="assets/js/patient-view.js"></script>
-</script>
   <script src="assets/js/logout.js"></script>
 
-  <!-- Debugging Script: DOM elements and localStorage check -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      console.log("✅ DOM fully loaded.");
-
-      const patientId = localStorage.getItem("selectedPatientId");
-      console.log("✅ Selected patient ID:", patientId);
-
-      const checkElement = (id) => {
-        const el = document.getElementById(id);
-        if (el) {
-          console.log(`✅ Element with ID '${id}' found.`);
-        } else {
-          console.warn(`⛔ Element with ID '${id}' NOT found.`);
-        }
-      };
-
-      ["preExistingConditions", "pastSurgeries", "allergies", "familyHistory"].forEach(checkElement);
-    });
-  </script>
 </body>
 
 </html>

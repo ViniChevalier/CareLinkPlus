@@ -38,7 +38,11 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatient(@PathVariable int patientId) {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatient(patientId);
         List<AppointmentDTO> dtos = appointments.stream()
-            .map(AppointmentDTO::new)
+            .map(a -> new AppointmentDTO(
+                a,
+                a.getDoctor().getUserID(),
+                a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
+            ))
             .toList();
         return ResponseEntity.ok(dtos);
     }
