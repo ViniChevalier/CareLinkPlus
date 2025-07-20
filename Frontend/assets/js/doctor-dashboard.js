@@ -8,6 +8,57 @@ import {
 
 import { loadDoctorName } from './userProfile.js';
 
+export async function loadPatientsInModal() {
+    const modalBody = document.getElementById('patientsModalBody');
+    modalBody.innerHTML = '<p>Loading patients...</p>';
+
+    try {
+        const doctorId = localStorage.getItem("userId");
+        if (!doctorId) throw new Error("Doctor not logged in.");
+
+        const appointments = await getAppointmentsByDoctor(doctorId);
+        const patientIds = [...new Set(appointments.map(a => a.patientId).filter(Boolean))];
+        const patients = [];
+
+        for (const id of patientIds) {
+            try {
+                const profile = await getProfileById(id);
+                const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+                patients.push({ id, name: fullName });
+            } catch (e) {
+                patients.push({ id, name: "Unknown" });
+            }
+        }
+
+        if (patients.length === 0) {
+            modalBody.innerHTML = '<p>No patients with appointments found.</p>';
+            return;
+        }
+
+        modalBody.innerHTML = '<ul class="list-group">' +
+            patients.map(p => `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${p.name}
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewPatientProfile('${p.id}')">View Profile</button>
+                </li>
+            `).join('') +
+            '</ul>';
+    } catch (err) {
+        console.error(err);
+        modalBody.innerHTML = '<p class="text-danger">Error loading patients.</p>';
+    }
+}
+
+// Register modal show event
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('patientsModal');
+    if (modal) {
+        modal.addEventListener('show.bs.modal', () => {
+            loadPatientsInModal();
+        });
+    }
+});
+
 document.addEventListener("DOMContentLoaded", async () => {
     loadDoctorName();
     const doctorId = localStorage.getItem("userId");
@@ -96,7 +147,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Function to handle patient profile redirection
         window.viewPatientProfile = function(patientId) {
-            window.location.href = `patient-profile.html?id=${patientId}`;
+            localStorage.setItem("selectedPatientId", patientId);
+            window.location.href = "patient-profile.html";
         };
 
         // Populate today's indicators

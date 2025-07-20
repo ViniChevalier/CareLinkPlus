@@ -1,6 +1,7 @@
 package com.carelink.medicalhistory.controller;
 
 import com.carelink.medicalhistory.dto.PatientMedicalHistoryDto;
+import com.carelink.medicalhistory.dto.PatientMedicalHistoryForm;
 import com.carelink.medicalhistory.entity.PatientMedicalHistory;
 import com.carelink.medicalhistory.service.AzureBlobService;
 import com.carelink.medicalhistory.service.PatientMedicalHistoryService;
@@ -26,17 +27,11 @@ public class PatientMedicalHistoryController {
 
     @PostMapping
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<PatientMedicalHistory> createHistory(
-            @RequestParam Integer patientId,
-            @RequestParam Integer doctorId,
-            @RequestParam(required = false) String diagnosis,
-            @RequestParam(required = false) String description,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String updatedBy,
-            @RequestParam(required = false) Date diagnosisDate,
-            @RequestParam(value = "file", required = false) MultipartFile file
-    ) {
+    public ResponseEntity<PatientMedicalHistory> createHistory(@ModelAttribute PatientMedicalHistoryForm form) {
+        System.out.println("POST recebido com form: " + form);
         String blobName = "";
+        MultipartFile file = form.getFile();
+
         if (file != null && !file.isEmpty()) {
             try {
                 blobName = azureBlobService.uploadFile(file, "medical-histories");
@@ -46,14 +41,60 @@ public class PatientMedicalHistoryController {
         }
 
         PatientMedicalHistory history = new PatientMedicalHistory();
+
+        // Debug logs for raw form values
+        System.out.println("Raw patientId: '" + form.getPatientId() + "'");
+        System.out.println("Raw doctorId: '" + form.getDoctorId() + "'");
+        System.out.println("Raw updatedBy: '" + form.getUpdatedBy() + "'");
+        System.out.println("Raw diagnosisDate: '" + form.getDiagnosisDate() + "'");
+
+        Integer patientId = null;
+        try {
+            patientId = Integer.parseInt(Optional.ofNullable(form.getPatientId()).orElse("").trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid patientId: " + form.getPatientId());
+            return ResponseEntity.badRequest().build();
+        }
+
+        Integer doctorId = null;
+        try {
+            doctorId = Integer.parseInt(Optional.ofNullable(form.getDoctorId()).orElse("").trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid doctorId: " + form.getDoctorId());
+            return ResponseEntity.badRequest().build();
+        }
+
+        Integer updatedBy = null;
+        try {
+            updatedBy = Integer.parseInt(Optional.ofNullable(form.getUpdatedBy()).orElse("").trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid updatedBy: " + form.getUpdatedBy());
+            return ResponseEntity.badRequest().build();
+        }
+
+        System.out.println("Parsed values => patientId: " + patientId + ", doctorId: " + doctorId + ", updatedBy: " + updatedBy);
+
+        java.sql.Date diagnosisDate = null;
+        String diagnosisDateStr = form.getDiagnosisDate();
+        if (diagnosisDateStr != null && !diagnosisDateStr.trim().isEmpty() && !"undefined".equals(diagnosisDateStr.trim())) {
+            try {
+                diagnosisDate = java.sql.Date.valueOf(diagnosisDateStr.trim());
+            } catch (IllegalArgumentException e) {
+                System.err.println("Invalid date format: " + diagnosisDateStr);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        // Set parsed values
         history.setPatientID(patientId);
         history.setDoctorId(doctorId);
-        history.setDiagnosis(diagnosis);
-        history.setDescription(description);
+        history.setUpdateBy(updatedBy != null ? updatedBy : 0);
         history.setDiagnosisDate(diagnosisDate);
-        history.setStatus(status != null ? status : "Active");
+
+        history.setDiagnosis(form.getDiagnosis());
+        history.setDescription(form.getDescription());
+        history.setStatus(form.getStatus() != null ? form.getStatus() : "Active");
         history.setAttachmentName(blobName);
-        history.setUpdateBy(updatedBy != null ? Integer.valueOf(updatedBy) : 0);
 
         PatientMedicalHistory saved = service.save(history);
         return ResponseEntity.ok(saved);

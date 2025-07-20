@@ -275,11 +275,7 @@ public class AccountController {
             return ResponseEntity.status(404).body(null);
         }
 
-        UserResponse response = new UserResponse();
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(buildUserResponse(creds, user));
     }
 
     private UserResponse buildUserResponse(UserCredentials creds, User user) {

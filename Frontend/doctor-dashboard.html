@@ -58,13 +58,7 @@
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
                     <li class="nav-item">
-                      <a class="nav-link active" href="patient-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="medical-history.html">Medical History</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="prescriptions.html">Prescriptions</a>
+                      <a class="nav-link active" href="doctor-dashboard.html">Dashboard</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="update-profile.html">Profile</a>
@@ -116,7 +110,7 @@
                   <div id="myPatients">
                     <!-- Patient buttons will be injected here by JavaScript -->
                   </div>
-                  <a href="patients-list.html" class="btn btn-outline-primary mt-2">View Patients</a>
+                  <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#patientsModal">View Patients</button>
                 </div>
               </div>
             </div>
@@ -243,6 +237,21 @@
         </div>
         <div class="modal-body" id="monthlyIndicatorsContent">
           <p>Loading monthly data...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patients Modal -->
+  <div class="modal fade" id="patientsModal" tabindex="-1" aria-labelledby="patientsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="patientsModalLabel">My Patients</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="patientsModalBody">
+          <p>Loading patients...</p>
         </div>
       </div>
     </div>
