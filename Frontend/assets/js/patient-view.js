@@ -172,11 +172,11 @@ async function loadUpcomingAppointments(patientId) {
             <div class="modal-body">
               <ul class="list-group">
                 ${appointments
-                  .filter(a => new Date(a.dateTime) >= new Date())
-                  .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
-                  .map(app => {
-                    const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
-                    return `
+            .filter(a => new Date(a.dateTime) >= new Date())
+            .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
+            .map(app => {
+              const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
+              return `
                       <li class="list-group-item">
                         <div class="d-flex justify-content-between align-items-center">
                           <div>
@@ -188,7 +188,7 @@ async function loadUpcomingAppointments(patientId) {
                         </div>
                       </li>
                     `;
-                  }).join('')}
+            }).join('')}
               </ul>
             </div>
           </div></div>
@@ -297,17 +297,17 @@ async function loadPrescriptions(patientId) {
             </div>
             <div class="modal-body">
               <ul class="list-group">${prescriptions.map(p => {
-                let medInfo = {};
-                try {
-                  medInfo = JSON.parse(p.prescriptions || '{}');
-                } catch {}
-                return `
+          let medInfo = {};
+          try {
+            medInfo = JSON.parse(p.prescriptions || '{}');
+          } catch { }
+          return `
                   <li class="list-group-item">
                     <strong>${medInfo.medication || 'Unnamed Medication'}</strong> - ${medInfo.dosage || 'N/A'} (${medInfo.frequency || 'N/A'})<br/>
                     <small>Prescribed on: ${medInfo.startDate ? new Date(medInfo.startDate).toLocaleDateString() : 'Unknown date'}</small>
                   </li>
                 `;
-              }).join('')}</ul>
+        }).join('')}</ul>
             </div>
           </div></div>
         `;
@@ -378,11 +378,11 @@ async function loadConsultationHistory(patientId) {
             <div class="modal-body">
               <ul class="list-group">
                 ${appointments
-                  .filter(app => new Date(app.dateTime) < new Date())
-                  .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
-                  .map(app => {
-                    const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
-                    return `
+            .filter(app => new Date(app.dateTime) < new Date())
+            .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
+            .map(app => {
+              const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
+              return `
                       <li class="list-group-item">
                         <div class="d-flex justify-content-between align-items-start">
                           <div>
@@ -394,7 +394,7 @@ async function loadConsultationHistory(patientId) {
                         </div>
                       </li>
                     `;
-                  }).join('')}
+            }).join('')}
               </ul>
             </div>
           </div></div>
@@ -493,13 +493,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                   <textarea class="form-control" name="familyHistory" rows="2" required></textarea>
                 </div>
                 <div class="mb-2">
-                  <label class="form-label">Status</label>
-                  <select name="status" class="form-select">
-                    <option value="Active">Active</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
-                </div>
-                <div class="mb-2">
                   <label class="form-label">Diagnosis Date</label>
                   <input type="date" class="form-control" name="diagnosisDate">
                 </div>
@@ -547,8 +540,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("diagnosis", JSON.stringify(diagnosis));
         formData.append("description", form.description.value || "");
         formData.append("diagnosisDate", form.diagnosisDate.value || "");
-        formData.append("status", form.status.value || "Active");
-        formData.append("updatedBy", "");
+        formData.append("status", "Active");
         formData.append("historyId", "");
         if (form.file && form.file.files.length > 0) {
           formData.append("attachment", form.file.files[0]);
@@ -574,8 +566,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             doctorId: parseInt(doctorId),
             diagnosis: JSON.stringify(diagnosis),
             description: form.description.value || "",
-            status: form.status.value || "Active",
-            updatedBy: localStorage.getItem("userFullName") || doctorId,
+            status: "Active",
             diagnosisDate: form.diagnosisDate.value || "",
             file: form.file && form.file.files.length > 0 ? form.file.files[0] : null
           };
@@ -586,7 +577,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             formObject.diagnosis,
             formObject.description,
             formObject.status,
-            formObject.updatedBy,
             formObject.diagnosisDate,
             formObject.file
           );
@@ -595,7 +585,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           loadMedicalHistory(patientId);
         } catch (error) {
           console.error("Failed to create medical history:", error);
-          showModalFeedback("Failed to save history. Please check the data and try again.");
+          const message = error?.message || "Failed to save history. Please check the data and try again.";
+          showModalFeedback(message);
         }
       });
     });
@@ -664,7 +655,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const prescriptionPayload = {
           patientId: parseInt(patientId),
           doctorId: parseInt(doctorId),
-          updatedBy: null,
           historyId: null,
           notes: form.notes ? form.notes.value.trim() : '',
           prescriptions: JSON.stringify({
@@ -678,7 +668,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const prescriptionFormData = new FormData();
         prescriptionFormData.append("patientId", prescriptionPayload.patientId);
         prescriptionFormData.append("doctorId", prescriptionPayload.doctorId);
-        prescriptionFormData.append("updatedBy", "");
         prescriptionFormData.append("notes", prescriptionPayload.notes);
         prescriptionFormData.append("prescriptions", prescriptionPayload.prescriptions);
         prescriptionFormData.append("historyId", "");

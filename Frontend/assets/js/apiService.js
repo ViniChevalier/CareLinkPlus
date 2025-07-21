@@ -139,14 +139,13 @@ export function getPatientHistoryById(historyId) {
     return get(`/api/patient-history/${historyId}`);
 }
 
-export function createPatientHistory(patientId, doctorId, diagnosis, description, status, updatedBy, diagnosisDate, fileObj) {
+export function createPatientHistory(patientId, doctorId, diagnosis, description, status, diagnosisDate, fileObj) {
   const formData = new FormData();
   formData.append("patientId", patientId);
   formData.append("doctorId", doctorId);
   formData.append("diagnosis", diagnosis || "");
   formData.append("description", description || "");
   formData.append("status", status || "Active");
-  formData.append("updatedBy", updatedBy || "");
   formData.append("diagnosisDate", diagnosisDate || "");
   if (fileObj) {
     formData.append("file", fileObj);

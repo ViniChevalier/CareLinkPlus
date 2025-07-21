@@ -34,8 +34,8 @@ public class MedicalHistoryController {
     public ResponseEntity<MedicalRecordDto> createRecord(
             @RequestParam Integer patientId,
             @RequestParam Integer doctorId,
-            @RequestParam(required = false) String notes,
-            @RequestParam(required = false) String prescriptions,
+            @RequestParam String notes,
+            @RequestParam String prescriptions,
             @RequestParam(required = false) String updatedBy,
             @RequestParam(required = false) Integer historyId,
             @RequestParam(value = "file", required = false) MultipartFile file

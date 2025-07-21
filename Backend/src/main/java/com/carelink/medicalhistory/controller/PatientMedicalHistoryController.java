@@ -27,11 +27,17 @@ public class PatientMedicalHistoryController {
 
     @PostMapping
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<PatientMedicalHistory> createHistory(@ModelAttribute PatientMedicalHistoryForm form) {
-        System.out.println("POST recebido com form: " + form);
+    public ResponseEntity<PatientMedicalHistoryDto> createHistory(
+            @RequestParam Integer patientId,
+            @RequestParam Integer doctorId,
+            @RequestParam String diagnosis,
+            @RequestParam String description,
+            @RequestParam String diagnosisDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String updatedBy,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
         String blobName = "";
-        MultipartFile file = form.getFile();
-
         if (file != null && !file.isEmpty()) {
             try {
                 blobName = azureBlobService.uploadFile(file, "medical-histories");
@@ -41,59 +47,53 @@ public class PatientMedicalHistoryController {
         }
 
         PatientMedicalHistory history = new PatientMedicalHistory();
-
-
-
-        Integer patientId = null;
-        try {
-            patientId = Integer.parseInt(Optional.ofNullable(form.getPatientId()).orElse("").trim());
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid patientId: " + form.getPatientId());
-            return ResponseEntity.badRequest().build();
-        }
-
-        Integer doctorId = null;
-        try {
-            doctorId = Integer.parseInt(Optional.ofNullable(form.getDoctorId()).orElse("").trim());
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid doctorId: " + form.getDoctorId());
-            return ResponseEntity.badRequest().build();
-        }
-
-        Integer updatedBy = null;
-        try {
-            updatedBy = Integer.parseInt(Optional.ofNullable(form.getUpdatedBy()).orElse("").trim());
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid updatedBy: " + form.getUpdatedBy());
-            return ResponseEntity.badRequest().build();
-        }
-
-        System.out.println("Parsed values => patientId: " + patientId + ", doctorId: " + doctorId + ", updatedBy: " + updatedBy);
-
-        java.sql.Date diagnosisDate = null;
-        String diagnosisDateStr = form.getDiagnosisDate();
-        if (diagnosisDateStr != null && !diagnosisDateStr.trim().isEmpty() && !"undefined".equals(diagnosisDateStr.trim())) {
-            try {
-                diagnosisDate = java.sql.Date.valueOf(diagnosisDateStr.trim());
-            } catch (IllegalArgumentException e) {
-                System.err.println("Invalid date format: " + diagnosisDateStr);
-                return ResponseEntity.badRequest().build();
-            }
-        }
-
-        // Set parsed values
         history.setPatientID(patientId);
         history.setDoctorId(doctorId);
-        history.setUpdateBy(updatedBy != null ? updatedBy : 0);
-        history.setDiagnosisDate(diagnosisDate);
-
-        history.setDiagnosis(form.getDiagnosis());
-        history.setDescription(form.getDescription());
-        history.setStatus(form.getStatus() != null ? form.getStatus() : "Active");
+        history.setDiagnosis(diagnosis);
+        history.setDescription(description);
+        history.setStatus(status != null ? status : "Active");
         history.setAttachmentName(blobName);
 
+        try {
+            if (diagnosisDate != null && !diagnosisDate.trim().isEmpty() && !"undefined".equalsIgnoreCase(diagnosisDate)) {
+                history.setDiagnosisDate(Date.valueOf(diagnosisDate.trim()));
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid date format: " + diagnosisDate);
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (updatedBy != null && !updatedBy.trim().isEmpty()) {
+            try {
+                history.setUpdateBy(Integer.parseInt(updatedBy.trim()));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid updatedBy: " + updatedBy);
+                return ResponseEntity.badRequest().build();
+            }
+        } else {
+            history.setUpdateBy(null);
+        }
+
         PatientMedicalHistory saved = service.save(history);
-        return ResponseEntity.ok(saved);
+
+        PatientMedicalHistoryDto dto = new PatientMedicalHistoryDto();
+        dto.setHistoryId(saved.getHistoryID());
+        dto.setPatientId(saved.getPatientID());
+        dto.setDoctorId(saved.getDoctorId());
+        dto.setDiagnosis(saved.getDiagnosis());
+        dto.setDescription(saved.getDescription());
+        dto.setDiagnosisDate(saved.getDiagnosisDate());
+        dto.setStatus(saved.getStatus());
+        dto.setUpdatedBy(saved.getUpdateBy());
+        dto.setAttachmentName(saved.getAttachmentName());
+        dto.setCreatedAt(saved.getCreatedAt());
+        dto.setLastUpdated(saved.getLastUpdated());
+
+        if (saved.getAttachmentName() != null && !saved.getAttachmentName().isEmpty()) {
+            dto.setAttachmentUrl(azureBlobService.generateSasUrl(saved.getAttachmentName()));
+        }
+
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{historyId}")
@@ -157,32 +157,78 @@ public class PatientMedicalHistoryController {
 
     @PutMapping("/{historyId}")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<?> updateHistory(@PathVariable Integer historyId, @RequestBody PatientMedicalHistoryDto dto) {
+    public ResponseEntity<PatientMedicalHistoryDto> updateHistory(
+            @PathVariable Integer historyId,
+            @RequestParam(required = false) String diagnosis,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String diagnosisDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = true) String updatedBy,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) {
         Optional<PatientMedicalHistory> optional = service.findById(historyId);
 
-        if (optional.isPresent()) {
-            PatientMedicalHistory existing = optional.get();
-            if (dto.getDiagnosis() != null) {
-                existing.setDiagnosis(dto.getDiagnosis());
-            }
-            if (dto.getDescription() != null) {
-                existing.setDescription(dto.getDescription());
-            }
-            if (dto.getDiagnosisDate() != null) {
-                existing.setDiagnosisDate(dto.getDiagnosisDate());
-            }
-            if (dto.getStatus() != null) {
-                existing.setStatus(dto.getStatus());
-            }
-            if (dto.getUpdatedBy() != null) {
-                existing.setUpdateBy(dto.getUpdatedBy());
-            }
-
-            service.save(existing);
-            return ResponseEntity.ok(existing);
-        } else {
+        if (optional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        PatientMedicalHistory existing = optional.get();
+
+        if (diagnosis != null) {
+            existing.setDiagnosis(diagnosis);
+        }
+        if (description != null) {
+            existing.setDescription(description);
+        }
+        if (diagnosisDate != null && !diagnosisDate.trim().isEmpty() && !"undefined".equalsIgnoreCase(diagnosisDate)) {
+            try {
+                existing.setDiagnosisDate(Date.valueOf(diagnosisDate.trim()));
+            } catch (IllegalArgumentException e) {
+                System.err.println("Invalid date format: " + diagnosisDate);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        if (status != null) {
+            existing.setStatus(status);
+        }
+        if (updatedBy != null) {
+            try {
+                existing.setUpdateBy(Integer.parseInt(updatedBy.trim()));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid updatedBy: " + updatedBy);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                String blobName = azureBlobService.uploadFile(file, "medical-histories");
+                existing.setAttachmentName(blobName);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
+            }
+        }
+
+        PatientMedicalHistory saved = service.save(existing);
+
+        PatientMedicalHistoryDto dto = new PatientMedicalHistoryDto();
+        dto.setHistoryId(saved.getHistoryID());
+        dto.setPatientId(saved.getPatientID());
+        dto.setDoctorId(saved.getDoctorId());
+        dto.setDiagnosis(saved.getDiagnosis());
+        dto.setDescription(saved.getDescription());
+        dto.setDiagnosisDate(saved.getDiagnosisDate());
+        dto.setStatus(saved.getStatus());
+        dto.setUpdatedBy(saved.getUpdateBy());
+        dto.setAttachmentName(saved.getAttachmentName());
+        dto.setCreatedAt(saved.getCreatedAt());
+        dto.setLastUpdated(saved.getLastUpdated());
+
+        if (saved.getAttachmentName() != null && !saved.getAttachmentName().isEmpty()) {
+            dto.setAttachmentUrl(azureBlobService.generateSasUrl(saved.getAttachmentName()));
+        }
+
+        return ResponseEntity.ok(dto);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
