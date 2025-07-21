@@ -147,8 +147,43 @@
               <ul id="viewFamilyHistory" class="list-group list-group-flush"></ul>
             </div>
           </div>
-          <div class="text-end mt-4">
-            <button id="btnAddMedicalHistory" class="btn btn-outline-primary btn-lg">+ Add Medical History</button>
+          <div class="d-flex justify-content-end gap-3 mt-4">
+            <button id="btnAddMedicalHistory" class="btn btn-outline-primary flex-fill">+ Add Medical History</button>
+            <button class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#viewMedicalHistoryModal" onclick="loadMedicalHistoryModal()">View History Details</button>
+          </div>
+          <!-- View Medical History Modal -->
+          <div class="modal fade" id="viewMedicalHistoryModal" tabindex="-1" aria-labelledby="viewMedicalHistoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="viewMedicalHistoryModalLabel">Patient Medical History</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div id="medicalHistoryLoading" class="text-center my-3 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Diagnosis</th>
+                          <th>Description</th>
+                          <th>Status</th>
+                          <th>Attachment</th>
+                        </tr>
+                      </thead>
+                      <tbody id="medicalHistoryTableBody">
+                        <tr><td colspan="5" class="text-center text-muted">No records available.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div id="loadingSpinner" class="text-center my-2" style="display: none;">
             <div class="spinner-border text-primary" role="status">
@@ -230,8 +265,42 @@
             </ul>
             <div id="prescriptionFeedback" class="alert d-none mt-2" role="alert"></div>
           </div>
-          <div class="text-end mt-4">
-            <button id="btnAddPrescription" class="btn btn-outline-success btn-lg">+ Add Prescription</button>
+          <div class="d-flex justify-content-end gap-3 mt-4">
+            <button id="btnAddPrescription" class="btn btn-outline-success flex-fill">+ Add Prescription</button>
+            <button class="btn btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#viewPrescriptionModal" onclick="loadPrescriptionHistory()">View Prescription History</button>
+          </div>
+          <!-- View Prescription History Modal -->
+          <div class="modal fade" id="viewPrescriptionModal" tabindex="-1" aria-labelledby="viewPrescriptionModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="viewPrescriptionModalLabel">Prescription History</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div id="prescriptionHistoryLoading" class="text-center my-3 d-none">
+                    <div class="spinner-border text-success" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Medication</th>
+                          <th>Dosage</th>
+                          <th>Instructions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="prescriptionHistoryTableBody">
+                        <tr><td colspan="4" class="text-center text-muted">No prescriptions found.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div id="loadingSpinnerPrescription" class="text-center my-2" style="display: none;">
             <div class="spinner-border text-success" role="status">
@@ -245,53 +314,38 @@
   </section>
   <!-- ========================= end prescriptions section ========================= -->
 
-  <!-- ========================= consultation history section ========================= -->
-  <section id="consultation-history" class="pt-40 pb-40">
+  <!-- ========================= appointments & consultations tabs ========================= -->
+  <section id="appointments-tabs" class="pt-40 pb-40">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-xl-8 col-lg-10">
           <div class="section-title text-center mb-4">
-            <h2 class="mb-3">Consultation History</h2>
-            <p>A record of past medical consultations for this patient.</p>
+            <h2 class="mb-3">Appointments & Consultations</h2>
+            <p>Manage and view all your upcoming and past interactions with the patient.</p>
           </div>
           <div class="card shadow-sm p-4">
-            <ul id="consultationHistoryList" class="list-group list-group-flush">
-              <li class="list-group-item text-center">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
+            <ul class="nav nav-tabs" id="appointmentsTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="future-tab" data-bs-toggle="tab" data-bs-target="#future" type="button" role="tab">Future Appointments</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">Past Consultations</button>
               </li>
             </ul>
+            <div class="tab-content border border-top-0 p-3" id="appointmentsTabContent">
+              <div class="tab-pane fade show active" id="future" role="tabpanel">
+                <ul class="list-group" id="upcomingAppointmentsList"></ul>
+              </div>
+              <div class="tab-pane fade" id="past" role="tabpanel">
+                <ul class="list-group" id="consultationHistoryList"></ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- ========================= end consultation history section ========================= -->
-
-  <!-- ========================= upcoming appointments section ========================= -->
-  <section id="upcoming-appointments" class="pt-40 pb-40 bg-light">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-xl-8 col-lg-10">
-          <div class="section-title text-center mb-4">
-            <h2 class="mb-3">Upcoming Appointments</h2>
-            <p>Here are the upcoming scheduled appointments for this patient.</p>
-          </div>
-          <div class="card shadow-sm p-4">
-            <ul id="upcomingAppointmentsList" class="list-group list-group-flush">
-              <li class="list-group-item text-center">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- ========================= end upcoming appointments section ========================= -->
+  <!-- ========================= end appointments & consultations tabs ========================= -->
 
   <!-- ========================= footer start ========================= -->
   <footer class="footer pt-95 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">

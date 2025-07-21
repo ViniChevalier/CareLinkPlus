@@ -24,9 +24,10 @@ public class JwtUtil {
         return jwtSecretKey;
     }
 
-    public String generateToken(String username, String role) {
+    public String generateToken(Integer userId, String email, String role) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
+                .claim("userId", userId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
@@ -41,6 +42,15 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public Integer getUserIdFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Integer.class);
     }
 
     public boolean validateToken(String token) {

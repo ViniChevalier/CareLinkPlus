@@ -76,4 +76,10 @@ public class DoctorAvailabilityService {
             System.out.println("Expired " + expiredSlots.size() + " old availability slots.");
         }
     }
+    public void cancelAvailabilitySlot(Integer availabilityId, Integer doctorId) {
+        int updated = availabilityRepository.cancelSlot(availabilityId, doctorId);
+        if (updated == 0) {
+            throw new RuntimeException("Slot not found or does not belong to doctor.");
+        }
+    }
 }

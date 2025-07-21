@@ -8,10 +8,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import com.carelink.security.JwtAuthFilter;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${spring.profiles.active:}")

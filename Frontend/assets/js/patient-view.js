@@ -118,6 +118,7 @@ async function loadMedicalHistory(patientId) {
   }
 }
 
+// Loads and populates the "Future Appointments" tab list
 async function loadUpcomingAppointments(patientId) {
   const spinner = document.getElementById("loadingSpinner");
   if (spinner) spinner.style.display = "block";
@@ -133,21 +134,20 @@ async function loadUpcomingAppointments(patientId) {
       .slice(0, 5);
 
     if (upcoming.length === 0) {
-      list.innerHTML = '<li class="list-group-item text-muted">No upcoming appointments.</li>';
+      list.innerHTML = '<li class="list-group-item text-muted">No future appointments.</li>';
       return;
     }
 
     upcoming.forEach(app => {
       const li = document.createElement("li");
       li.className = "list-group-item";
-      // Determine badge color based on status
       const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
       li.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-start">
           <div>
-            <strong>${new Date(app.dateTime).toLocaleString()}</strong><br/>
-            <small>${app.type || 'General Consultation'}</small><br/>
-            <span class="text-muted">${app.doctorName ? 'Doctor: ' + app.doctorName : ''}</span>
+            <strong>${new Date(app.dateTime).toLocaleString('en-IE')}</strong><br/>
+            <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
+            <span>Motivo: ${app.type || 'General Consultation'}</span>
           </div>
           <span class="badge ${statusBadgeColor}">${app.status || 'Scheduled'}</span>
         </div>
@@ -166,7 +166,7 @@ async function loadUpcomingAppointments(patientId) {
         modalWrapper.innerHTML = `
           <div class="modal-dialog modal-lg"><div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">All Upcoming Appointments</h5>
+              <h5 class="modal-title">All Future Appointments</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -178,11 +178,11 @@ async function loadUpcomingAppointments(patientId) {
               const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
               return `
                       <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-start">
                           <div>
-                            <strong>${new Date(app.dateTime).toLocaleString()}</strong><br/>
-                            <small>${app.type || 'General Consultation'}</small><br/>
-                            <span class="text-muted">${app.doctorName ? 'Doctor: ' + app.doctorName : ''}</span>
+                            <strong>${new Date(app.dateTime).toLocaleString('en-IE')}</strong><br/>
+                            <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
+                            <span>Motivo: ${app.type || 'General Consultation'}</span>
                           </div>
                           <span class="badge ${statusBadgeColor}">${app.status || 'Scheduled'}</span>
                         </div>
@@ -221,6 +221,13 @@ async function loadPrescriptions(patientId) {
       list.innerHTML = '<li class="list-group-item text-muted">No active prescriptions.</li>';
       return;
     }
+
+    // Ordena as prescrições por data de início, da mais nova para a mais antiga
+    prescriptions.sort((a, b) => {
+      let dateA = new Date(JSON.parse(a.prescriptions || '{}').startDate || 0);
+      let dateB = new Date(JSON.parse(b.prescriptions || '{}').startDate || 0);
+      return dateB - dateA; // mais recente primeiro
+    });
 
     const latestPrescriptions = prescriptions.slice(0, 5);
     latestPrescriptions.forEach(p => {
@@ -324,6 +331,7 @@ async function loadPrescriptions(patientId) {
   }
 }
 
+// Loads and populates the "Past Consultations" tab list
 async function loadConsultationHistory(patientId) {
   const spinner = document.getElementById("loadingSpinner");
   if (spinner) spinner.style.display = "block";
@@ -346,14 +354,13 @@ async function loadConsultationHistory(patientId) {
     pastAppointments.forEach(app => {
       const li = document.createElement("li");
       li.className = "list-group-item";
-      // Determine badge color based on status
       const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
       li.innerHTML = `
         <div class="d-flex justify-content-between align-items-start">
           <div>
-            <strong>${new Date(app.dateTime).toLocaleDateString()}</strong><br/>
-            <small>${app.doctorName ? app.doctorName : 'Unknown Doctor'}</small><br/>
-            <span>${app.type || 'No reason provided.'}</span>
+            <strong>${new Date(app.dateTime).toLocaleString('en-IE')}</strong><br/>
+            <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
+            <span>Motivo: ${app.type || 'General Consultation'}</span>
           </div>
           <span class="badge ${statusBadgeColor}">${app.status || 'Completed'}</span>
         </div>
@@ -365,7 +372,7 @@ async function loadConsultationHistory(patientId) {
     if (appointments.length > 5) {
       const showMoreBtn = document.createElement("li");
       showMoreBtn.className = "list-group-item text-center";
-      showMoreBtn.innerHTML = `<button class="btn btn-link">Show All Consultations</button>`;
+      showMoreBtn.innerHTML = `<button class="btn btn-link">Show All Past Consultations</button>`;
       showMoreBtn.querySelector("button").addEventListener("click", () => {
         const modalWrapper = document.createElement("div");
         modalWrapper.className = "modal fade";
@@ -386,9 +393,9 @@ async function loadConsultationHistory(patientId) {
                       <li class="list-group-item">
                         <div class="d-flex justify-content-between align-items-start">
                           <div>
-                            <strong>${new Date(app.dateTime).toLocaleDateString()}</strong><br/>
-                            <small>${app.doctorName || 'Unknown Doctor'}</small><br/>
-                            <span>${app.type || 'No reason provided.'}</span>
+                            <strong>${new Date(app.dateTime).toLocaleString('en-IE')}</strong><br/>
+                            <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
+                            <span>Motivo: ${app.type || 'General Consultation'}</span>
                           </div>
                           <span class="badge ${statusBadgeColor}">${app.status || 'Completed'}</span>
                         </div>
@@ -620,6 +627,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <label class="form-label">Attachment (optional)</label>
             <input type="file" name="file" class="form-control">
           </div>
+          <div id="modalPrescriptionFeedback" class="alert alert-danger d-none mt-2"></div>
           <button type="submit" class="btn btn-success mt-2">Submit</button>
         </form>
       `;
@@ -681,6 +689,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             prescriptionPayload.doctorId,
             prescriptionPayload.notes,
             prescriptionPayload.prescriptions,
+            null,
+            prescriptionPayload.historyId,
             form.file && form.file.files.length > 0 ? form.file.files[0] : null
           );
           showFeedbackMessage("Prescription added successfully!", "success");
@@ -688,9 +698,173 @@ document.addEventListener("DOMContentLoaded", async () => {
           loadPrescriptions(patientId);
         } catch (err) {
           console.error("Error posting prescription:", err);
-          showFeedbackMessage("Failed to add prescription.", "danger");
+          const modalFeedback = wrapper.querySelector("#modalPrescriptionFeedback");
+          if (modalFeedback) {
+            modalFeedback.textContent = err?.message || "Failed to add prescription. Please check the data.";
+            modalFeedback.classList.remove("d-none");
+          } else {
+            showFeedbackMessage("Failed to add prescription.", "danger");
+          }
         }
       });
     });
   }
 });
+// Loads the patient's full medical history into the modal table
+async function loadMedicalHistoryModal() {
+  const patientId = localStorage.getItem("selectedPatientId");
+  const spinner = document.getElementById("medicalHistoryLoading");
+  const tableBody = document.getElementById("medicalHistoryTableBody");
+
+  if (!patientId || !tableBody) return;
+
+  // Update table header to include all relevant fields
+  const theadRow = document.getElementById("medicalHistoryTableBody").previousElementSibling.querySelector("thead tr");
+  if (theadRow) {
+    theadRow.innerHTML = `
+      <th>Diagnosis Date</th>
+      <th>Diagnosis</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Pre-existing Conditions</th>
+      <th>Past Surgeries</th>
+      <th>Allergies</th>
+      <th>Family History</th>
+      <th>Attachment</th>
+      <th>Doctor Name</th>
+    `;
+  }
+
+  if (spinner) spinner.classList.remove("d-none");
+  tableBody.innerHTML = '';
+
+  try {
+    const historyList = await getPatientHistoriesByPatient(patientId);
+    if (!historyList || historyList.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No records available.</td></tr>';
+    } else {
+      historyList.forEach(history => {
+        let preExisting = '-', surgeries = '-', allergies = '-', familyHistory = '-';
+        if (history.diagnosis && typeof history.diagnosis === 'string' && history.diagnosis.startsWith("{")) {
+          try {
+            const diagObj = JSON.parse(history.diagnosis);
+            preExisting = diagObj.preExisting || '-';
+            surgeries = diagObj.surgeries || '-';
+            allergies = diagObj.allergies || '-';
+            familyHistory = diagObj.familyHistory || '-';
+          } catch (err) {
+            console.warn("Failed to parse diagnosis JSON:", history.diagnosis);
+          }
+        }
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${history.diagnosisDate ? new Date(history.diagnosisDate).toLocaleDateString() : '-'}</td>
+          <td>${history.diagnosis ? (typeof history.diagnosis === 'string' && history.diagnosis.startsWith("{") ? 'Detailed' : history.diagnosis) : '-'}</td>
+          <td>${history.description || '-'}</td>
+          <td>${history.status || '-'}</td>
+          <td>${preExisting}</td>
+          <td>${surgeries}</td>
+          <td>${allergies}</td>
+          <td>${familyHistory}</td>
+          <td>${history.attachmentUrl ? `<a href="${history.attachmentUrl}" target="_blank">View</a>` : '-'}</td>
+          <td data-doctor-id="${history.doctorId}">Loading...</td>
+        `;
+        tableBody.appendChild(row);
+      });
+      // After rows are added, fetch and update each doctor cell
+      const doctorCells = tableBody.querySelectorAll("td[data-doctor-id]");
+      doctorCells.forEach(async cell => {
+        const doctorId = cell.getAttribute("data-doctor-id");
+        try {
+          const profile = await getProfileById(doctorId);
+          const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+          cell.textContent = fullName || 'Unknown Doctor';
+        } catch (err) {
+          console.warn("Could not fetch doctor profile:", err);
+          cell.textContent = 'Unknown Doctor';
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Failed to load history for modal:", error);
+    tableBody.innerHTML = '<tr><td colspan="10" class="text-center text-danger">Failed to load data.</td></tr>';
+  } finally {
+    if (spinner) spinner.classList.add("d-none");
+  }
+}
+// Loads the patient's prescription history into the modal table
+async function loadPrescriptionHistory() {
+  const patientId = localStorage.getItem("selectedPatientId");
+  const spinner = document.getElementById("prescriptionHistoryLoading");
+  const tableBody = document.getElementById("prescriptionHistoryTableBody");
+
+  if (!patientId || !tableBody) return;
+
+  if (spinner) spinner.classList.remove("d-none");
+  tableBody.innerHTML = '';
+
+  try {
+    const prescriptions = await getMedicalHistoryByPatient(patientId);
+    // Update table headers to include Doctor Name column
+    const theadRow = document.getElementById("prescriptionHistoryTableBody").previousElementSibling.querySelector("thead tr");
+    if (theadRow) {
+      theadRow.innerHTML = `
+        <th>Date</th>
+        <th>Medication</th>
+        <th>Dosage</th>
+        <th>Instructions</th>
+        <th>Start Date</th>
+        <th>Notes</th>
+        <th>Attachment</th>
+        <th>Doctor Name</th>
+      `;
+    }
+    if (!prescriptions || prescriptions.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No prescriptions found.</td></tr>';
+    } else {
+      prescriptions.forEach(p => {
+        let medInfo = {};
+        try {
+          medInfo = JSON.parse(p.prescriptions || '{}');
+        } catch (err) {
+          console.warn("Invalid JSON in prescriptions:", p.prescriptions);
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${medInfo.startDate ? new Date(medInfo.startDate).toLocaleDateString() : '-'}</td>
+          <td>${medInfo.medication || '-'}</td>
+          <td>${medInfo.dosage || '-'}</td>
+          <td>${medInfo.frequency || '-'}</td>
+          <td>${medInfo.startDate ? new Date(medInfo.startDate).toLocaleDateString() : '-'}</td>
+          <td>${p.notes || '-'}</td>
+          <td>${p.attachmentUrl ? `<a href="${p.attachmentUrl}" target="_blank">Download</a>` : '-'}</td>
+          <td data-doctor-id="${p.doctorId}">Loading...</td>
+        `;
+        tableBody.appendChild(row);
+      });
+      // After populating all rows, fetch the doctor's name for each cell with data-doctor-id
+      const doctorCells = tableBody.querySelectorAll("td[data-doctor-id]");
+      doctorCells.forEach(async cell => {
+        const doctorId = cell.getAttribute("data-doctor-id");
+        try {
+          const profile = await getProfileById(doctorId);
+          const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+          cell.textContent = fullName || 'Unknown Doctor';
+        } catch (err) {
+          console.warn("Could not fetch doctor profile:", err);
+          cell.textContent = 'Unknown Doctor';
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Failed to load prescription history:", error);
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Failed to load data.</td></tr>';
+  } finally {
+    if (spinner) spinner.classList.add("d-none");
+  }
+}
+
+// Expose modal functions to global scope for use in HTML onclick attributes
+window.loadMedicalHistoryModal = loadMedicalHistoryModal;
+window.loadPrescriptionHistory = loadPrescriptionHistory;

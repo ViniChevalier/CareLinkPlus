@@ -69,7 +69,11 @@ public class AccountController {
             throw new BadCredentialsException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(credentials.getUsername(), credentials.getUser().getRole());
+        String token = jwtUtil.generateToken(
+            credentials.getUser().getUserID(),
+            credentials.getUsername(),
+            credentials.getUser().getRole()
+        );
 
         User user = credentials.getUser();
 
@@ -83,25 +87,29 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getProfile() {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+@PreAuthorize("isAuthenticated()")
+@GetMapping("/profile")
+public ResponseEntity<UserResponse> getProfile() {
+    try {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            UserCredentials creds = accountService.getUserCredentialsByUsername(username);
-            if (creds == null)
+        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
+            Integer userId = userDetails.getId();
+
+            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
+            if (creds == null || creds.getUser() == null)
                 return ResponseEntity.status(404).body(null);
 
-            User user = creds.getUser();
-            if (user == null)
-                return ResponseEntity.status(404).body(null);
-
-            return ResponseEntity.ok(buildUserResponse(creds, user));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(null);
+            return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
         }
-    }
 
+        return ResponseEntity.status(401).body(null);
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body(null);
+    }
+}
+
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
         try {
@@ -242,6 +250,7 @@ public class AccountController {
         return ResponseEntity.ok("Password has been successfully changed.");
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/update-password")
     public ResponseEntity<String> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -263,6 +272,7 @@ public class AccountController {
         return ResponseEntity.ok("Password updated successfully.");
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile/{id}")
     public ResponseEntity<UserResponse> getProfileById(@PathVariable Integer id) {
         UserCredentials creds = accountService.getUserCredentialsByUserId(id);

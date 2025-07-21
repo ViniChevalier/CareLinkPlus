@@ -43,15 +43,13 @@ export async function del(endpoint) {
     return handleResponse(response);
 }
 
-// Export generic helpers for named import elsewhere
-// export { get, post, put, del };
 
 async function handleResponse(response) {
     let data = {};
     try {
         data = await response.json();
     } catch (e) {
-        // If the response is not JSON, keep data as empty object
+
     }
 
     if (!response.ok) {
@@ -106,12 +104,25 @@ export function getMedicalRecordById(recordId) {
 
 export function createMedicalRecord(patientId, doctorId, notes, prescriptions, updatedBy, historyId, fileObj) {
     const formData = new FormData();
+    formData.append("patientId", patientId);
+    formData.append("doctorId", doctorId);
+    formData.append("notes", notes || "");
+    formData.append("prescriptions", prescriptions || "");
+    if (historyId !== null && historyId !== undefined) {
+        formData.append("historyId", historyId);
+    }
+    if (updatedBy !== null && updatedBy !== undefined && updatedBy !== "") {
+        formData.append("updatedBy", updatedBy);
+    }
     if (fileObj) {
         formData.append("file", fileObj);
     }
-    return fetch(`${BASE_URL}/api/medical-history?patientId=${patientId}&doctorId=${doctorId}&notes=${encodeURIComponent(notes || "")}&prescriptions=${encodeURIComponent(prescriptions || "")}&updatedBy=${encodeURIComponent(updatedBy || "")}&historyId=${historyId || ""}`, {
+
+    return fetch(`${BASE_URL}/api/medical-history`, {
         method: "POST",
-        headers: { ...getAuthHeaders() },
+        headers: {
+            ...getAuthHeaders()
+        },
         body: formData,
     }).then(handleResponse);
 }
@@ -140,22 +151,22 @@ export function getPatientHistoryById(historyId) {
 }
 
 export function createPatientHistory(patientId, doctorId, diagnosis, description, status, diagnosisDate, fileObj) {
-  const formData = new FormData();
-  formData.append("patientId", patientId);
-  formData.append("doctorId", doctorId);
-  formData.append("diagnosis", diagnosis || "");
-  formData.append("description", description || "");
-  formData.append("status", status || "Active");
-  formData.append("diagnosisDate", diagnosisDate || "");
-  if (fileObj) {
-    formData.append("file", fileObj);
-  }
+    const formData = new FormData();
+    formData.append("patientId", patientId);
+    formData.append("doctorId", doctorId);
+    formData.append("diagnosis", diagnosis || "");
+    formData.append("description", description || "");
+    formData.append("status", status || "Active");
+    formData.append("diagnosisDate", diagnosisDate || "");
+    if (fileObj) {
+        formData.append("file", fileObj);
+    }
 
-  return fetch(`${BASE_URL}/api/patient-history`, {
-    method: "POST",
-    headers: { ...getAuthHeaders() },
-    body: formData,
-  }).then(handleResponse);
+    return fetch(`${BASE_URL}/api/patient-history`, {
+        method: "POST",
+        headers: { ...getAuthHeaders() },
+        body: formData,
+    }).then(handleResponse);
 }
 
 export function updatePatientHistory(historyId, data) {
@@ -208,6 +219,10 @@ export function deleteAvailability(availabilityId) {
     return del(`/api/availability/${availabilityId}`);
 }
 
+export function cancelAvailabilitySlot(availabilityId) {
+    return put(`/api/availability/${availabilityId}/cancel`);
+}
+
 export function getAllAvailability() {
     return get("/api/availability/all");
 }
@@ -223,10 +238,9 @@ async function handleLoginResponse(response) {
     let data = {};
     try {
         data = await response.json();
-    } catch (e) {}
+    } catch (e) { }
 
     if (!response.ok) {
-        // Check for status 403 specifically
         if (response.status === 403) {
             throw new Error("Invalid username or password. Please try again.");
         }

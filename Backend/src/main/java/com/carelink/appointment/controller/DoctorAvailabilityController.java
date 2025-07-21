@@ -1,8 +1,13 @@
 package com.carelink.appointment.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.carelink.appointment.dto.AvailabilityRequestDTO;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.service.DoctorAvailabilityService;
+import com.carelink.security.CustomUserDetails;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +53,14 @@ public class DoctorAvailabilityController {
     public ResponseEntity<DoctorAvailability> getAvailabilityById(@PathVariable Integer availabilityId) {
         DoctorAvailability availability = availabilityService.getAvailabilityById(availabilityId);
         return ResponseEntity.ok(availability);
+    }
+
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    @PutMapping("/{availabilityId}/cancel")
+    public ResponseEntity<Void> cancelAvailability(@PathVariable Integer availabilityId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
+        availabilityService.cancelAvailabilitySlot(availabilityId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

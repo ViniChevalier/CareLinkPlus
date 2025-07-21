@@ -54,7 +54,6 @@
                   <span class="toggler-icon"></span>
                   <span class="toggler-icon"></span>
                 </button>
-
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
                     <li class="nav-item">
@@ -124,24 +123,13 @@
                     <p>Manage your availability schedule.</p>
                   </div>
                   <a href="manage-availability.html" class="btn btn-outline-primary mt-2">Manage Availability</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Indicators -->
-            <div class="col-lg-12">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Today's Overview</h5>
-                  <ul class="list-group list-group-flush mb-3" id="dailyIndicators">
-                    <li class="list-group-item">Loading indicators...</li>
-                  </ul>
-                  <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#monthlyIndicatorsModal">
-                    View Monthly Stats
+                  <button class="btn btn-outline-secondary mt-2" data-bs-toggle="modal" data-bs-target="#availabilityModal">
+                    View Availability
                   </button>
                 </div>
               </div>
             </div>
+
 
           </div>
         </div>
@@ -217,7 +205,6 @@
   <script src="assets/js/tiny-slider.js"></script>
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="assets/js/doctor-dashboard.js" type="module"></script>
   <script src="assets/js/logout.js"></script>
 
@@ -227,20 +214,6 @@
     }
   </script>
 
-  <!-- Monthly Indicators Modal -->
-  <div class="modal fade" id="monthlyIndicatorsModal" tabindex="-1" aria-labelledby="monthlyIndicatorsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="monthlyIndicatorsModalLabel">Monthly Statistics</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="monthlyIndicatorsContent">
-          <p>Loading monthly data...</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Patients Modal -->
   <div class="modal fade" id="patientsModal" tabindex="-1" aria-labelledby="patientsModalLabel" aria-hidden="true">
@@ -252,6 +225,21 @@
         </div>
         <div class="modal-body" id="patientsModalBody">
           <p>Loading patients...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Availability Modal -->
+  <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="availabilityModalLabel">My Availability Slots</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="availabilityModalBody">
+          <p>Loading availability...</p>
         </div>
       </div>
     </div>

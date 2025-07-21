@@ -66,7 +66,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
                 response.setSuccess(false).setMessage("User not found");
             } else {
                 String role = creds.getUser().getRole();
-                String jwt = jwtUtil.generateToken(request.getUsername(), role);
+                String jwt = jwtUtil.generateToken(creds.getUser().getUserID(), request.getUsername(), role);
                 response.setSuccess(true).setJwtToken(jwt).setMessage("Login successful");
             }
         }

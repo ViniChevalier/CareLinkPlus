@@ -1,5 +1,8 @@
 package com.carelink.security;
 
+import com.carelink.account.model.User;
+import com.carelink.account.repository.UserRepository;
+import com.carelink.security.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import io.jsonwebtoken.Jwts;
 
 @Component
@@ -22,6 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -31,15 +38,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
         String token = null;
-        String username = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.getUsernameFromToken(token);
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.validateToken(token)) {
+                Integer userId = jwtUtil.getUserIdFromToken(token);
                 String role = Jwts.parserBuilder()
                         .setSigningKey(jwtUtil.getSigningKey())
                         .build()
@@ -49,8 +55,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
 
+                Optional<User> optionalUser = userRepository.findById(userId);
+                if (!optionalUser.isPresent()) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                User user = optionalUser.get();
+                CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
+                        new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);

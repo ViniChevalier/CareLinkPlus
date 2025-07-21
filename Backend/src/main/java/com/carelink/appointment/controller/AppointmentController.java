@@ -27,13 +27,13 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.createAppointment(dto));
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('DOCTOR')")
     @GetMapping
     public ResponseEntity<List<AppointmentEntity>> getAllAppointments() {
         return ResponseEntity.ok(appointmentService.getAllAppointments());
     }
 
-    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('DOCTOR')")
     @GetMapping("/patient/{patientId}")
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatient(@PathVariable int patientId) {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatient(patientId);
@@ -47,7 +47,7 @@ public class AppointmentController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST') ")
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<List<AppointmentWithPatientDTO>> getAppointmentsByDoctor(@PathVariable int doctorId) {
         return ResponseEntity.ok(appointmentService.getAppointmentsWithPatientNameByDoctorId(doctorId));
