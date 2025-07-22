@@ -16,8 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (data.length === 0) {
         el.innerHTML = "<p>No upcoming appointments.</p>";
       } else {
-        const appointmentElements = await Promise.all(data.map(async app => {
-          const date = new Date(app.appointmentDateTime);
+        const appointmentElements = data.map(app => {
+          const date = new Date(app.dateTime);
           const formattedDate = date.toLocaleString('en-IE', {
             day: '2-digit',
             month: '2-digit',
@@ -27,25 +27,29 @@ document.addEventListener("DOMContentLoaded", function () {
             hour12: false
           });
 
-          let doctorName = "N/A";
-          if (app.doctorId) {
-            try {
-              const profileData = await getProfileById(app.doctorId);
-              doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
-            } catch (error) {
-              console.error("Error fetching doctor profile:", error);
-            }
-          }
+          let doctorName = app.doctorName || "N/A";
+
+          const statusColorMap = {
+            BOOKED: 'bg-primary',
+            CANCELLED: 'bg-danger',
+            SCHEDULED: 'bg-secondary',
+            COMPLETED: 'bg-success',
+            NO_SHOW: 'bg-danger',
+            PENDING: 'bg-light text-dark',
+            CONFIRMED: 'bg-info'
+          };
+
+          const statusClass = statusColorMap[app.status?.toUpperCase()] || 'bg-secondary';
 
           return `
             <div class="mb-2">
               <strong>${formattedDate}</strong><br>
               <strong>Doctor:</strong> ${doctorName}<br>
-              Reason: ${app.reason}<br>
-              Status: <span class="badge bg-info">${app.appointmentStatus}</span>
+              Type: ${app.type}<br>
+              Status: <span class="badge ${statusClass}">${app.status}</span>
             </div>
           `;
-        }));
+        });
 
         el.innerHTML = appointmentElements.join("");
       }
@@ -64,14 +68,14 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         const lastRecord = data[data.length - 1];
 
-        let doctorName = "N/A";
-        if (lastRecord.doctorId) {
-          try {
-            const profileData = await getProfileById(lastRecord.doctorId);
-            doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
-          } catch (error) {
-            console.error("Error fetching doctor profile:", error);
-          }
+        let doctorName = lastRecord.doctorName || "N/A";
+
+        let prescriptionDetails = {};
+        try {
+          prescriptionDetails = JSON.parse(lastRecord.prescriptions);
+        } catch (e) {
+          console.warn("Prescription is not in JSON format, displaying as plain text.");
+          prescriptionDetails = { raw: lastRecord.prescriptions };
         }
 
         el.innerHTML = `
@@ -79,7 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
           <div class="border rounded p-2 mb-2">
             <span class="badge bg-primary mb-1">Latest Prescription</span><br>
             <strong>Doctor:</strong> ${doctorName}<br>
-            <strong>Prescription:</strong> ${lastRecord.prescriptions}<br>
+            ${prescriptionDetails.medication ? `<strong>Medication:</strong> ${prescriptionDetails.medication}<br>` : ""}
+            ${prescriptionDetails.dosage ? `<strong>Dosage:</strong> ${prescriptionDetails.dosage}<br>` : ""}
+            ${prescriptionDetails.frequency ? `<strong>Frequency:</strong> ${prescriptionDetails.frequency}<br>` : ""}
+            ${prescriptionDetails.startDate ? `<strong>Start Date:</strong> ${new Date(prescriptionDetails.startDate).toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit', year: 'numeric' })}<br>` : ""}
+            ${prescriptionDetails.raw ? `<strong>Prescription:</strong> ${prescriptionDetails.raw}<br>` : ""}
             <strong>Notes:</strong> ${lastRecord.notes}<br>
             ${lastRecord.attachmentUrl ? `<a href="${lastRecord.attachmentUrl}" target="_blank">View Attachment</a><br>` : ""}
           </div>
@@ -133,7 +141,20 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="border rounded p-2 mb-2">
               <span class="badge bg-primary mb-1">Latest Active Medical History</span><br>
               <strong>Description:</strong> ${lastRecord.description}<br>
-              <strong>Diagnosis:</strong> ${lastRecord.diagnosis}<br>
+              <strong>Diagnosis:</strong><br>
+              ${(() => {
+                try {
+                  const d = JSON.parse(lastRecord.diagnosis);
+                  return `
+                    ${d.preExisting ? `<strong>Pre-Existing:</strong> ${d.preExisting}<br>` : ""}
+                    ${d.surgeries ? `<strong>Surgeries:</strong> ${d.surgeries}<br>` : ""}
+                    ${d.allergies ? `<strong>Allergies:</strong> ${d.allergies}<br>` : ""}
+                    ${d.familyHistory ? `<strong>Family History:</strong> ${d.familyHistory}<br>` : ""}
+                  `;
+                } catch {
+                  return `${lastRecord.diagnosis}<br>`;
+                }
+              })()}
               <strong>Created At:</strong> ${createdAt}<br>
               <strong>Last Updated:</strong> ${lastUpdated}<br>
             </div>
@@ -155,6 +176,10 @@ document.getElementById("logout-link").addEventListener("click", function (e) {
 // Prescriptions modal and cards display logic
 document.getElementById("viewPrescriptionsBtn").addEventListener("click", async function (e) {
   e.preventDefault();
+  const btn = e.target;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
 
   const modal = new bootstrap.Modal(document.getElementById("prescriptionsModal"));
   const cardsContainer = document.getElementById("prescriptionsCards");
@@ -164,6 +189,8 @@ document.getElementById("viewPrescriptionsBtn").addEventListener("click", async 
   if (!patientId) {
     cardsContainer.innerHTML = "<p>Patient ID not found.</p>";
     modal.show();
+    btn.innerHTML = originalText;
+    btn.disabled = false;
     return;
   }
 
@@ -176,15 +203,7 @@ document.getElementById("viewPrescriptionsBtn").addEventListener("click", async 
       cardsContainer.innerHTML = "<p>No prescriptions found.</p>";
     } else {
       for (const record of data) {
-        let doctorName = "N/A";
-        if (record.doctorId) {
-          try {
-            const profileData = await getProfileById(record.doctorId);
-            doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
-          } catch (error) {
-            console.error("Error fetching doctor profile:", error);
-          }
-        }
+        let doctorName = record.doctorName || "N/A";
 
         const lastUpdated = record.lastUpdated
           ? new Date(record.lastUpdated).toLocaleString('en-IE', {
@@ -210,6 +229,14 @@ document.getElementById("viewPrescriptionsBtn").addEventListener("click", async 
 
         const card = document.createElement("div");
         card.className = "col-md-6";
+        let prescriptionDetails = {};
+        try {
+          prescriptionDetails = JSON.parse(record.prescriptions);
+        } catch (e) {
+          console.warn("Prescription is not in JSON format, displaying as plain text.");
+          prescriptionDetails = { raw: record.prescriptions };
+        }
+
         card.innerHTML = `
           <div class="card shadow-sm h-100">
             <div class="card-body">
@@ -217,27 +244,36 @@ document.getElementById("viewPrescriptionsBtn").addEventListener("click", async 
               ${createdAt ? `<p class="card-text"><strong>Created At:</strong> ${createdAt}</p>` : ""}
               <p class="card-text"><strong>Doctor:</strong> ${doctorName}</p>
               <p class="card-text"><strong>Notes:</strong> ${record.notes || 'N/A'}</p>
-              <p class="card-text"><strong>Prescription:</strong> ${record.prescriptions || 'N/A'}</p>
+              ${prescriptionDetails.medication ? `<p class="card-text"><strong>Medication:</strong> ${prescriptionDetails.medication}</p>` : ""}
+              ${prescriptionDetails.dosage ? `<p class="card-text"><strong>Dosage:</strong> ${prescriptionDetails.dosage}</p>` : ""}
+              ${prescriptionDetails.frequency ? `<p class="card-text"><strong>Frequency:</strong> ${prescriptionDetails.frequency}</p>` : ""}
+              ${prescriptionDetails.startDate ? `<p class="card-text"><strong>Start Date:</strong> ${new Date(prescriptionDetails.startDate).toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>` : ""}
+              ${prescriptionDetails.raw ? `<p class="card-text"><strong>Prescription:</strong> ${prescriptionDetails.raw}</p>` : ""}
               ${lastUpdated ? `<p class="card-text"><strong>Last Updated:</strong> ${lastUpdated}</p>` : ""}
               ${record.attachmentUrl ? `<p class="card-text"><a href="${record.attachmentUrl}" target="_blank">View Attachment</a></p>` : ""}
-
-
             </div>
           </div>
         `;
         cardsContainer.appendChild(card);
       }
     }
+    modal.show();
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   } catch (error) {
     console.error("Error loading prescriptions:", error);
     cardsContainer.innerHTML = "<p>Error loading prescriptions.</p>";
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   }
-
-  modal.show();
 });
 
 document.getElementById("viewFullHistoryBtn").addEventListener("click", async function (e) {
   e.preventDefault();
+  const btn = e.target;
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
 
   const modal = new bootstrap.Modal(document.getElementById("historyModal"));
   const cardsContainer = document.getElementById("historyCards");
@@ -247,6 +283,8 @@ document.getElementById("viewFullHistoryBtn").addEventListener("click", async fu
   if (!patientId) {
     cardsContainer.innerHTML = "<p>Patient ID not found.</p>";
     modal.show();
+    btn.innerHTML = originalText;
+    btn.disabled = false;
     return;
   }
 
@@ -325,7 +363,23 @@ document.getElementById("viewFullHistoryBtn").addEventListener("click", async fu
                 ${createdAt ? `<p class="card-text"><strong>Created At:</strong> ${createdAt}</p>` : ""}
                 <p class="card-text"><strong>Doctor:</strong> ${doctorProfileName}</p>
                 <p class="card-text"><strong>Diagnosis Date:</strong> ${diagnosisDate}</p>
-                <p class="card-text"><strong>Diagnosis:</strong> ${record.diagnosis || 'N/A'}</p>
+                <p class="card-text"><strong>Diagnosis:</strong><br>
+                ${
+                  (() => {
+                    try {
+                      const d = JSON.parse(record.diagnosis);
+                      return `
+                        ${d.preExisting ? `<strong>Pre-Existing:</strong> ${d.preExisting}<br>` : ""}
+                        ${d.surgeries ? `<strong>Surgeries:</strong> ${d.surgeries}<br>` : ""}
+                        ${d.allergies ? `<strong>Allergies:</strong> ${d.allergies}<br>` : ""}
+                        ${d.familyHistory ? `<strong>Family History:</strong> ${d.familyHistory}<br>` : ""}
+                      `;
+                    } catch {
+                      return `${record.diagnosis || 'N/A'}<br>`;
+                    }
+                  })()
+                }
+                </p>
                 <p class="card-text"><strong>Description:</strong> ${record.description || 'N/A'}</p>           
                 ${lastUpdated ? `<p class="card-text"><strong>Last Updated:</strong> ${lastUpdated}</p>` : ""}
                 <p class="card-text"><strong>Updated By:</strong> ${doctorName}</p>
@@ -337,10 +391,13 @@ document.getElementById("viewFullHistoryBtn").addEventListener("click", async fu
         }
       }
     }
+    modal.show();
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   } catch (error) {
     console.error("Error loading medical history:", error);
     cardsContainer.innerHTML = "<p>Error loading medical history.</p>";
+    btn.innerHTML = originalText;
+    btn.disabled = false;
   }
-
-  modal.show();
 });

@@ -28,11 +28,11 @@ loginForm.addEventListener('submit', async (e) => {
       if (profile.role === 'DOCTOR') {
         window.location.href = 'doctor-dashboard.html';
       } else if (profile.role === 'PATIENT') {
-        window.location.href = 'patient-dashboard.html';
+        window.location.href = 'patient-Dashboard.html';
       } else if (profile.role === 'RECEPTIONIST') {
-        window.location.href = 'receptionist-dashboard.html';
+        window.location.href = 'receptionist-Dashboard.html';
       } else if (profile.role === 'ADMIN') {
-        window.location.href = 'admin-dashboard.html';
+        window.location.href = 'admin-Dashboard.html';
       } else {
         message.textContent = 'Unknown user role. Access denied.';
         message.style.color = 'red';
