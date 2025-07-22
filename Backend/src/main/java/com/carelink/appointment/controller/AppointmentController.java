@@ -29,8 +29,12 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('DOCTOR')")
     @GetMapping
-    public ResponseEntity<List<AppointmentEntity>> getAllAppointments() {
-        return ResponseEntity.ok(appointmentService.getAllAppointments());
+    public ResponseEntity<List<AppointmentDTO>> getAllAppointments() {
+        List<AppointmentDTO> dtos = appointmentService.getAllAppointments()
+            .stream()
+            .map(AppointmentDTO::new)
+            .toList();
+        return ResponseEntity.ok(dtos);
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('DOCTOR')")
@@ -38,11 +42,17 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatient(@PathVariable int patientId) {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatient(patientId);
         List<AppointmentDTO> dtos = appointments.stream()
-            .map(a -> new AppointmentDTO(
-                a,
-                a.getDoctor().getUserID(),
-                a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
-            ))
+            .map(a -> {
+                AppointmentDTO dto = new AppointmentDTO(
+                    a,
+                    a.getDoctor().getUserID(),
+                    a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
+                );
+                if (a.getAvailability() != null) {
+                    dto.setAvailabilityId(a.getAvailability().getId());
+                }
+                return dto;
+            })
             .toList();
         return ResponseEntity.ok(dtos);
     }

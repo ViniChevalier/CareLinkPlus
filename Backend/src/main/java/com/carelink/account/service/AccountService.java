@@ -2,6 +2,7 @@ package com.carelink.account.service;
 
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
+import java.util.List;
 
 public interface AccountService {
     User createUser(User user);
@@ -29,4 +30,6 @@ public interface AccountService {
     void sendEmail(String to, String subject, String htmlBody, String plainTextBody);
 
     UserCredentials getUserCredentialsByUserId(Integer UserID);
+
+    List<User> getAllUsersByRole(String role);
 }

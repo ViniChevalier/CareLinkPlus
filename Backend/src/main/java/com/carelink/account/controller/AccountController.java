@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/account")
@@ -423,5 +424,15 @@ public class AccountController {
         accountService.updateUser(user);
 
         return ResponseEntity.ok("User role updated to: " + role);
+    }
+    
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @GetMapping("/patients")
+    public ResponseEntity<List<UserResponse>> getAllPatients() {
+        List<User> patients = accountService.getAllUsersByRole("PATIENT");
+        List<UserResponse> responseList = patients.stream()
+            .map(user -> buildUserResponse(accountService.getUserCredentialsByUser(user), user))
+            .toList();
+        return ResponseEntity.ok(responseList);
     }
 }

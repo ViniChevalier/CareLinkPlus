@@ -26,16 +26,16 @@ export function loadDoctorName() {
     });
 }
 
-export function loadSecretaryName() {
+export function loadReceptionistName() {
   getProfile()
     .then(data => {
-      const name = data.firstName || 'Secretary';
+      const name = data.firstName || 'Receptionist';
       const greeting = getGreeting();
-      document.getElementById('secretary-name').innerText = `${greeting}, ${name}!`;
+      document.getElementById('receptionist-name').innerText = `${greeting}, ${name}!`;
     })
     .catch(error => {
-      console.error('Error loading secretary name:', error);
-      document.getElementById('secretary-name').innerText = 'Hello, Secretary!';
+      console.error('Error loading receptionist name:', error);
+      document.getElementById('receptionist-name').innerText = 'Hello, Receptionist!';
     });
 }
 

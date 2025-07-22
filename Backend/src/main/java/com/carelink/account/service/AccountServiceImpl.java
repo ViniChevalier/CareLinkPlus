@@ -128,4 +128,9 @@ public class AccountServiceImpl implements AccountService {
     public UserCredentials getUserCredentialsByUserId(Integer UserID) {
         return credentialsRepository.findByUser_UserID(UserID);
     }
+
+    @Override
+    public java.util.List<User> getAllUsersByRole(String role) {
+        return userRepository.findByRole(role);
+    }
 }

@@ -12,6 +12,8 @@ public class AppointmentDTO {
     private String notes;
     private Integer doctorId;
     private String doctorName;
+    private String patientName;
+    private Integer availabilityId;
 
     public AppointmentDTO(AppointmentEntity entity) {
         this.id = entity.getAppointmentId();
@@ -23,6 +25,10 @@ public class AppointmentDTO {
         this.doctorName = entity.getDoctor() != null
             ? entity.getDoctor().getFirstName() + " " + entity.getDoctor().getLastName()
             : null;
+        this.patientName = entity.getPatient() != null
+            ? entity.getPatient().getFirstName() + " " + entity.getPatient().getLastName()
+            : null;
+        this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
     }
 
     public AppointmentDTO(AppointmentEntity entity, Integer doctorId, String doctorName) {
@@ -33,6 +39,7 @@ public class AppointmentDTO {
         this.notes = entity.getReason();
         this.doctorId = doctorId;
         this.doctorName = doctorName;
+        this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
     }
 
     public Integer getId() {
@@ -89,5 +96,21 @@ public class AppointmentDTO {
 
     public void setDoctorName(String doctorName) {
         this.doctorName = doctorName;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public Integer getAvailabilityId() {
+        return availabilityId;
+    }
+
+    public void setAvailabilityId(Integer availabilityId) {
+        this.availabilityId = availabilityId;
     }
 }

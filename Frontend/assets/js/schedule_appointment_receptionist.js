@@ -1,17 +1,65 @@
-import { getAllAvailability, get, post } from './apiService.js';
+import { getAllAvailability, getAllPatients, get, post } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
+  const patientSearch = document.getElementById("patientSearchInput");
+  const patientNameConfirm = document.getElementById("patientNameConfirm");
+
+  const patientOptions = document.getElementById("patientOptions");
+
   const doctorSelect = document.getElementById("doctorSelect");
   const slotSelect = document.getElementById("slotSelect");
   const form = document.getElementById("scheduleAppointmentForm");
   const messageDiv = document.getElementById("message");
 
-  const patientId = localStorage.getItem("userId");
+  // doctorSelect.parentNode.insertBefore(patientOptions, doctorSelect);
+
+  let selectedPatientId = null;
+  const patientMap = new Map();
+
+  // Load all patients for search
+  getAllPatients()
+    .then(patients => {
+      console.log(patients);
+      patients.forEach(patient => {
+        const option = document.createElement("option");
+        const patientLabel = `${patient.firstName} ${patient.lastName} (${patient.email}${patient.phoneNumber ? ' - ' + patient.phoneNumber : ''})`;
+        option.value = patientLabel;
+        patientMap.set(patientLabel, patient.userId);
+        console.log("Patient Option:", option.value);
+        patientOptions.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error("Error loading patients:", error);
+    });
+
+  patientSearch.addEventListener("input", () => {
+    const val = patientSearch.value.toLowerCase();
+    const options = Array.from(document.getElementById("patientOptions").options);
+
+    const matchedOption = options.find(option =>
+      option.value.toLowerCase().includes(val)
+    );
+
+    if (matchedOption) {
+      selectedPatientId = patientMap.get(patientSearch.value);
+      patientNameConfirm.value = matchedOption.value;
+      patientNameConfirm.classList.remove("is-invalid");
+      patientNameConfirm.classList.add("is-valid");
+    } else {
+      selectedPatientId = null;
+      patientNameConfirm.value = "";
+      patientNameConfirm.classList.remove("is-valid");
+      patientNameConfirm.classList.add("is-invalid");
+    }
+  });
 
   // Load doctors with active availability
   getAllAvailability()
     .then(async (availabilities) => {
-      const activeAvailabilities = availabilities.filter(slot => slot.isBooked === false);
+      const activeAvailabilities = availabilities.filter(slot =>
+        slot.isBooked === false && slot.status === "AVAILABLE"
+      );
 
       const doctorMap = new Map();
       for (const slot of activeAvailabilities) {
@@ -105,13 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const availabilityId = slotSelect.value;
     const reason = document.getElementById("reason").value;
 
-    if (!patientId || !availabilityId || !reason) {
+    if (!selectedPatientId || !availabilityId || !reason) {
       showMessage("Please fill all required fields.", "danger");
       return;
     }
 
+    console.log("Selected patient ID:", selectedPatientId);
+
     const payload = {
-      patientId,
+      patientId: parseInt(selectedPatientId),
       availabilityId,
       reason,
     };
@@ -123,6 +173,9 @@ document.addEventListener("DOMContentLoaded", () => {
         doctorSelect.value = "";
         slotSelect.disabled = true;
         slotSelect.innerHTML = `<option value="">Please select a doctor first</option>`;
+        selectedPatientId = null;
+        patientNameConfirm.value = "";
+        patientNameConfirm.classList.remove("is-valid", "is-invalid");
       })
       .catch(error => {
         console.error("Error scheduling appointment:", error);

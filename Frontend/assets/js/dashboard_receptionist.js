@@ -1,60 +1,49 @@
+import { getAllAppointments, getProfile } from './apiService.js';
 
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const appointments = await getAllAppointments();
+    const now = new Date();
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadTodaysAppointments();
-  loadPatientOverview();
+    const upcoming = appointments
+      .filter(app => {
+        const appDate = new Date(app.dateTime);
+        return appDate.getFullYear() === now.getFullYear()
+          && appDate.getMonth() === now.getMonth()
+          && appDate.getDate() === now.getDate();
+      })
+      .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
+      .slice(0, 5);
+
+    const appointmentList = document.getElementById('upcomingAppointmentsList').querySelector('ul');
+    if (upcoming.length === 0) {
+      appointmentList.innerHTML = '<li class="list-group-item text-muted">No appointments scheduled for today.</li>';
+    } else {
+      appointmentList.innerHTML = upcoming.map(app => `
+        <li class="list-group-item">
+          <strong>${new Date(app.dateTime).toLocaleString()}</strong><br>
+          Patient: ${app.patientName || 'N/A'}<br>
+          Doctor: ${app.doctorName || 'N/A'}
+        </li>
+      `).join('');
+    }
+
+    const patientAppointments = upcoming
+      .filter(app => app.status && app.status.toLowerCase() === 'scheduled')
+      .slice(0, 5);
+
+    const patientList = document.getElementById('nextPatientsList').querySelector('ul');
+    if (patientAppointments.length === 0) {
+      patientList.innerHTML = '<li class="list-group-item text-muted">No patients expected for check-in today.</li>';
+    } else {
+      patientList.innerHTML = patientAppointments.map(app => `
+        <li class="list-group-item">
+          ${app.patientName || 'Unnamed'} - ${new Date(app.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </li>
+      `).join('');
+    }
+
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error);
+  }
 });
-
-async function loadTodaysAppointments() {
-  const container = document.getElementById('todaysAppointments');
-  try {
-    const response = await fetch('/api/appointments/today');
-    if (!response.ok) throw new Error('Failed to fetch appointments');
-    const appointments = await response.json();
-
-    if (appointments.length === 0) {
-      container.innerHTML = '<p>No appointments scheduled for today.</p>';
-      return;
-    }
-
-    const list = document.createElement('ul');
-    list.classList.add('list-group');
-    appointments.forEach(app => {
-      const item = document.createElement('li');
-      item.classList.add('list-group-item');
-      item.textContent = `${app.time} - ${app.patientName}`;
-      list.appendChild(item);
-    });
-    container.innerHTML = '';
-    container.appendChild(list);
-  } catch (error) {
-    container.innerHTML = `<p class="text-danger">Error loading appointments: ${error.message}</p>`;
-  }
-}
-
-async function loadPatientOverview() {
-  const container = document.getElementById('patientOverview');
-  try {
-    const response = await fetch('/api/patients/overview');
-    if (!response.ok) throw new Error('Failed to fetch patient data');
-    const patients = await response.json();
-
-    if (patients.length === 0) {
-      container.innerHTML = '<p>No patients registered yet.</p>';
-      return;
-    }
-
-    const list = document.createElement('ul');
-    list.classList.add('list-group');
-    patients.slice(0, 5).forEach(p => {
-      const item = document.createElement('li');
-      item.classList.add('list-group-item');
-      item.textContent = `${p.name} (${p.id})`;
-      list.appendChild(item);
-    });
-    container.innerHTML = '';
-    container.appendChild(list);
-  } catch (error) {
-    container.innerHTML = `<p class="text-danger">Error loading patients: ${error.message}</p>`;
-  }
-}

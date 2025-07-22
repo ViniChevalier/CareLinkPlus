@@ -87,86 +87,56 @@
             <p>Manage appointments and patient records efficiently.</p>
           </div>
 
-          <div class="row g-4">
-
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
                 <div class="card-body">
-                  <h5 class="card-title">Today's Appointments</h5>
-                  <div id="todaysAppointments">
-                    <p>Loading today's appointments...</p>
+                  <h5 class="card-title">Upcoming Appointments</h5>
+                  <div id="upcomingAppointmentsList">
+                    <ul class="list-group">
+                      <!-- Next 5 appointments will be rendered here -->
+                    </ul>
                   </div>
-                  <a href="view-appointments.html" class="btn btn-outline-primary mt-2">View All Appointments</a>
                 </div>
               </div>
             </div>
-
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Manage Patients</h5>
-                  <div id="patientOverview">
-                    <p>Access patient profiles and update records.</p>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Appointment Actions</h5>
+                  <div class="mt-auto">
+                    <a href="schedule_appointment_receptionist.html" class="btn btn-primary mb-2 w-100">New Appointment</a>
+                    <a href="view-appointments.html" class="btn btn-outline-primary w-100">Manage Appointments</a>
                   </div>
-                  <a href="manage-patients.html" class="btn btn-outline-primary mt-2">Go to Patient Management</a>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="col-lg-12">
-              <div class="card h-100 shadow-sm">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
                 <div class="card-body">
-                  <h5 class="card-title">Register New Patient</h5>
-                  <p>Quickly onboard new patients into the system.</p>
-                  <a href="register-patient.html" class="btn theme-btn mt-2">Register Patient</a>
+                  <h5 class="card-title">Next Patients for Check-in</h5>
+                  <div id="nextPatientsList">
+                    <ul class="list-group">
+                      <!-- Next 5 patients for check-in will be rendered here -->
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <!-- Check-in de Pacientes -->
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Patient Check-in</h5>
-                  <p>Confirm patient arrivals and update status.</p>
-                  <a href="check-in.html" class="btn btn-outline-success mt-2">Go to Check-in</a>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">Patient Actions</h5>
+                  <div class="mt-auto">
+                    <a href="register-patient.html" class="btn btn-success mb-2 w-100">Register New Patient</a>
+                    <a href="manage-patients.html" class="btn btn-outline-success w-100">Manage Patients</a>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <!-- Agendamento Rápido -->
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Quick Appointment</h5>
-                  <p>Schedule a new appointment with minimal steps.</p>
-                  <a href="quick-appointment.html" class="btn btn-outline-primary mt-2">Quick Schedule</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Gerenciar Cancelamentos e Reagendamentos -->
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Manage Cancellations</h5>
-                  <p>Cancel or reschedule existing appointments.</p>
-                  <a href="manage-cancellations.html" class="btn btn-outline-warning mt-2">Manage Now</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Notificações e Alertas -->
-            <div class="col-lg-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">Notifications & Alerts</h5>
-                  <p>View important system messages and alerts.</p>
-                  <a href="notifications.html" class="btn btn-outline-danger mt-2">View Alerts</a>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>
@@ -281,6 +251,17 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const triggerTabList = document.querySelectorAll('#dashboardTabs button')
+    triggerTabList.forEach(triggerEl => {
+      const tabTrigger = new bootstrap.Tab(triggerEl)
+      triggerEl.addEventListener('click', event => {
+        event.preventDefault()
+        tabTrigger.show()
+      })
+    })
+  </script>
 </body>
 
 </html>

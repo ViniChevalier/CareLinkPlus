@@ -1,4 +1,4 @@
-import { get, put, getAllAvailability } from './apiService.js';
+import { get, put, getAllAvailability, getAppointmentsByPatient } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const appointmentSelect = document.getElementById("appointmentSelect");
@@ -14,9 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
 
   // Load user's existing appointments
-  get(`/api/appointments?userId=${userId}`)
+  getAppointmentsByPatient(userId)
     .then((appointments) => {
-      if (appointments.length === 0) {
+      const bookedAppointments = appointments.filter(app => app.status === "BOOKED");
+      if (bookedAppointments.length === 0) {
         appointmentSelect.innerHTML = `<option value="">No appointments found</option>`;
         return;
       }
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
       appointmentSelect.innerHTML = `<option value="">Select an appointment</option>`;
 
       (async () => {
-        for (const app of appointments) {
+        for (const app of bookedAppointments) {
           const option = document.createElement("option");
           option.value = app.appointmentId;
 
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             if (!app.availabilityId || app.availabilityId === 0) {
               console.warn(`Appointment ${app.appointmentId} has no availabilityId. Skipping.`);
-              continue; // pula para o próximo appointment
+              continue; 
             }
 
             const availability = await get(`/api/availability/${app.availabilityId}`);
@@ -93,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load doctors using available slots logic
     getAllAvailability()
       .then(async (availabilities) => {
-        const activeAvailabilities = availabilities.filter(slot => !slot.isBooked);
+        const activeAvailabilities = availabilities.filter(slot => !slot.isBooked && slot.status === "AVAILABLE");
         const doctorMap = new Map();
 
         for (const slot of activeAvailabilities) {
@@ -139,7 +140,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     get(`/api/availability/doctor/${doctorId}`)
       .then((slots) => {
-        const availableSlots = slots.filter(slot => !slot.isBooked);
+        const now = new Date();
+        const availableSlots = slots.filter(slot => {
+          const start = new Date(`${slot.availableDate}T${slot.startTime}`);
+          return !slot.isBooked && slot.status === "AVAILABLE" && start >= now;
+        });
+        availableSlots.sort((a, b) => {
+          const dateA = new Date(`${a.availableDate}T${a.startTime}`);
+          const dateB = new Date(`${b.availableDate}T${b.startTime}`);
+          return dateA - dateB;
+        });
         slotSelect.innerHTML = `<option value="">Select a slot</option>`;
         availableSlots.forEach(slot => {
           const option = document.createElement("option");
