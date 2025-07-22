@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,7 +32,8 @@ public class AccountController {
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
 
-    public AccountController(AccountService accountService, JwtUtil jwtUtil, UserCredentialsRepository userCredentialsRepository) {
+    public AccountController(AccountService accountService, JwtUtil jwtUtil,
+            UserCredentialsRepository userCredentialsRepository) {
         this.accountService = accountService;
         this.jwtUtil = jwtUtil;
         this.userCredentialsRepository = userCredentialsRepository;
@@ -43,7 +45,7 @@ public class AccountController {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        user.setRole("Patient");
+        user.setRole("PATIENT");
 
         User createdUser = accountService.createUser(user);
 
@@ -58,56 +60,58 @@ public class AccountController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
-        UserCredentials credentials = accountService.getUserCredentialsByUsername(request.getUsername());
-        if (credentials == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
+@PostMapping("/login")
+public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
+    UserCredentials credentials = accountService.getUserCredentialsByUsername(request.getUsername());
+    if (credentials == null) {
+        throw new UsernameNotFoundException("User not found");
+    }
 
-        if (!BCrypt.checkpw(request.getPassword(), credentials.getPasswordHash())) {
-            throw new BadCredentialsException("Invalid password");
-        }
+    if (!BCrypt.checkpw(request.getPassword(), credentials.getPasswordHash())) {
+        throw new BadCredentialsException("Invalid password");
+    }
 
-        String token = jwtUtil.generateToken(
-            credentials.getUser().getUserID(),
+    User user = credentials.getUser();
+    if ("DEACTIVATED".equalsIgnoreCase(user.getRole())) {
+        throw new AccessDeniedException("User account is deactivated.");
+    }
+
+    String token = jwtUtil.generateToken(
+            user.getUserID(),
             credentials.getUsername(),
-            credentials.getUser().getRole()
-        );
+            user.getRole());
 
-        User user = credentials.getUser();
+    UserResponse response = new UserResponse();
+    response.setUsername(credentials.getUsername());
+    response.setEmail(user.getEmail());
+    response.setRole(user.getRole());
+    response.setToken(token);
+    response.setGeneratedPassword(null);
 
-        UserResponse response = new UserResponse();
-        response.setUsername(credentials.getUsername());
-        response.setEmail(user.getEmail());
-        response.setRole(user.getRole());
-        response.setToken(token);
-        response.setGeneratedPassword(null);
-
-        return ResponseEntity.ok(response);
-    }
-
-@PreAuthorize("isAuthenticated()")
-@GetMapping("/profile")
-public ResponseEntity<UserResponse> getProfile() {
-    try {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
-            Integer userId = userDetails.getId();
-
-            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
-            if (creds == null || creds.getUser() == null)
-                return ResponseEntity.status(404).body(null);
-
-            return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
-        }
-
-        return ResponseEntity.status(401).body(null);
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(null);
-    }
+    return ResponseEntity.ok(response);
 }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getProfile() {
+        try {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
+                Integer userId = userDetails.getId();
+
+                UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
+                if (creds == null || creds.getUser() == null)
+                    return ResponseEntity.status(404).body(null);
+
+                return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
+            }
+
+            return ResponseEntity.status(401).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
@@ -160,7 +164,7 @@ public ResponseEntity<UserResponse> getProfile() {
         }
     }
 
-     @PostMapping("/reset")
+    @PostMapping("/reset")
     public ResponseEntity<String> requestPasswordReset(@RequestBody RequestResetDto dto) {
         String username = dto.getUsername();
         if (username == null || username.isEmpty()) {
@@ -308,5 +312,35 @@ public ResponseEntity<UserResponse> getProfile() {
         response.setRole(user.getRole());
         response.setNotificationPreference(user.getNotificationPreference());
         return response;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/deactivate/{id}")
+    public ResponseEntity<String> deactivateUser(@PathVariable Integer id) {
+        UserCredentials creds = accountService.getUserCredentialsByUserId(id);
+        if (creds == null || creds.getUser() == null) {
+            return ResponseEntity.status(404).body("User not found.");
+        }
+
+        User user = creds.getUser();
+        user.setRole("DEACTIVATED");
+        accountService.updateUser(user);
+
+        return ResponseEntity.ok("User has been deactivated.");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/update-role/{id}")
+    public ResponseEntity<String> updateUserRole(@PathVariable Integer id, @RequestParam String role) {
+        UserCredentials creds = accountService.getUserCredentialsByUserId(id);
+        if (creds == null || creds.getUser() == null) {
+            return ResponseEntity.status(404).body("User not found.");
+        }
+
+        User user = creds.getUser();
+        user.setRole(role.toUpperCase());
+        accountService.updateUser(user);
+
+        return ResponseEntity.ok("User role updated to: " + role);
     }
 }

@@ -1,5 +1,5 @@
-const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
-//const BASE_URL = "http://localhost:8080";
+//const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
+const BASE_URL = "http://localhost:8080";
 
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -288,6 +288,14 @@ export function adminResetPassword(data) {
     return post("/api/account/admin/reset", data);
 }
 
+export function deactivateUser(id) {
+    return put(`/api/account/deactivate/${id}`, {});
+}
+
+export function updateUserRole(id, role) {
+    return put(`/api/account/update-role/${id}?role=${encodeURIComponent(role)}`, {});
+}
+
 // -----------------------------
 // File Upload
 // -----------------------------
@@ -300,4 +308,3 @@ export function uploadFile(fileObj) {
         body: formData,
     }).then(handleResponse);
 }
-
