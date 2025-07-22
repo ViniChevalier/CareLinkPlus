@@ -26,7 +26,7 @@ public interface AccountService {
 
     String encodePassword(String rawPassword);
 
-    void sendEmail(String to, String subject, String body);
+    void sendEmail(String to, String subject, String htmlBody, String plainTextBody);
 
     UserCredentials getUserCredentialsByUserId(Integer UserID);
 }

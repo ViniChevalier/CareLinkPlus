@@ -60,36 +60,36 @@ public class AccountController {
         return ResponseEntity.status(201).body(response);
     }
 
-@PostMapping("/login")
-public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
-    UserCredentials credentials = accountService.getUserCredentialsByUsername(request.getUsername());
-    if (credentials == null) {
-        throw new UsernameNotFoundException("User not found");
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
+        UserCredentials credentials = accountService.getUserCredentialsByUsername(request.getUsername());
+        if (credentials == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        if (!BCrypt.checkpw(request.getPassword(), credentials.getPasswordHash())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+
+        User user = credentials.getUser();
+        if ("DEACTIVATED".equalsIgnoreCase(user.getRole())) {
+            throw new AccessDeniedException("User account is deactivated.");
+        }
+
+        String token = jwtUtil.generateToken(
+                user.getUserID(),
+                credentials.getUsername(),
+                user.getRole());
+
+        UserResponse response = new UserResponse();
+        response.setUsername(credentials.getUsername());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setToken(token);
+        response.setGeneratedPassword(null);
+
+        return ResponseEntity.ok(response);
     }
-
-    if (!BCrypt.checkpw(request.getPassword(), credentials.getPasswordHash())) {
-        throw new BadCredentialsException("Invalid password");
-    }
-
-    User user = credentials.getUser();
-    if ("DEACTIVATED".equalsIgnoreCase(user.getRole())) {
-        throw new AccessDeniedException("User account is deactivated.");
-    }
-
-    String token = jwtUtil.generateToken(
-            user.getUserID(),
-            credentials.getUsername(),
-            user.getRole());
-
-    UserResponse response = new UserResponse();
-    response.setUsername(credentials.getUsername());
-    response.setEmail(user.getEmail());
-    response.setRole(user.getRole());
-    response.setToken(token);
-    response.setGeneratedPassword(null);
-
-    return ResponseEntity.ok(response);
-}
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
@@ -183,13 +183,49 @@ public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
 
         String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/reset-password.html?token=" + token;
 
-        String subject = "CareLink+ Password Reset Request";
-        String body = String.format(
-                "Hello %s,\n\nWe received a request to reset your password.\nPlease click the link below to set a new password:\n\n%s\n\nIf you did not request this, please ignore this email.",
-                user.getFirstName() != null ? user.getFirstName() : "User",
-                resetLink);
+        String subject = "Reset Your Password – CareLink+";
+        String htmlBody = String.format(
+                """
+                        <html>
+                            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                                <table style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <h2 style="color: #2a7ec5;">CareLink+</h2>
+                                            <p style="font-size: 18px; color: #333;">Password Reset Request</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p>Hi %s,</p>
+                                            <p>We received a request to reset your password for your CareLink+ account. Click the button below to reset it:</p>
+                                            <p style="text-align: center;">
+                                                <a href="%s" style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reset Password</a>
+                                            </p>
+                                            <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+                                            <p><a href="%s">%s</a></p>
+                                            <hr style="margin-top: 30px;">
+                                            <p style="font-size: 12px; color: #888;">If you didn’t request a password reset, please ignore this email.</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </body>
+                        </html>
+                        """,
+                user.getFirstName() != null ? user.getFirstName() : "User", resetLink, resetLink, resetLink);
 
-        accountService.sendEmail(user.getEmail(), subject, body);
+        String plainText = String.format("""
+                Hello %s,
+
+                We received a request to reset your password for your CareLink+ account.
+
+                To reset your password, click the link below:
+                %s
+
+                If you did not request this, please ignore this email.
+                """, user.getFirstName() != null ? user.getFirstName() : "User", resetLink);
+
+        accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
 
         return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
     }
@@ -219,14 +255,59 @@ public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
 
         accountService.updateUserCredentials(creds);
         accountService.updateUser(user);
+        String subject = "CareLink+ – Your Password Has Been Reset";
 
-        String subject = "Your CareLink+ account password has been reset";
-        String body = String.format(
-                "Hello %s,\n\nYour password has been reset by an administrator.\n\nYour new password is: %s\n\nPlease log in and change your password as soon as possible for security.",
+        String htmlBody = String.format(
+                """
+                        <html>
+                            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                                <table style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <h2 style="color: #2a7ec5;">CareLink+</h2>
+                                            <p style="font-size: 18px; color: #333;">Password Reset Notification</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p>Hi %s,</p>
+                                            <p>Your password has been reset by a CareLink+ administrator.</p>
+                                            <p><strong>Temporary Password:</strong> <code style="background-color: #eee; padding: 4px 8px; border-radius: 4px;">%s</code></p>
+                                            <p style="text-align: center; margin-top: 20px;">
+                                                <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/login"
+                                                   style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                                                   Log In to Your Account
+                                                </a>
+                                            </p>
+                                            <p style="margin-top: 30px;">For your security, please change this password immediately after logging in.</p>
+                                            <hr style="margin-top: 30px;">
+                                            <p style="font-size: 12px; color: #888;">If you did not expect this email, please contact our support team.</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </body>
+                        </html>
+                        """,
                 user.getFirstName() != null ? user.getFirstName() : "User",
                 generatedPassword);
 
-        accountService.sendEmail(user.getEmail(), subject, body);
+        String plainText = String.format("""
+                Hello %s,
+
+                Your password has been reset by a CareLink+ administrator.
+
+                Temporary Password: %s
+
+                Please log in and change your password immediately for security.
+
+                Log in: https://calm-sky-0157a6e03.1.azurestaticapps.net/login
+
+                If you did not expect this reset, please contact our support team.
+                """,
+                user.getFirstName() != null ? user.getFirstName() : "User",
+                generatedPassword);
+
+        accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
 
         return ResponseEntity.ok("Password reset successfully and email sent to user.");
     }

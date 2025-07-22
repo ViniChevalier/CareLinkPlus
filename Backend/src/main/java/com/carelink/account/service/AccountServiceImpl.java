@@ -11,8 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -109,12 +109,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+    public void sendEmail(String to, String subject, String htmlBody, String plainTextBody) {
+        try {
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(plainTextBody, htmlBody); 
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 
     @Override
