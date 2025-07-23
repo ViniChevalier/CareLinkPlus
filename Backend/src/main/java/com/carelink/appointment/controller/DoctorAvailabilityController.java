@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.carelink.appointment.dto.AvailabilityRequestDTO;
+import com.carelink.appointment.dto.SlotDTO;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.service.DoctorAvailabilityService;
 import com.carelink.security.CustomUserDetails;
@@ -32,8 +33,8 @@ public class DoctorAvailabilityController {
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT') or hasRole('RECEPTIONIST')")
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<DoctorAvailability>> getDoctorAvailability(@PathVariable Integer doctorId) {
-        return ResponseEntity.ok(availabilityService.getAvailabilityByDoctor(doctorId));
+    public ResponseEntity<List<SlotDTO>> getDoctorAvailability(@PathVariable Integer doctorId) {
+        return ResponseEntity.ok(availabilityService.getSlotDTOsByDoctor(doctorId));
     }
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
@@ -44,15 +45,14 @@ public class DoctorAvailabilityController {
     }
     @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT') or hasRole('DOCTOR')")
     @GetMapping("/all")
-    public ResponseEntity<List<DoctorAvailability>> getAllAvailabilities() {
-        return ResponseEntity.ok(availabilityService.getAllAvailabilities());
+    public ResponseEntity<List<SlotDTO>> getAllAvailabilities() {
+        return ResponseEntity.ok(availabilityService.getAllSlotDTOs());
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT') or hasRole('DOCTOR')")
     @GetMapping("/{availabilityId}")
-    public ResponseEntity<DoctorAvailability> getAvailabilityById(@PathVariable Integer availabilityId) {
-        DoctorAvailability availability = availabilityService.getAvailabilityById(availabilityId);
-        return ResponseEntity.ok(availability);
+    public ResponseEntity<SlotDTO> getAvailabilityById(@PathVariable Integer availabilityId) {
+        return ResponseEntity.ok(availabilityService.getSlotDTOById(availabilityId));
     }
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")

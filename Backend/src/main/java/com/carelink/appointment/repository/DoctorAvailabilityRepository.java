@@ -23,6 +23,17 @@ public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvaila
 
     @Modifying
     @Transactional
-    @org.springframework.data.jpa.repository.Query("UPDATE DoctorAvailability a SET a.status = 'CANCELLED' WHERE a.id = :slotId AND a.doctorId = :doctorId")
+    @org.springframework.data.jpa.repository.Query("UPDATE DoctorAvailability a SET a.status = 'AVAILABLE', a.isBooked = false WHERE a.id = :slotId AND a.doctorId = :doctorId")
     int cancelSlot(@Param("slotId") Integer slotId, @Param("doctorId") Integer doctorId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM DoctorAvailability a WHERE a.doctor.id = :doctorId")
+    List<DoctorAvailability> getSlotDTOsByDoctor(@Param("doctorId") Integer doctorId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM DoctorAvailability a")
+    List<DoctorAvailability> getAllSlotDTOs();
+
+    @org.springframework.data.jpa.repository.Query("SELECT a FROM DoctorAvailability a WHERE a.id = :availabilityId")
+    DoctorAvailability getSlotDTOById(@Param("availabilityId") Integer availabilityId);
+
+    List<DoctorAvailability> findByIsBookedFalseAndStatus(com.carelink.appointment.model.AvailabilityStatus status);
 }

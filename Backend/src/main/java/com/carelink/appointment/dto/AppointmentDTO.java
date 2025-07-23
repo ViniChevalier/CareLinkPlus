@@ -1,6 +1,7 @@
 package com.carelink.appointment.dto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.carelink.appointment.model.AppointmentEntity;
 
@@ -14,6 +15,9 @@ public class AppointmentDTO {
     private String doctorName;
     private String patientName;
     private Integer availabilityId;
+    private String availableDate;
+    private String startTime;
+    private String endTime;
 
     public AppointmentDTO(AppointmentEntity entity) {
         this.id = entity.getAppointmentId();
@@ -29,6 +33,13 @@ public class AppointmentDTO {
             ? entity.getPatient().getFirstName() + " " + entity.getPatient().getLastName()
             : null;
         this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
+        if (entity.getAvailability() != null) {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            this.availableDate = entity.getAvailability().getAvailableDate().format(dateFormatter);
+            this.startTime = entity.getAvailability().getStartTime().format(timeFormatter);
+            this.endTime = entity.getAvailability().getEndTime().format(timeFormatter);
+        }
     }
 
     public AppointmentDTO(AppointmentEntity entity, Integer doctorId, String doctorName) {
@@ -40,6 +51,13 @@ public class AppointmentDTO {
         this.doctorId = doctorId;
         this.doctorName = doctorName;
         this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
+        if (entity.getAvailability() != null) {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            this.availableDate = entity.getAvailability().getAvailableDate().format(dateFormatter);
+            this.startTime = entity.getAvailability().getStartTime().format(timeFormatter);
+            this.endTime = entity.getAvailability().getEndTime().format(timeFormatter);
+        }
     }
 
     public Integer getId() {
@@ -112,5 +130,29 @@ public class AppointmentDTO {
 
     public void setAvailabilityId(Integer availabilityId) {
         this.availabilityId = availabilityId;
+    }
+
+    public String getAvailableDate() {
+        return availableDate;
+    }
+
+    public void setAvailableDate(String availableDate) {
+        this.availableDate = availableDate;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }

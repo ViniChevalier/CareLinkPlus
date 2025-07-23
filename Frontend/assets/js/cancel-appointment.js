@@ -1,77 +1,78 @@
-import { get, del } from './apiService.js';
+import { get, cancelAppointment, getAppointmentsByPatient } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const appointmentSelect = document.getElementById("appointmentSelect");
   const form = document.getElementById("cancelAppointmentForm");
   const messageDiv = document.getElementById("message");
 
-  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
   // Carregar appointments do usuário
-  get(`/api/appointments?userId=${userId}`)
+  const patientId = localStorage.getItem("userId");
+  if (!patientId) {
+    console.error("Patient ID is missing in localStorage");
+    appointmentSelect.innerHTML = `<option value="">Patient not found</option>`;
+    return;
+  }
+
+  appointmentSelect.innerHTML = `<option disabled selected>Loading appointments...</option>`;
+  appointmentSelect.disabled = true;
+
+  get(`/api/appointments/patient/${patientId}`)
     .then(async (appointments) => {
-      if (appointments.length === 0) {
-        appointmentSelect.innerHTML = `<option value="">No appointments found</option>`;
+      const bookedAppointments = appointments.filter(app => app.status === "Scheduled" || app.status === "Confirmed");
+
+      bookedAppointments.sort((a, b) => {
+        const dateA = new Date(a.dateTime);
+        const dateB = new Date(b.dateTime);
+        return dateA - dateB;
+      });
+
+      if (bookedAppointments.length === 0) {
+        appointmentSelect.innerHTML = `<option value="">No active appointments found</option>`;
+        appointmentSelect.disabled = false;
         return;
       }
 
       appointmentSelect.innerHTML = `<option value="">Select an appointment</option>`;
 
-      for (const app of appointments) {
+      for (const app of bookedAppointments) {
         const option = document.createElement("option");
-        option.value = app.appointmentId;
+        option.value = app.id;
 
-        let doctorName = "Unknown";
-        let slotInfo = "No slot info";
+        const date = new Date(app.dateTime);
 
-        try {
-          const profile = await get(`/api/account/profile/${app.doctorId}`);
-          doctorName = `Dr. ${profile.firstName} ${profile.lastName}`;
-        } catch (error) {
-          console.error(`Error fetching doctor profile for ID ${app.doctorId}:`, error);
-        }
+        const formattedDate = date.toLocaleDateString("en-IE", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        });
 
-        try {
-          if (!app.availabilityId || app.availabilityId === 0) {
-            console.warn(`Appointment ${app.appointmentId} has no availabilityId. Skipping.`);
-            continue;
-          }
+        const formattedStartTime = date.toLocaleTimeString("en-IE", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
 
-          const availability = await get(`/api/availability/${app.availabilityId}`);
-          const date = new Date(`${availability.availableDate}T${availability.startTime}`);
+        const endDateTime = new Date(app.dateTime);
+        endDateTime.setHours(...app.endTime.split(':').map(Number));
+        const formattedEndTime = endDateTime.toLocaleTimeString("en-IE", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
 
-          const formattedDate = date.toLocaleDateString("en-IE", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-          });
-
-          const formattedStartTime = date.toLocaleTimeString("en-IE", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-          });
-
-          const formattedEndTime = new Date(`${availability.availableDate}T${availability.endTime}`).toLocaleTimeString("en-IE", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false
-          });
-
-          slotInfo = `${formattedDate} — ${formattedStartTime} to ${formattedEndTime}`;
-        } catch (error) {
-          console.error(`Error fetching availability for ID ${app.availabilityId}:`, error);
-        }
-
-        option.textContent = `${slotInfo} with ${doctorName}`;
+        const slotInfo = `${formattedDate} — ${formattedStartTime} to ${formattedEndTime}`;
+        option.textContent = `${slotInfo} with ${app.doctorName}`;
         appointmentSelect.appendChild(option);
       }
+      appointmentSelect.disabled = false;
     })
     .catch(error => {
       console.error("Error loading appointments:", error);
       appointmentSelect.innerHTML = `<option value="">Error loading appointments</option>`;
+      appointmentSelect.disabled = false;
     });
 
   // Submeter o cancelamento
@@ -84,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    del(`/api/appointments/${appointmentId}`)
+    cancelAppointment(appointmentId)
       .then(() => {
         showMessage("Appointment cancelled successfully!", "success");
 

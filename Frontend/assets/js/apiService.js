@@ -83,6 +83,10 @@ export function deleteAppointment(id) {
     return del(`/api/appointments/${id}`);
 }
 
+export function cancelAppointment(id) {
+    return post(`/api/appointments/${id}/cancel`);
+}
+
 export function getAppointmentsByPatient(patientId) {
     return get(`/api/appointments/patient/${patientId}`);
 }

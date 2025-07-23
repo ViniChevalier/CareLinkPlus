@@ -1,4 +1,4 @@
-import { get, put, getAllAvailability, getAppointmentsByPatient } from './apiService.js';
+import { get, put, post, getAllAvailability, getAppointmentsByPatient, cancelAppointment, createAppointment } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const appointmentSelect = document.getElementById("appointmentSelect");
@@ -14,11 +14,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
 
   // Load user's existing appointments
+  appointmentSelect.innerHTML = `<option disabled selected>Loading appointments...</option>`;
+  appointmentSelect.disabled = true;
+
   getAppointmentsByPatient(userId)
     .then((appointments) => {
-      const bookedAppointments = appointments.filter(app => app.status === "BOOKED");
+      const bookedAppointments = appointments
+        .filter(app => app.status === "Scheduled" || app.status === "Confirmed")
+        .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
       if (bookedAppointments.length === 0) {
         appointmentSelect.innerHTML = `<option value="">No appointments found</option>`;
+        appointmentSelect.disabled = false;
         return;
       }
 
@@ -27,59 +33,51 @@ document.addEventListener("DOMContentLoaded", () => {
       (async () => {
         for (const app of bookedAppointments) {
           const option = document.createElement("option");
-          option.value = app.appointmentId;
+          option.value = app.id;
 
           let doctorName = "Unknown";
           let slotInfo = "No slot info";
 
-          try {
-            const profile = await get(`/api/account/profile/${app.doctorId}`);
-            doctorName = `Dr. ${profile.firstName} ${profile.lastName}`;
-          } catch (error) {
-            console.error(`Error fetching doctor profile for ID ${app.doctorId}:`, error);
+          doctorName = `Dr. ${app.doctorName}`;
+
+          if (!app.availabilityId || app.availabilityId === 0 || !app.availableDate || !app.startTime || !app.endTime) {
+            console.warn(`Appointment ${app.id} missing availability data. Skipping.`);
+            continue;
           }
 
-          try {
-            if (!app.availabilityId || app.availabilityId === 0) {
-              console.warn(`Appointment ${app.appointmentId} has no availabilityId. Skipping.`);
-              continue; 
-            }
+          const date = new Date(`${app.availableDate.split("/").reverse().join("-")}T${app.startTime}`);
 
-            const availability = await get(`/api/availability/${app.availabilityId}`);
-            const date = new Date(`${availability.availableDate}T${availability.startTime}`);
+          const formattedDate = date.toLocaleDateString("en-IE", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          });
 
-            const formattedDate = date.toLocaleDateString("en-IE", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              year: "numeric"
-            });
+          const formattedStartTime = date.toLocaleTimeString("en-IE", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          });
 
-            const formattedStartTime = date.toLocaleTimeString("en-IE", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false
-            });
+          const formattedEndTime = new Date(`${app.availableDate.split("/").reverse().join("-")}T${app.endTime}`).toLocaleTimeString("en-IE", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          });
 
-            const formattedEndTime = new Date(`${availability.availableDate}T${availability.endTime}`).toLocaleTimeString("en-IE", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false
-            });
-
-            slotInfo = `${formattedDate} — ${formattedStartTime} to ${formattedEndTime}`;
-          } catch (error) {
-            console.error(`Error fetching availability for ID ${app.availabilityId}:`, error);
-          }
+          slotInfo = `${formattedDate} — ${formattedStartTime} to ${formattedEndTime}`;
 
           option.textContent = `${slotInfo} with ${doctorName}`;
           appointmentSelect.appendChild(option);
         }
+        appointmentSelect.disabled = false;
       })();
     })
     .catch(error => {
       console.error("Error loading appointments:", error);
       appointmentSelect.innerHTML = `<option value="">Error loading appointments</option>`;
+      appointmentSelect.disabled = false;
     });
 
   // When appointment is selected, show doctor select
@@ -91,24 +89,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    doctorGroup.classList.remove("d-none");
+
     // Load doctors using available slots logic
     getAllAvailability()
       .then(async (availabilities) => {
-        const activeAvailabilities = availabilities.filter(slot => !slot.isBooked && slot.status === "AVAILABLE");
+        const activeAvailabilities = availabilities;
         const doctorMap = new Map();
 
         for (const slot of activeAvailabilities) {
-          if (!doctorMap.has(slot.doctorId)) {
-            try {
-              const profile = await get(`/api/account/profile/${slot.doctorId}`);
-              const fullName = `${profile.firstName} ${profile.lastName}`;
-              doctorMap.set(slot.doctorId, fullName);
-            } catch (error) {
-              console.error(`Error fetching profile for doctor ID ${slot.doctorId}:`, error);
-            }
+          if (!doctorMap.has(slot.doctorId) && slot.doctorName) {
+            doctorMap.set(slot.doctorId, slot.doctorName);
           }
         }
 
+        doctorSelect.innerHTML = ``;
         doctorSelect.innerHTML = `<option value="">Select a doctor</option>`;
         doctorMap.forEach((name, id) => {
           const option = document.createElement("option");
@@ -153,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
         slotSelect.innerHTML = `<option value="">Select a slot</option>`;
         availableSlots.forEach(slot => {
           const option = document.createElement("option");
-          option.value = slot.id;
+          option.value = slot.availabilityId;
 
           const date = new Date(`${slot.availableDate}T${slot.startTime}`);
           const formattedDate = date.toLocaleDateString("en-IE", {
@@ -202,34 +197,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const doctorId = doctorSelect.value;
     const slotId = slotSelect.value;
 
-    if (!appointmentId || !doctorId || !slotId) {
-      showMessage("Please fill all fields.", "danger");
+    if (!appointmentId || !doctorId || !slotId || slotId === "undefined") {
+      showMessage("Please fill all fields correctly.", "danger");
       return;
     }
 
-    const payload = {
-      doctorId: parseInt(doctorId),
-      availabilityId: parseInt(slotId),
-      reason: "Rescheduled by patient"
-    };
-
-    put(`/api/appointments/${appointmentId}`, payload)
-      .then(() => {
-        showMessage("Appointment rescheduled successfully!", "success");
-        form.reset();
-        doctorGroup.classList.add("d-none");
-        slotGroup.classList.add("d-none");
-        submitBtn.classList.add("d-none");
-      })
-      .catch(error => {
-        console.error("Error rescheduling appointment:", error);
-        showMessage("Error rescheduling. Please try again.", "danger");
-      });
+    rescheduleAppointment(appointmentId, doctorId, slotId);
   });
 
-  function showMessage(msg, type) {
-    messageDiv.className = `alert alert-${type} text-center`;
-    messageDiv.textContent = msg;
-    messageDiv.classList.remove("d-none");
-  }
 });
+
+function showMessage(msg, type) {
+  const messageDiv = document.getElementById("message");
+  messageDiv.className = `alert alert-${type} text-center`;
+  messageDiv.textContent = msg;
+  messageDiv.classList.remove("d-none");
+}
+
+function rescheduleAppointment(currentAppointmentId, doctorId, slotId) {
+  const userId = localStorage.getItem("userId");
+  // Validate input
+  if (
+    !currentAppointmentId ||
+    !doctorId ||
+    !slotId ||
+    isNaN(parseInt(doctorId)) ||
+    isNaN(parseInt(slotId))
+  ) {
+    showMessage("Error: Invalid data for rescheduling.", "danger");
+    console.warn("Invalid data:", {
+      currentAppointmentId,
+      doctorId,
+      slotId
+    });
+    return;
+  }
+
+  // Cancel the current appointment
+  cancelAppointment(currentAppointmentId)
+    .then(() => {
+      const availabilityId = parseInt(slotId);
+      const payload = {
+        doctorId: parseInt(doctorId),
+        availabilityId: availabilityId,
+        patientId: parseInt(userId),
+        reason: "Rescheduled by patient"
+      };
+
+      return createAppointment(payload);
+    })
+    .then(() => {
+      showMessage("Appointment successfully rescheduled!", "success");
+    })
+    .catch((error) => {
+      console.error("Error during rescheduling:", error);
+      showMessage("Failed to reschedule appointment. Please try again later.", "danger");
+    });
+}

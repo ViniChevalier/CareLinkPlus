@@ -43,14 +43,20 @@ public class AppointmentController {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatient(patientId);
         List<AppointmentDTO> dtos = appointments.stream()
             .map(a -> {
-                AppointmentDTO dto = new AppointmentDTO(
-                    a,
-                    a.getDoctor().getUserID(),
-                    a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
-                );
+                String doctorName = a.getDoctor() != null
+                    ? a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
+                    : "Unknown";
+
+                Integer doctorId = a.getDoctor() != null
+                    ? a.getDoctor().getUserID()
+                    : null;
+
+                AppointmentDTO dto = new AppointmentDTO(a, doctorId, doctorName);
+
                 if (a.getAvailability() != null) {
                     dto.setAvailabilityId(a.getAvailability().getId());
                 }
+
                 return dto;
             })
             .toList();
@@ -75,10 +81,16 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
     }
 
-    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable int id) {
         appointmentService.deleteAppointment(id);
         return ResponseEntity.noContent().build();
+    }
+    @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelAppointment(@PathVariable int id) {
+        appointmentService.cancelAppointment(id);
+        return ResponseEntity.ok().build();
     }
 }

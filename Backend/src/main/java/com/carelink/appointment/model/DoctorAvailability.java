@@ -5,6 +5,7 @@ import com.carelink.appointment.model.AvailabilityStatus;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import com.carelink.account.model.User;
 
 @Entity
 @Table(name = "doctoravailability")
@@ -17,6 +18,10 @@ public class DoctorAvailability {
 
     @Column(name = "DoctorID", nullable = false)
     private Integer doctorId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "DoctorID", insertable = false, updatable = false)
+    private User doctor;
 
     @Column(name = "AvailableDate", nullable = false)
     private LocalDate availableDate;
@@ -50,6 +55,14 @@ public class DoctorAvailability {
 
     public void setDoctorId(Integer doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public User getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(User doctor) {
+        this.doctor = doctor;
     }
 
     public LocalDate getAvailableDate() {

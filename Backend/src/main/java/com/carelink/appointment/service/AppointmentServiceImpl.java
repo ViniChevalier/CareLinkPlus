@@ -161,4 +161,21 @@ public class AppointmentServiceImpl {
     public List<AppointmentWithPatientDTO> getAppointmentsWithPatientNameByDoctorId(int doctorId) {
         return appointmentRepository.findAppointmentsWithPatientNameByDoctorId(doctorId);
     }
+
+    public void cancelAppointment(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+
+        appointment.setAppointmentStatus("Cancelled");
+        appointmentRepository.save(appointment);
+
+
+        DoctorAvailability slot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
+            .orElseThrow(() -> new RuntimeException("Availability slot not found"));
+
+        slot.setIsBooked(false);
+        slot.setStatus(AvailabilityStatus.AVAILABLE);
+        doctorAvailabilityRepository.save(slot);
+    }
 }

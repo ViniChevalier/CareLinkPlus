@@ -1,4 +1,7 @@
-import { getAllAvailability, get, post } from './apiService.js';
+import {
+  getAllAvailability,
+  createAppointment
+} from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const doctorSelect = document.getElementById("doctorSelect");
@@ -10,21 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load doctors with active availability
   getAllAvailability()
-    .then(async (availabilities) => {
-      const activeAvailabilities = availabilities.filter(slot => slot.isBooked === false);
-
+    .then((availabilities) => {
       const doctorMap = new Map();
-      for (const slot of activeAvailabilities) {
+      availabilities.forEach(slot => {
         if (!doctorMap.has(slot.doctorId)) {
-          try {
-            const profile = await get(`/api/account/profile/${slot.doctorId}`);
-            const fullName = `${profile.firstName} ${profile.lastName}`;
-            doctorMap.set(slot.doctorId, fullName);
-          } catch (error) {
-            console.error(`Error fetching profile for doctor ID ${slot.doctorId}:`, error);
-          }
+          doctorMap.set(slot.doctorId, slot.doctorName);
         }
-      }
+      });
 
       doctorSelect.innerHTML = `<option value="">Select a doctor</option>`;
       doctorMap.forEach((name, id) => {
@@ -52,10 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    get(`/api/availability/doctor/${doctorId}`)
-      .then((slots) => {
-        const activeSlots = slots.filter(slot =>
-          slot.isBooked === false && slot.status === "AVAILABLE"
+    getAllAvailability()
+      .then((availabilities) => {
+        const activeSlots = availabilities.filter(slot =>
+          slot.doctorId == doctorId &&
+          slot.status === "AVAILABLE"
         );
         activeSlots.sort((a, b) => {
           const dateA = new Date(`${a.availableDate}T${a.startTime}`);
@@ -65,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
         slotSelect.innerHTML = `<option value="">Select a slot</option>`;
         activeSlots.forEach(slot => {
           const option = document.createElement("option");
-          option.value = slot.id;
+          option.value = slot.availabilityId;
 
           const date = new Date(`${slot.availableDate}T${slot.startTime}`);
           const formattedDate = date.toLocaleDateString("en-IE", {
@@ -116,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
       reason,
     };
 
-    post("/api/appointments", payload)
+    createAppointment(payload)
       .then(() => {
         showMessage("Appointment scheduled successfully!", "success");
         form.reset();
