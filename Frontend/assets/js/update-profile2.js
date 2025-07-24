@@ -1,13 +1,17 @@
-// Função para carregar Google Maps
+import { getGoogleMapsApiKey } from './apiService.js';
+
 function loadGoogleMaps(callback) {
-  const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
-  script.defer = true;
-  script.onload = callback;
-  document.head.appendChild(script);
+  getGoogleMapsApiKey()
+    .then(key => {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+      script.defer = true;
+      script.onload = callback;
+      document.head.appendChild(script);
+    })
+    .catch(err => console.error("Failed to load Google Maps key:", err));
 }
 
-// Inicializa intl-tel-input
 if (window.intlTelInput) {
   const phoneInput = document.querySelector("#phoneNumber");
   window.iti = window.intlTelInput(phoneInput, {
@@ -19,7 +23,6 @@ if (window.intlTelInput) {
   console.error("intlTelInput not loaded");
 }
 
-// Função para inicializar Autocomplete
 function initAutocomplete() {
   const addressInput = document.getElementById("address");
   const autocomplete = new google.maps.places.Autocomplete(addressInput, {

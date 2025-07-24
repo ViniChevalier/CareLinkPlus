@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
-  // Load user's existing appointments
   appointmentSelect.innerHTML = `<option disabled selected>Loading appointments...</option>`;
   appointmentSelect.disabled = true;
 
@@ -80,7 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
       appointmentSelect.disabled = false;
     });
 
-  // When appointment is selected, show doctor select
   appointmentSelect.addEventListener("change", () => {
     if (!appointmentSelect.value) {
       doctorGroup.classList.add("d-none");
@@ -91,7 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     doctorGroup.classList.remove("d-none");
 
-    // Load doctors using available slots logic
     getAllAvailability()
       .then(async (availabilities) => {
         const activeAvailabilities = availabilities;
@@ -124,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  // Load slots for selected doctor
   doctorSelect.addEventListener("change", () => {
     const doctorId = doctorSelect.value;
     if (!doctorId) {
@@ -132,6 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.classList.add("d-none");
       return;
     }
+
+    slotSelect.innerHTML = `<option>Loading...</option>`;
+    slotSelect.disabled = true;
 
     get(`/api/availability/doctor/${doctorId}`)
       .then((slots) => {
@@ -182,16 +181,20 @@ document.addEventListener("DOMContentLoaded", () => {
           slotGroup.classList.remove("d-none");
           submitBtn.classList.add("d-none");
         }
+        slotSelect.disabled = false;
       })
       .catch(error => {
         console.error("Error loading slots:", error);
         slotSelect.innerHTML = `<option value="">Error loading slots</option>`;
+        slotSelect.disabled = false;
       });
   });
 
-  // Handle form submission
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Rescheduling...";
 
     const appointmentId = appointmentSelect.value;
     const doctorId = doctorSelect.value;
@@ -199,6 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!appointmentId || !doctorId || !slotId || slotId === "undefined") {
       showMessage("Please fill all fields correctly.", "danger");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Reschedule";
       return;
     }
 
@@ -216,7 +221,6 @@ function showMessage(msg, type) {
 
 function rescheduleAppointment(currentAppointmentId, doctorId, slotId) {
   const userId = localStorage.getItem("userId");
-  // Validate input
   if (
     !currentAppointmentId ||
     !doctorId ||
@@ -230,10 +234,11 @@ function rescheduleAppointment(currentAppointmentId, doctorId, slotId) {
       doctorId,
       slotId
     });
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Reschedule";
     return;
   }
 
-  // Cancel the current appointment
   cancelAppointment(currentAppointmentId)
     .then(() => {
       const availabilityId = parseInt(slotId);
@@ -248,9 +253,13 @@ function rescheduleAppointment(currentAppointmentId, doctorId, slotId) {
     })
     .then(() => {
       showMessage("Appointment successfully rescheduled!", "success");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Reschedule";
     })
     .catch((error) => {
       console.error("Error during rescheduling:", error);
       showMessage("Failed to reschedule appointment. Please try again later.", "danger");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Reschedule";
     });
 }

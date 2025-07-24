@@ -68,7 +68,15 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         const lastRecord = data[data.length - 1];
 
-        let doctorName = lastRecord.doctorName || "N/A";
+        let doctorName = "N/A";
+        if (lastRecord.doctorId) {
+          try {
+            const profile = await getProfileById(lastRecord.doctorId);
+            doctorName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+          } catch (error) {
+            console.error("Error fetching doctor profile for prescription:", error);
+          }
+        }
 
         let prescriptionDetails = {};
         try {
@@ -203,7 +211,15 @@ document.getElementById("viewPrescriptionsBtn").addEventListener("click", async 
       cardsContainer.innerHTML = "<p>No prescriptions found.</p>";
     } else {
       for (const record of data) {
-        let doctorName = record.doctorName || "N/A";
+        let doctorName = "N/A";
+        if (record.doctorId) {
+          try {
+            const profile = await getProfileById(record.doctorId);
+            doctorName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+          } catch (error) {
+            console.error("Error fetching doctor profile for prescription modal card:", error);
+          }
+        }
 
         const lastUpdated = record.lastUpdated
           ? new Date(record.lastUpdated).toLocaleString('en-IE', {

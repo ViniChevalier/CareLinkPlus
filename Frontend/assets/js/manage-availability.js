@@ -1,16 +1,10 @@
-
-
-
 import {
   addDoctorAvailability,
   getDoctorAvailability,
-  deleteAvailability,
-  getProfile
-} from './apiService.js';
+  deleteAvailability} from './apiService.js';
 
 const doctorId = localStorage.getItem('userId');
 
-// Handle add availability (manual + duration buttons)
 document.querySelectorAll('.btn-duration').forEach(btn => {
   btn.addEventListener('click', async () => {
     const date = document.getElementById('date').value;
@@ -43,7 +37,6 @@ document.querySelectorAll('.btn-duration').forEach(btn => {
   });
 });
 
-// View availability by date
 document.getElementById('viewDate').addEventListener('change', async (e) => {
   const selectedDate = e.target.value;
   await displayAvailability(selectedDate);
@@ -95,11 +88,10 @@ function formatTime(timeStr) {
 }
 
 function formatTimeString(date) {
-  return date.toTimeString().slice(0, 8); // "HH:mm:ss"
+  return date.toTimeString().slice(0, 8); 
 }
 
 
-// Auto-populate day schedule
 document.querySelectorAll('.auto-populate-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
     const date = document.getElementById('populateDate').value;
@@ -123,10 +115,8 @@ document.querySelectorAll('.auto-populate-btn').forEach(btn => {
     for (let t = new Date(start); t < end; t.setMinutes(t.getMinutes() + slotSize)) {
       const next = new Date(t.getTime() + slotSize * 60000);
 
-      // Skip if inside break
       if (breakStartTime && breakEndTime && t >= breakStartTime && next <= breakEndTime) continue;
 
-      // Don't exceed end of work period
       if (next > end) break;
 
       slots.push({

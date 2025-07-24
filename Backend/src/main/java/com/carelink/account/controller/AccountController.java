@@ -435,4 +435,52 @@ public class AccountController {
             .toList();
         return ResponseEntity.ok(responseList);
     }
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PostMapping("/register-patient")
+    public ResponseEntity<UserResponse> registerPatient(@RequestBody RegisterRequest request) {
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setDateOfBirth(java.sql.Date.valueOf(request.getDateOfBirth()));
+        user.setGender(request.getGender());
+        user.setAddress(request.getAddress());
+        user.setCity(request.getCity());
+        user.setCountry(request.getCountry());
+        user.setNotificationPreference(request.getNotificationPreference());
+        user.setRole("PATIENT");
+
+        User createdUser = accountService.createUser(user);
+
+        String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
+        String generatedPassword = createdUser.getTransientPassword();
+
+        // Envia e-mail de boas-vindas
+        String subject = "Welcome to CareLink+ – Your Access Details";
+        String body = String.format("""
+            Hello %s,
+
+            Your account has been created successfully.
+
+            Username: %s
+            Temporary Password: %s
+
+            Please log in and change your password as soon as possible.
+
+            Access the platform at: https://calm-sky-0157a6e03.1.azurestaticapps.net/login
+            """, user.getFirstName(), generatedUsername, generatedPassword);
+
+        accountService.sendEmail(user.getEmail(), subject, body, body);
+
+        UserResponse response = new UserResponse();
+        response.setUserId(createdUser.getUserID().longValue());
+        response.setUsername(generatedUsername);
+        response.setEmail(createdUser.getEmail());
+        response.setGeneratedPassword(generatedPassword);
+        response.setFirstName(createdUser.getFirstName());
+        response.setLastName(createdUser.getLastName());
+
+        return ResponseEntity.status(201).body(response);
+    }
 }

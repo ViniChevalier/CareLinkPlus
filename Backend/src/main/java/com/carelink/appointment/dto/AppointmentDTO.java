@@ -14,6 +14,7 @@ public class AppointmentDTO {
     private Integer doctorId;
     private String doctorName;
     private String patientName;
+    private Integer patientId;
     private Integer availabilityId;
     private String availableDate;
     private String startTime;
@@ -32,6 +33,7 @@ public class AppointmentDTO {
         this.patientName = entity.getPatient() != null
             ? entity.getPatient().getFirstName() + " " + entity.getPatient().getLastName()
             : null;
+        this.patientId = entity.getPatient() != null ? entity.getPatient().getUserID() : null;
         this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
         if (entity.getAvailability() != null) {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -50,6 +52,10 @@ public class AppointmentDTO {
         this.notes = entity.getReason();
         this.doctorId = doctorId;
         this.doctorName = doctorName;
+        this.patientName = entity.getPatient() != null
+            ? entity.getPatient().getFirstName() + " " + entity.getPatient().getLastName()
+            : null;
+        this.patientId = entity.getPatient() != null ? entity.getPatient().getUserID() : null;
         this.availabilityId = entity.getAvailability() != null ? entity.getAvailability().getId() : null;
         if (entity.getAvailability() != null) {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -122,6 +128,14 @@ public class AppointmentDTO {
 
     public void setPatientName(String patientName) {
         this.patientName = patientName;
+    }
+
+    public Integer getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Integer patientId) {
+        this.patientId = patientId;
     }
 
     public Integer getAvailabilityId() {

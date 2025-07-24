@@ -4,10 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const appointmentSelect = document.getElementById("appointmentSelect");
   const form = document.getElementById("cancelAppointmentForm");
   const messageDiv = document.getElementById("message");
+  const submitBtn = form.querySelector("button[type='submit']");
 
   const token = localStorage.getItem("token");
 
-  // Carregar appointments do usuário
   const patientId = localStorage.getItem("userId");
   if (!patientId) {
     console.error("Patient ID is missing in localStorage");
@@ -75,13 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
       appointmentSelect.disabled = false;
     });
 
-  // Submeter o cancelamento
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Cancelling...";
     const appointmentId = appointmentSelect.value;
 
     if (!appointmentId) {
       showMessage("Please select an appointment to cancel.", "danger");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Cancel Appointment";
       return;
     }
 
@@ -95,10 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         appointmentSelect.value = "";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Cancel Appointment";
       })
       .catch(error => {
         console.error("Error cancelling appointment:", error);
         showMessage("Error cancelling appointment. Please try again.", "danger");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Cancel Appointment";
       });
   });
 

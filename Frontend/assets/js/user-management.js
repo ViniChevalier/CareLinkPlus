@@ -1,7 +1,6 @@
 import { register, deactivateUser, updateUserRole } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
-  // CREATE USER
   const createUserForm = document.getElementById("createUserForm");
   const alertCreate = document.getElementById("createUserAlert");
   if (alertCreate) alertCreate.classList.add("d-none");
@@ -51,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // EDIT USER ROLE
   const editRoleForm = document.getElementById("editRoleForm");
   const alertEditRole = document.getElementById("editRoleAlert");
   if (alertEditRole) alertEditRole.classList.add("d-none");
@@ -89,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // DEACTIVATE USER
   const deactivateUserForm = document.getElementById("deactivateUserForm");
   const alertDeactivateUser = document.getElementById("deactivateUserAlert");
   if (alertDeactivateUser) alertDeactivateUser.classList.add("d-none");

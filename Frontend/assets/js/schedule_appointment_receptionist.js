@@ -11,12 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("scheduleAppointmentForm");
   const messageDiv = document.getElementById("message");
 
-  // doctorSelect.parentNode.insertBefore(patientOptions, doctorSelect);
 
   let selectedPatientId = null;
   const patientMap = new Map();
 
-  // Load all patients for search
   getAllPatients()
     .then(patients => {
       console.log(patients);
@@ -54,25 +52,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Load doctors with active availability
   getAllAvailability()
     .then(async (availabilities) => {
       const activeAvailabilities = availabilities.filter(slot =>
-        slot.isBooked === false && slot.status === "AVAILABLE"
+        slot.status === "AVAILABLE"
       );
 
       const doctorMap = new Map();
-      for (const slot of activeAvailabilities) {
+      activeAvailabilities.forEach(slot => {
         if (!doctorMap.has(slot.doctorId)) {
-          try {
-            const profile = await get(`/api/account/profile/${slot.doctorId}`);
-            const fullName = `${profile.firstName} ${profile.lastName}`;
-            doctorMap.set(slot.doctorId, fullName);
-          } catch (error) {
-            console.error(`Error fetching profile for doctor ID ${slot.doctorId}:`, error);
-          }
+          doctorMap.set(slot.doctorId, slot.doctorName);
         }
-      }
+      });
 
       doctorSelect.innerHTML = `<option value="">Select a doctor</option>`;
       doctorMap.forEach((name, id) => {
@@ -91,9 +82,10 @@ document.addEventListener("DOMContentLoaded", () => {
       doctorSelect.innerHTML = `<option value="">Error loading doctors</option>`;
     });
 
-  // Load available slots when doctor is selected
   doctorSelect.addEventListener("change", () => {
     const doctorId = doctorSelect.value;
+    slotSelect.disabled = true;
+    slotSelect.innerHTML = `<option value="">Loading slots...</option>`;
     if (!doctorId) {
       slotSelect.disabled = true;
       slotSelect.innerHTML = `<option value="">Please select a doctor first</option>`;
@@ -103,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     get(`/api/availability/doctor/${doctorId}`)
       .then((slots) => {
         const activeSlots = slots.filter(slot =>
-          slot.isBooked === false && slot.status === "AVAILABLE"
+          slot.status === "AVAILABLE"
         );
         activeSlots.sort((a, b) => {
           const dateA = new Date(`${a.availableDate}T${a.startTime}`);
@@ -113,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
         slotSelect.innerHTML = `<option value="">Select a slot</option>`;
         activeSlots.forEach(slot => {
           const option = document.createElement("option");
-          option.value = slot.id;
+          option.value = slot.availabilityId;
 
           const date = new Date(`${slot.availableDate}T${slot.startTime}`);
           const formattedDate = date.toLocaleDateString("en-IE", {
@@ -141,20 +133,25 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch(error => {
         console.error("Error loading slots:", error);
-        slotSelect.innerHTML = `<option value="">Error loading slots</option>`;
         slotSelect.disabled = true;
+        slotSelect.innerHTML = `<option value="">Error loading slots</option>`;
       });
   });
 
-  // Handle form submission
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Scheduling...`;
 
     const availabilityId = slotSelect.value;
     const reason = document.getElementById("reason").value;
 
     if (!selectedPatientId || !availabilityId || !reason) {
       showMessage("Please fill all required fields.", "danger");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Schedule Appointment";
       return;
     }
 
@@ -176,10 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedPatientId = null;
         patientNameConfirm.value = "";
         patientNameConfirm.classList.remove("is-valid", "is-invalid");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Schedule Appointment";
       })
       .catch(error => {
         console.error("Error scheduling appointment:", error);
         showMessage("Error scheduling appointment. Please try again.", "danger");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Schedule Appointment";
       });
   });
 

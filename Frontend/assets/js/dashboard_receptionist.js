@@ -12,14 +12,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           && appDate.getMonth() === now.getMonth()
           && appDate.getDate() === now.getDate();
       })
-      .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
-      .slice(0, 5);
+      .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
 
     const appointmentList = document.getElementById('upcomingAppointmentsList').querySelector('ul');
     if (upcoming.length === 0) {
       appointmentList.innerHTML = '<li class="list-group-item text-muted">No appointments scheduled for today.</li>';
     } else {
-      appointmentList.innerHTML = upcoming.map(app => `
+      appointmentList.innerHTML = upcoming.slice(0, 5).map(app => `
         <li class="list-group-item">
           <strong>${new Date(app.dateTime).toLocaleString()}</strong><br>
           Patient: ${app.patientName || 'N/A'}<br>
@@ -28,8 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       `).join('');
     }
 
+    const excludedStatuses = ['available', 'expired', 'cancelled', 'completed', 'no_show'];
     const patientAppointments = upcoming
-      .filter(app => app.status && app.status.toLowerCase() === 'scheduled')
+      .filter(app => app.status && !excludedStatuses.includes(app.status.toLowerCase()))
       .slice(0, 5);
 
     const patientList = document.getElementById('nextPatientsList').querySelector('ul');

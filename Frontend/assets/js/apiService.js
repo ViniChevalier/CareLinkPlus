@@ -304,6 +304,10 @@ export function getAllPatients() {
     return get("/api/account/patients");
 }
 
+export function registerPatient(data) {
+    return post("/api/account/register-patient", data);
+}
+
 // -----------------------------
 // File Upload
 // -----------------------------
@@ -315,4 +319,14 @@ export function uploadFile(fileObj) {
         headers: { ...getAuthHeaders() },
         body: formData,
     }).then(handleResponse);
+}
+
+// -----------------------------
+// Google Maps API Key
+// -----------------------------
+export function getGoogleMapsApiKey() {
+    return fetch(`${BASE_URL}/api/config/maps-key`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+    }).then(res => res.text());
 }

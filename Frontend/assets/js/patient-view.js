@@ -210,7 +210,6 @@ async function loadPrescriptions(patientId) {
   const spinner = document.getElementById("loadingSpinner");
   if (spinner) spinner.style.display = "block";
   try {
-    // Fetch prescriptions from the correct endpoint
     const prescriptions = await getMedicalHistoryByPatient(patientId);
     console.log("Received prescriptions:", prescriptions);
     const list = document.getElementById("prescriptionsList");
@@ -222,11 +221,10 @@ async function loadPrescriptions(patientId) {
       return;
     }
 
-    // Ordena as prescrições por data de início, da mais nova para a mais antiga
     prescriptions.sort((a, b) => {
       let dateA = new Date(JSON.parse(a.prescriptions || '{}').startDate || 0);
       let dateB = new Date(JSON.parse(b.prescriptions || '{}').startDate || 0);
-      return dateB - dateA; // mais recente primeiro
+      return dateB - dateA;
     });
 
     const latestPrescriptions = prescriptions.slice(0, 5);
@@ -250,7 +248,6 @@ async function loadPrescriptions(patientId) {
       `;
       list.appendChild(li);
 
-      // Add click listener to open modal with prescription details
       li.style.cursor = "pointer";
       li.addEventListener("click", () => {
         const modalWrapper = document.createElement("div");
@@ -263,7 +260,6 @@ async function loadPrescriptions(patientId) {
           console.warn("Invalid JSON in prescriptions:", p.prescriptions);
         }
 
-        // Remove status logic and display from modal
         modalWrapper.innerHTML = `
           <div class="modal-dialog">
             <div class="modal-content">
@@ -331,7 +327,6 @@ async function loadPrescriptions(patientId) {
   }
 }
 
-// Loads and populates the "Past Consultations" tab list
 async function loadConsultationHistory(patientId) {
   const spinner = document.getElementById("loadingSpinner");
   if (spinner) spinner.style.display = "block";
@@ -368,7 +363,6 @@ async function loadConsultationHistory(patientId) {
       list.appendChild(li);
     });
 
-    // Show All Consultations button and modal
     if (appointments.length > 5) {
       const showMoreBtn = document.createElement("li");
       showMoreBtn.className = "list-group-item text-center";
@@ -710,7 +704,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 });
-// Loads the patient's full medical history into the modal table
 async function loadMedicalHistoryModal() {
   const patientId = localStorage.getItem("selectedPatientId");
   const spinner = document.getElementById("medicalHistoryLoading");
@@ -718,7 +711,6 @@ async function loadMedicalHistoryModal() {
 
   if (!patientId || !tableBody) return;
 
-  // Update table header to include all relevant fields
   const theadRow = document.getElementById("medicalHistoryTableBody").previousElementSibling.querySelector("thead tr");
   if (theadRow) {
     theadRow.innerHTML = `
@@ -771,7 +763,6 @@ async function loadMedicalHistoryModal() {
         `;
         tableBody.appendChild(row);
       });
-      // After rows are added, fetch and update each doctor cell
       const doctorCells = tableBody.querySelectorAll("td[data-doctor-id]");
       doctorCells.forEach(async cell => {
         const doctorId = cell.getAttribute("data-doctor-id");
@@ -792,7 +783,6 @@ async function loadMedicalHistoryModal() {
     if (spinner) spinner.classList.add("d-none");
   }
 }
-// Loads the patient's prescription history into the modal table
 async function loadPrescriptionHistory() {
   const patientId = localStorage.getItem("selectedPatientId");
   const spinner = document.getElementById("prescriptionHistoryLoading");
@@ -805,7 +795,6 @@ async function loadPrescriptionHistory() {
 
   try {
     const prescriptions = await getMedicalHistoryByPatient(patientId);
-    // Update table headers to include Doctor Name column
     const theadRow = document.getElementById("prescriptionHistoryTableBody").previousElementSibling.querySelector("thead tr");
     if (theadRow) {
       theadRow.innerHTML = `
@@ -843,7 +832,6 @@ async function loadPrescriptionHistory() {
         `;
         tableBody.appendChild(row);
       });
-      // After populating all rows, fetch the doctor's name for each cell with data-doctor-id
       const doctorCells = tableBody.querySelectorAll("td[data-doctor-id]");
       doctorCells.forEach(async cell => {
         const doctorId = cell.getAttribute("data-doctor-id");
@@ -865,6 +853,5 @@ async function loadPrescriptionHistory() {
   }
 }
 
-// Expose modal functions to global scope for use in HTML onclick attributes
 window.loadMedicalHistoryModal = loadMedicalHistoryModal;
 window.loadPrescriptionHistory = loadPrescriptionHistory;

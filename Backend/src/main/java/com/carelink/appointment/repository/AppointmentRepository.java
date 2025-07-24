@@ -17,4 +17,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
            "a.createdAt, a.availability.id, u.firstName, u.lastName) " +
            "FROM AppointmentEntity a JOIN a.patient u WHERE a.doctorId = :doctorId")
     List<AppointmentWithPatientDTO> findAppointmentsWithPatientNameByDoctorId(@Param("doctorId") Integer doctorId);
+
+    @Query("SELECT a FROM AppointmentEntity a JOIN FETCH a.patient")
+    List<AppointmentEntity> findAllWithPatient();
 }

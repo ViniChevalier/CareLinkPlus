@@ -55,7 +55,7 @@ public class AppointmentServiceImpl {
      * Retrieves all appointments.
      */
     public List<AppointmentEntity> getAllAppointments() {
-        return appointmentRepository.findAll();
+        return appointmentRepository.findAllWithPatient();
     }
 
     /**

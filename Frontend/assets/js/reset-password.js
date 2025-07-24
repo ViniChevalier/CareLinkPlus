@@ -14,7 +14,6 @@ document.getElementById("resetPasswordForm").addEventListener("submit", function
   const confirmPassword = document.getElementById("confirmPassword").value;
   const messageDiv = document.getElementById("message");
 
-  // Pega token da URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
 
