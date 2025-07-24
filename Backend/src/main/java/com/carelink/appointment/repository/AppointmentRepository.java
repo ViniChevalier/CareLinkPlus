@@ -20,4 +20,9 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
 
     @Query("SELECT a FROM AppointmentEntity a JOIN FETCH a.patient")
     List<AppointmentEntity> findAllWithPatient();
+
+    @Query("SELECT a FROM AppointmentEntity a " +
+           "WHERE a.appointmentStatus = 'ATTENDED' " +
+           "AND FUNCTION('DATE', a.appointmentDateTime) = :yesterday")
+    List<AppointmentEntity> findAttendedAppointmentsFromYesterday(@Param("yesterday") java.time.LocalDate yesterday);
 }

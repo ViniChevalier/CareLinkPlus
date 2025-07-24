@@ -93,4 +93,31 @@ public class AppointmentController {
         appointmentService.cancelAppointment(id);
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PutMapping("/{id}/check-in")
+    public ResponseEntity<Void> checkInAppointment(@PathVariable int id) {
+        appointmentService.checkInAppointment(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PutMapping("/{id}/no-show")
+    public ResponseEntity<Void> markNoShowAppointment(@PathVariable int id) {
+        appointmentService.markNoShow(id);
+        return ResponseEntity.ok().build();
+    }
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PutMapping("/{id}/undo-check-in")
+    public ResponseEntity<Void> undoCheckInAppointment(@PathVariable int id) {
+        appointmentService.undoCheckIn(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PutMapping("/{id}/undo-no-show")
+    public ResponseEntity<Void> undoNoShowAppointment(@PathVariable int id) {
+        appointmentService.undoNoShow(id);
+        return ResponseEntity.ok().build();
+    }
 }

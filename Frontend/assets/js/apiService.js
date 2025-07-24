@@ -87,6 +87,22 @@ export function cancelAppointment(id) {
     return post(`/api/appointments/${id}/cancel`);
 }
 
+export function checkInAppointment(id) {
+    return put(`/api/appointments/${id}/check-in`);
+}
+
+export function markNoShowAppointment(id) {
+    return put(`/api/appointments/${id}/no-show`);
+}
+
+export function undoCheckIn(id) {
+    return put(`/api/appointments/${id}/undo-check-in`);
+}
+
+export function undoNoShow(id) {
+    return put(`/api/appointments/${id}/undo-no-show`);
+}
+
 export function getAppointmentsByPatient(patientId) {
     return get(`/api/appointments/patient/${patientId}`);
 }

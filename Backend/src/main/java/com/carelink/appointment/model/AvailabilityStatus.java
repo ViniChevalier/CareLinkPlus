@@ -9,5 +9,6 @@ public enum AvailabilityStatus {
     COMPLETED,
     NO_SHOW,
     PENDING,
-    CONFIRMED
+    CONFIRMED,
+    ATTENDED,
 }

@@ -166,10 +166,8 @@ public class AppointmentServiceImpl {
         AppointmentEntity appointment = appointmentRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-
         appointment.setAppointmentStatus("Cancelled");
         appointmentRepository.save(appointment);
-
 
         DoctorAvailability slot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
             .orElseThrow(() -> new RuntimeException("Availability slot not found"));
@@ -177,5 +175,33 @@ public class AppointmentServiceImpl {
         slot.setIsBooked(false);
         slot.setStatus(AvailabilityStatus.AVAILABLE);
         doctorAvailabilityRepository.save(slot);
+    }
+
+    public void checkInAppointment(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        appointment.setAppointmentStatus("Attended");
+        appointmentRepository.save(appointment);
+    }
+
+    public void markNoShow(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        appointment.setAppointmentStatus("No_Show");
+        appointmentRepository.save(appointment);
+    }
+
+    public void undoCheckIn(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        appointment.setAppointmentStatus("Scheduled");
+        appointmentRepository.save(appointment);
+    }
+
+    public void undoNoShow(int id) {
+        AppointmentEntity appointment = appointmentRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        appointment.setAppointmentStatus("Scheduled");
+        appointmentRepository.save(appointment);
     }
 }

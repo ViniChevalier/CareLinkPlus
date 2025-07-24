@@ -13,8 +13,6 @@ public interface DoctorAvailabilityService {
     List<DoctorAvailability> getAllAvailabilities();
     DoctorAvailability getAvailabilityById(Integer id);
     void cancelAvailabilitySlot(Integer availabilityId, Integer doctorId);
-
-    // Missing methods used in the controller
     List<SlotDTO> getSlotDTOsByDoctor(Integer doctorId);
     List<SlotDTO> getAllSlotDTOs();
     SlotDTO getSlotDTOById(Integer id);

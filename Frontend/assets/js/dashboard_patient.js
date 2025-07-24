@@ -326,7 +326,7 @@ document.getElementById("viewFullHistoryBtn").addEventListener("click", async fu
               doctorName = `${profileData.firstName || ""} ${profileData.lastName || ""}`.trim();
             } catch (error) {
               console.error("Error fetching doctor profile:", error);
-              doctorName = record.updatedBy; // fallback to raw value
+              doctorName = record.updatedBy;
             }
           }
 
