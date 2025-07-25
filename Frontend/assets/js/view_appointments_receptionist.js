@@ -1,4 +1,4 @@
-import { getAllAppointments, cancelAppointment, updateAppointment, getAllAvailability, createAppointment } from "./apiService.js";
+import { getAllAppointments, cancelAppointment, getAllAvailability, createAppointment } from "./apiService.js";
 
 let originalAppointments = [];
 
@@ -24,6 +24,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
+
+function formatStatus(status) {
+  if (!status) return "Unknown";
+  return status
+    .toLowerCase()
+    .split("_")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 function renderAppointments(appointments) {
   const tableBody = document.getElementById("appointmentsTableBody");
   if (!appointments.length) {
@@ -37,7 +47,7 @@ function renderAppointments(appointments) {
       <td>${new Date(app.dateTime).toLocaleString()}</td>
       <td>${app.patientName || app.patient?.fullName || "N/A"}</td>
       <td>${app.doctorName || app.doctor?.fullName || "N/A"}</td>
-      <td>${app.status}</td>
+      <td>${formatStatus(app.status)}</td>
       <td>
         <button class="btn btn-sm btn-warning me-2" data-id="${app.id}" data-patient-id="${app.patientId}" data-action="reschedule">Reschedule</button>
         <button class="btn btn-sm btn-danger" data-id="${app.id}" data-action="cancel">Cancel</button>
