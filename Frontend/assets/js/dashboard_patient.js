@@ -60,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   getMedicalHistoryByPatient(patientId)
     .then(async data => {
-      console.log("Prescription API called successfully. Data:", data);
       const el = document.getElementById("prescriptions");
 
       if (!data || data.length === 0) {
@@ -103,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     })
     .catch(error => {
-      console.error("Error calling prescriptions API:", error);
       document.getElementById("prescriptions").innerHTML = "<p>Error loading prescriptions.</p>";
     });
 

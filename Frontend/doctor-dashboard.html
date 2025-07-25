@@ -15,8 +15,6 @@
 </head>
 
 <body>
-  <div class="slider-active d-none"></div>
-
   <!-- ========================= preloader start ========================= -->
   <div class="preloader">
     <div class="loader">
@@ -34,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -56,18 +54,7 @@
                 </button>
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="doctor-dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -109,7 +96,8 @@
                   <div id="myPatients">
                     <!-- Patient buttons will be injected here by JavaScript -->
                   </div>
-                  <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#patientsModal">View Patients</button>
+                  <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal"
+                    data-bs-target="#patientsModal">View Patients</button>
                 </div>
               </div>
             </div>
@@ -123,7 +111,8 @@
                     <p>Manage your availability schedule.</p>
                   </div>
                   <a href="manage-availability.html" class="btn btn-outline-primary mt-2">Manage Availability</a>
-                  <button class="btn btn-outline-secondary mt-2" data-bs-toggle="modal" data-bs-target="#availabilityModal">
+                  <button class="btn btn-outline-secondary mt-2" data-bs-toggle="modal"
+                    data-bs-target="#availabilityModal">
                     View Availability
                   </button>
                 </div>
@@ -196,7 +185,7 @@
         <i class="lni lni-arrow-up"></i>
       </a>
 
-    </div> <!-- Fecha slider-wrapper -->
+    </div> <!-- Close slider-wrapper -->
   </header>
 
   <!-- ========================= JS here ========================= -->
@@ -206,14 +195,8 @@
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/doctor-dashboard.js" type="module"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
-
-  <script>
-    function viewPatientProfile(patientId) {
-      window.location.href = `patient-profile.html?id=${patientId}`;
-    }
-  </script>
-
 
   <!-- Patients Modal -->
   <div class="modal fade" id="patientsModal" tabindex="-1" aria-labelledby="patientsModalLabel" aria-hidden="true">
@@ -231,7 +214,8 @@
   </div>
 
   <!-- Availability Modal -->
-  <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+  <div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">

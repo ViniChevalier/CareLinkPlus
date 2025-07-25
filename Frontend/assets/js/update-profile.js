@@ -1,7 +1,64 @@
-
-import { getProfile, updateProfile } from './apiService.js';
+import { getProfile, updateProfile, getGoogleMapsApiKey } from './apiService.js';
 
 window.addEventListener("load", async () => {
+  // Initialize intlTelInput
+  if (window.intlTelInput) {
+    const phoneInput = document.getElementById("phoneNumber");
+    window.iti = window.intlTelInput(phoneInput, {
+      initialCountry: "ie",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+  } else {
+    console.error("intlTelInput not loaded");
+  }
+
+  // Load Google Maps for address autocomplete
+  function loadGoogleMaps(callback) {
+    getGoogleMapsApiKey()
+      .then(key => {
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+        script.defer = true;
+        script.onload = callback;
+        document.head.appendChild(script);
+      })
+      .catch(err => console.error("Failed to load Google Maps key:", err));
+  }
+
+  loadGoogleMaps(() => {
+    const addressInput = document.getElementById("address");
+    const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+      types: ["address"],
+      componentRestrictions: { country: ["ie"] },
+      fields: ["address_components", "formatted_address"],
+    });
+
+    autocomplete.addListener("place_changed", function () {
+      const place = autocomplete.getPlace();
+      if (place.formatted_address) {
+        addressInput.value = place.formatted_address;
+      }
+
+      let city = "";
+      let country = "";
+
+      if (place.address_components) {
+        place.address_components.forEach((component) => {
+          if (component.types.includes("locality") || component.types.includes("postal_town")) {
+            city = component.long_name;
+          }
+          if (component.types.includes("country")) {
+            country = component.long_name;
+          }
+        });
+      }
+
+      document.getElementById("city").value = city;
+      document.getElementById("country").value = country;
+    });
+  });
+
   const form = document.getElementById("updateProfileForm");
   const messageDiv = document.getElementById("message");
 
@@ -62,15 +119,27 @@ window.addEventListener("load", async () => {
       notificationPreference: preferences.join(","),
     };
 
+    const originalButtonHTML = form.querySelector("button[type='submit']").innerHTML;
+    const submitButton = form.querySelector("button[type='submit']");
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+
     try {
       await updateProfile(data);
       messageDiv.className = "alert alert-success text-center";
       messageDiv.textContent = "Profile updated successfully!";
       messageDiv.classList.remove("d-none");
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonHTML;
+      setTimeout(() => {
+        messageDiv.classList.add("d-none");
+      }, 5000);
     } catch (error) {
       messageDiv.className = "alert alert-danger text-center";
       messageDiv.textContent = error.message || "Failed to update profile.";
       messageDiv.classList.remove("d-none");
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalButtonHTML;
     }
   });
 });

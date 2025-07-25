@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="assets/css/tiny-slider.css">
   <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css"/>
 </head>
 
 <body>
@@ -32,8 +33,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
-
+  <!-- ========================= preloader end ========================= -->
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
     <div class="header-wrapper">
@@ -55,18 +55,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="receptionist-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -113,8 +102,10 @@
                     <input type="email" class="form-control" id="patient-email" disabled>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="patient-phone" class="form-label">Phone</label>
-                    <input type="text" class="form-control" id="patient-phone" disabled>
+                    <label for="patient-phone" class="form-label d-block">Phone</label>
+                    <div class="d-block">
+                      <input type="tel" class="form-control" id="patient-phone" disabled>
+                    </div>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label for="patient-dob" class="form-label">Date of Birth</label>
@@ -262,8 +253,10 @@
   <script src="assets/js/tiny-slider.js"></script>
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/manage-patient.js" type="module"></script>
+  <script src="assets/js/manage-patients.js" type="module"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 
 </body>
 

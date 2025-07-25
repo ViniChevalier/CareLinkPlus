@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -54,19 +54,7 @@
                 </button>
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="doctor-dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -149,10 +137,12 @@
           </div>
           <div class="d-flex justify-content-end gap-3 mt-4">
             <button id="btnAddMedicalHistory" class="btn btn-outline-primary flex-fill">+ Add Medical History</button>
-            <button class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#viewMedicalHistoryModal" onclick="loadMedicalHistoryModal()">View History Details</button>
+            <button class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#viewMedicalHistoryModal"
+              onclick="loadMedicalHistoryModal()">View History Details</button>
           </div>
           <!-- View Medical History Modal -->
-          <div class="modal fade" id="viewMedicalHistoryModal" tabindex="-1" aria-labelledby="viewMedicalHistoryModalLabel" aria-hidden="true">
+          <div class="modal fade" id="viewMedicalHistoryModal" tabindex="-1"
+            aria-labelledby="viewMedicalHistoryModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
               <div class="modal-content">
                 <div class="modal-header">
@@ -177,7 +167,9 @@
                         </tr>
                       </thead>
                       <tbody id="medicalHistoryTableBody">
-                        <tr><td colspan="5" class="text-center text-muted">No records available.</td></tr>
+                        <tr>
+                          <td colspan="5" class="text-center text-muted">No records available.</td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -193,7 +185,8 @@
           <div id="feedbackMessage" class="alert d-none" role="alert"></div>
 
           <!-- Add Medical History Modal -->
-          <div class="modal fade" id="medicalHistoryModal" tabindex="-1" aria-labelledby="medicalHistoryModalLabel" aria-hidden="true">
+          <div class="modal fade" id="medicalHistoryModal" tabindex="-1" aria-labelledby="medicalHistoryModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <form id="medicalHistoryForm">
@@ -243,7 +236,7 @@
   </section>
   <!-- ========================= end medical history section ========================= -->
 
-    <!-- ========================= prescriptions section ========================= -->
+  <!-- ========================= prescriptions section ========================= -->
   <section id="prescriptions" class="pt-40 pb-40 bg-light">
     <div class="container">
       <div class="row justify-content-center">
@@ -267,10 +260,12 @@
           </div>
           <div class="d-flex justify-content-end gap-3 mt-4">
             <button id="btnAddPrescription" class="btn btn-outline-success flex-fill">+ Add Prescription</button>
-            <button class="btn btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#viewPrescriptionModal" onclick="loadPrescriptionHistory()">View Prescription History</button>
+            <button class="btn btn-success flex-fill" data-bs-toggle="modal" data-bs-target="#viewPrescriptionModal"
+              onclick="loadPrescriptionHistory()">View Prescription History</button>
           </div>
           <!-- View Prescription History Modal -->
-          <div class="modal fade" id="viewPrescriptionModal" tabindex="-1" aria-labelledby="viewPrescriptionModalLabel" aria-hidden="true">
+          <div class="modal fade" id="viewPrescriptionModal" tabindex="-1" aria-labelledby="viewPrescriptionModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-xl">
               <div class="modal-content">
                 <div class="modal-header">
@@ -294,7 +289,9 @@
                         </tr>
                       </thead>
                       <tbody id="prescriptionHistoryTableBody">
-                        <tr><td colspan="4" class="text-center text-muted">No prescriptions found.</td></tr>
+                        <tr>
+                          <td colspan="4" class="text-center text-muted">No prescriptions found.</td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -326,10 +323,12 @@
           <div class="card shadow-sm p-4">
             <ul class="nav nav-tabs" id="appointmentsTab" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="future-tab" data-bs-toggle="tab" data-bs-target="#future" type="button" role="tab">Future Appointments</button>
+                <button class="nav-link active" id="future-tab" data-bs-toggle="tab" data-bs-target="#future"
+                  type="button" role="tab">Future Appointments</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">Past Consultations</button>
+                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button"
+                  role="tab">Past Consultations</button>
               </li>
             </ul>
             <div class="tab-content border border-top-0 p-3" id="appointmentsTabContent">
@@ -412,7 +411,9 @@
   <script src="assets/js/main.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script type="module" src="assets/js/patient-view.js"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
+
 
 </body>
 

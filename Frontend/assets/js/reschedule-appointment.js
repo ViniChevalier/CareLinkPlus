@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
     slotSelect.innerHTML = `<option>Loading...</option>`;
     slotSelect.disabled = true;
 
-    get(`/api/availability/doctor/${doctorId}`)
+    getDoctorAvailability(doctorId)
       .then((slots) => {
         const now = new Date();
         const availableSlots = slots.filter(slot => {

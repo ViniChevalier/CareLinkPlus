@@ -33,7 +33,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -56,18 +56,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="patient-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link active" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -87,84 +76,74 @@
                 <h2 class="mb-15">Update Your Profile</h2>
                 <p>Keep your personal information up to date to receive better care.</p>
               </div>
-              <div class="text-start mb-3">
-                <a href="javascript:history.back()" class="btn theme-btn">
-                  <i class="lni lni-arrow-left"></i> Back
-                </a>
-              </div>
-              <form id="updateProfileForm" class="p-4 border rounded bg-light shadow-sm">
-                <div class="form-group mb-3">
-                  <label for="firstName">First Name</label>
-                  <input type="text" id="firstName" class="form-control" style="height: 48px;"
-                    placeholder="Enter your first name" required>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="lastName">Last Name</label>
-                  <input type="text" id="lastName" class="form-control" style="height: 48px;"
-                    placeholder="Enter your last name" required>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="email">Email</label>
-                  <input type="email" id="email" class="form-control" style="height: 48px;"
-                    placeholder="Enter your email" required>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="phoneNumber">Phone Number</label>
-                  <div class="w-100">
-                    <input type="tel" id="phoneNumber" class="form-control" style="height: 48px; width: 100%;" required>
+              <form id="updateProfileForm">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" id="firstName" class="form-control" placeholder="Enter your first name" required>
                   </div>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="dateOfBirth">Date of Birth</label>
-                  <input type="date" id="dateOfBirth" class="form-control" style="height: 48px;" disabled>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="gender">Gender</label>
-                  <select id="gender" class="form-control" style="height: 48px;" required>
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                  </select>
-                </div>
-                <div class="form-group mb-3">
-                  <label for="address">Address</label>
-                  <input type="text" id="address" class="form-control" style="height: 48px;"
-                    placeholder="Start typing your address...">
-                </div>
-                <div class="form-group mb-3">
-                  <label for="city">City</label>
-                  <input type="text" id="city" class="form-control" style="height: 48px;" placeholder="Enter your city">
-                </div>
-                <div class="form-group mb-3">
-                  <label for="country">Country</label>
-                  <input type="text" id="country" class="form-control" style="height: 48px;"
-                    placeholder="Enter your country">
-                </div>
-                <div class="form-group mb-3">
-                  <label>Notification Preference</label><br>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="prefEmail" value="Email">
-                    <label class="form-check-label" for="prefEmail">Email</label>
+                  <div class="col-md-6 mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" id="lastName" class="form-control" placeholder="Enter your last name" required>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="prefCall" value="Call">
-                    <label class="form-check-label" for="prefCall">Call</label>
+                  <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="prefSMS" value="SMS">
-                    <label class="form-check-label" for="prefSMS">SMS</label>
+                  <div class="col-md-6 mb-3">
+                    <label for="phoneNumber" class="form-label d-block">Phone Number</label>
+                    <input type="tel" id="phoneNumber" class="form-control" required>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="prefLetter" value="Letter">
-                    <label class="form-check-label" for="prefLetter">Letter</label>
+                  <div class="col-md-6 mb-3">
+                    <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" class="form-control" readonly>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" class="form-select" required>
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" id="address" class="form-control" placeholder="Enter your address">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" id="city" class="form-control" placeholder="Enter your city">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" id="country" class="form-control" placeholder="Enter your country">
+                  </div>
+                  <div class="col-md-12 mb-3">
+                    <label class="form-label">Notification Preference</label>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" id="prefEmail" value="Email">
+                      <label class="form-check-label" for="prefEmail">Email</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" id="prefCall" value="Call">
+                      <label class="form-check-label" for="prefCall">Call</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" id="prefSMS" value="SMS">
+                      <label class="form-check-label" for="prefSMS">SMS</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" id="prefLetter" value="Letter">
+                      <label class="form-check-label" for="prefLetter">Letter</label>
+                    </div>
                   </div>
                 </div>
 
                 <div id="message" class="alert text-center d-none"></div>
 
-                <button type="submit" class="btn theme-btn w-100">Update Profile</button>
+                <button type="submit" class="btn theme-btn w-100 mt-3">Update Profile</button>
               </form>
             </div>
           </div>
@@ -239,7 +218,7 @@
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
   <script src="assets/js/config.js"></script>
   <script src="assets/js/update-profile.js" type="module"></script>
-  <script src="assets/js/update-profile2.js"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
 </body>
 

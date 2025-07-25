@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -54,18 +54,7 @@
                 </button>
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="doctor-dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -76,33 +65,33 @@
     </div>
   </header>
 
-    <!-- ========================= manage appointments section ========================= -->
-    <section id="manage-appointments" class="login-section pt-75 pb-20">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-xl-8 col-lg-10">
-            <div class="section-title text-center mb-55">
-              <h2 class="mb-15">Manage Appointments</h2>
-              <p>Review and manage your scheduled patient appointments below.</p>
+  <!-- ========================= manage appointments section ========================= -->
+  <section id="manage-appointments" class="login-section pt-75 pb-20">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+          <div class="section-title text-center mb-55">
+            <h2 class="mb-15">Manage Appointments</h2>
+            <p>Review and manage your scheduled patient appointments below.</p>
+          </div>
+          <div class="row text-center mb-4">
+            <div class="col-12">
+              <h4 class="mb-4">Your Upcoming Appointments</h4>
             </div>
-            <div class="row text-center mb-4">
-              <div class="col-12">
-                <h4 class="mb-4">Your Upcoming Appointments</h4>
+            <div class="col-md-1 d-none d-md-block"></div>
+            <div class="col-md-10">
+              <div class="row g-3" id="weeklyAppointments">
               </div>
-              <div class="col-md-1 d-none d-md-block"></div>
-              <div class="col-md-10">
-                <div class="row g-3" id="weeklyAppointments">
-                </div>
-                <div class="text-end mt-3">
-                </div>
+              <div class="text-end mt-3">
               </div>
-              <div class="col-md-1 d-none d-md-block"></div>
             </div>
+            <div class="col-md-1 d-none d-md-block"></div>
           </div>
         </div>
       </div>
-    </section>
-    <!-- ========================= manage appointments section end ========================= -->
+    </div>
+  </section>
+  <!-- ========================= manage appointments section end ========================= -->
 
   <!-- ========================= filter appointments section ========================= -->
   <section id="filter-appointments" class="login-section pt-20 pb-60">
@@ -202,8 +191,10 @@
   <script src="assets/js/main.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="assets/js/appointments-doctor-view.js" type="module"></script>
-  <script src="assets/js/logout.js"></script>
   <script src="assets/js/appointments-filter-export.js" type="module"></script>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/logout.js"></script>
+
 </body>
 
 </html>

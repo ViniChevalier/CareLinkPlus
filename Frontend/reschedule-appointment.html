@@ -15,7 +15,7 @@
 </head>
 
 <body>
-<!-- ========================= preloader start ========================= -->
+  <!-- ========================= preloader start ========================= -->
   <div class="preloader">
     <div class="loader">
       <div class="ytp-spinner">
@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -55,21 +55,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="patient-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="schedule-appointment.html">Schedule Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link active" href="#">Reschedule Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="cancel-appointment.html">Cancel Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -98,19 +84,19 @@
             <form id="rescheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
               <div class="form-group mb-3">
                 <label for="appointmentSelect">Your Scheduled Appointments</label>
-                <select id="appointmentSelect" class="form-control" style="height: 48px;" required>
+                <select id="appointmentSelect" class="form-select" style="height: 48px;" required>
                   <option value="">Loading your appointments...</option>
                 </select>
               </div>
               <div class="form-group mb-3 d-none" id="doctorGroup">
                 <label for="doctorSelect">Select New Doctor</label>
-                <select id="doctorSelect" class="form-control" style="height: 48px;" required>
+                <select id="doctorSelect" class="form-select" style="height: 48px;" required>
                   <option value="">Please select</option>
                 </select>
               </div>
               <div class="form-group mb-3 d-none" id="slotGroup">
                 <label for="slotSelect">Select New Slot</label>
-                <select id="slotSelect" class="form-control" style="height: 48px;" required>
+                <select id="slotSelect" class="form-select" style="height: 48px;" required>
                   <option value="">Please select a doctor first</option>
                 </select>
               </div>
@@ -189,6 +175,7 @@
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/reschedule-appointment.js" type="module"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
 </body>
 

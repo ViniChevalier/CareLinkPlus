@@ -12,6 +12,16 @@
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="assets/css/tiny-slider.css">
   <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .select-tall {
+      height: 48px;
+    }
+  </style>
+</head>
+    .select-height {
+      height: 48px;
+    }
+  </style>
 </head>
 
 <body>
@@ -32,7 +42,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -55,21 +65,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="patient-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link active" href="#">Schedule Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="reschedule-appointment.html">Reschedule Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="cancel-appointment.html">Cancel Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -86,20 +82,15 @@
           <div class="col-xl-8 col-lg-10">
             <div class="section-title text-center mb-55">
               <h2 class="mb-15">Schedule an Appointment</h2>
-              <p>Choose your doctor, select a slot, and book your appointment easily.</p>
-            </div>
-            <div class="text-start mb-3">
-              <a href="#" class="btn theme-btn" onclick="window.location.href='patient-Dashboard.html'; return false;">
-                <i class="lni lni-arrow-left"></i> Back
-              </a>
-            </div>
-            <form id="scheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
-              <div class="form-group mb-3">
-                <label for="doctorSelect">Select Doctor</label>
-                <select id="doctorSelect" class="form-control" style="height: 48px;" required>
+                <select id="doctorSelect" class="form-control select-tall" required>
                   <option value="">Loading doctors...</option>
                 </select>
               </div>
+              <div class="form-group mb-3">
+                <label for="slotSelect">Select Available Slot</label>
+                <select id="slotSelect" class="form-control select-tall" disabled required>
+                  <option value="">Please select a doctor first</option>
+                </select>
               <div class="form-group mb-3">
                 <label for="slotSelect">Select Available Slot</label>
                 <select id="slotSelect" class="form-control" style="height: 48px;" disabled required>
@@ -183,12 +174,13 @@
   </a>
 
   <!-- ========================= JS ========================= -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/js/tiny-slider.js"></script>
-  <script src="assets/js/wow.min.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="assets/js/tiny-slider.js" defer></script>
+  <script src="assets/js/wow.min.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
   <script src="assets/js/schedule-appointment.js" type="module"></script>
-  <script src="assets/js/logout.js"></script>
+  <script src="assets/js/navigation.js" defer></script>
+  <script src="assets/js/logout.js" defer></script>
 </body>
 
 </html>

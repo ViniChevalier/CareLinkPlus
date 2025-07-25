@@ -15,8 +15,6 @@
 </head>
 
 <body>
-  <div class="slider-active d-none"></div>
-
   <!-- ========================= preloader start ========================= -->
   <div class="preloader">
     <div class="loader">
@@ -34,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -57,18 +55,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="patient-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -76,11 +63,12 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="slider-wrapper">
-      <!-- ========================= dashboard section start ========================= -->
-      <section id="dashboard" class="pt-100 pb-75">
+      </div>
+    </header>
+  
+      <div class="slider-wrapper">
+        <!-- ========================= dashboard section start ========================= -->
+        <section id="dashboard" class="pt-100 pb-75">
         <div class="container">
           <div class="section-title text-center mb-55">
             <h2><span id="patient-name">Loading...</span></h2>
@@ -204,12 +192,11 @@
       <script src="assets/js/wow.min.js"></script>
       <script src="assets/js/main.js"></script>
       <script src="assets/js/dashboard_patient.js" type="module"></script>
+      <script src="assets/js/navigation.js"></script>
       <script src="assets/js/logout.js"></script>
     </div>
-  </header>
   <!-- Modal for Prescriptions -->
   <div class="modal fade" id="prescriptionsModal" tabindex="-1" aria-labelledby="prescriptionsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="prescriptionsModalLabel">Your Prescriptions</h5>

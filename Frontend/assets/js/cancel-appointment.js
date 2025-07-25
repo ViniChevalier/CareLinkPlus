@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   appointmentSelect.innerHTML = `<option disabled selected>Loading appointments...</option>`;
   appointmentSelect.disabled = true;
 
-  get(`/api/appointments/patient/${patientId}`)
+  getAppointmentsByPatient(patientId)
     .then(async (appointments) => {
       const bookedAppointments = appointments.filter(app => app.status === "Scheduled" || app.status === "Confirmed");
 

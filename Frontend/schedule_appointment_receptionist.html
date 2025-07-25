@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  <!-- preloader end -->
+  <!-- ========================= preloader end ========================= -->
 
   <!-- ========================= header start ========================= -->
   <header id="home" class="header">
@@ -55,18 +55,7 @@
 
                 <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
                   <ul id="nav" class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                      <a class="nav-link" href="receptionist-Dashboard.html">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="update-profile.html">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="change-Password.html">Change Password</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#" id="logout-link">Logout</a>
-                    </li>
+                    <!-- Menu will be dynamically populated by navigation.js -->
                   </ul>
                 </div>
               </nav>
@@ -85,31 +74,29 @@
               <h2 class="mb-15">Schedule an Appointment</h2>
               <p>Choose your doctor, select a slot, and book your appointment easily.</p>
             </div>
-            <div class="text-start mb-3">
-              <a href="#" class="btn theme-btn" onclick="window.location.href='patient-Dashboard.html'; return false;">
-                <i class="lni lni-arrow-left"></i> Back
-              </a>
-            </div>
-              <form id="scheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
+            <form id="scheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
               <div class="form-group mb-3" id="patientSearch">
                 <label for="patientSearchInput">Search Patient</label>
-                <input class="form-control" id="patientSearchInput" placeholder="Search patient by name, email or phone" list="patientOptions" autocomplete="off" required />
+                <input class="form-control" id="patientSearchInput" placeholder="Search patient by name, email or phone"
+                  list="patientOptions" autocomplete="off" required />
                 <datalist id="patientOptions"></datalist>
                 <div class="form-group mb-3">
                   <label for="patientNameConfirm">Patient Full Name</label>
-                  <input type="text" id="patientNameConfirm" class="form-control" readonly disabled placeholder="No patient selected" />
+                  <input type="text" id="patientNameConfirm" class="form-control" readonly disabled
+                    placeholder="No patient selected" />
                   <div class="invalid-feedback">No matching patient found.</div>
                 </div>
               </div>
               <div class="form-group mb-3">
                 <label for="doctorSelect">Select Doctor</label>
-                <select id="doctorSelect" class="form-control" style="height: 48px;" required>
-                  <option value="">Loading doctors...</option>
+                <select id="doctorSelect" class="form-control" style="height: 48px;" required disabled>
+                  <option value="">Loading doctors, please wait...</option>
                 </select>
               </div>
               <div class="form-group mb-3">
                 <label for="slotSelect">Select Available Slot</label>
-                <select id="slotSelect" class="form-control" style="height: 48px;" disabled required>
+                <select id="slotSelect" class="form-control bg-light text-muted" style="height: 48px;" disabled
+                  required>
                   <option value="">Please select a doctor first</option>
                 </select>
               </div>
@@ -195,6 +182,7 @@
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/schedule_appointment_receptionist.js" type="module"></script>
+  <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>
 </body>
 

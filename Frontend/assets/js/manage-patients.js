@@ -7,13 +7,70 @@ import {
   deactivateUser,
   getAppointmentById,
   getAllAvailability,
-  createAppointment
+  createAppointment,
+  getGoogleMapsApiKey
 } from './apiService.js';
+
+function loadGoogleMaps(callback) {
+  getGoogleMapsApiKey()
+    .then(key => {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+      script.defer = true;
+      script.onload = callback;
+      document.head.appendChild(script);
+    })
+    .catch(err => console.error("Failed to load Google Maps key:", err));
+}
 
 let currentPatientId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("patient-search");
+  // --- Google Maps Autocomplete for Address ---
+  loadGoogleMaps(() => {
+    const addressInput = document.getElementById("patient-address");
+    const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+      types: ["address"],
+      componentRestrictions: { country: ["ie"] },
+      fields: ["address_components", "formatted_address"],
+    });
+
+    autocomplete.addListener("place_changed", function () {
+      const place = autocomplete.getPlace();
+      if (place.formatted_address) {
+        addressInput.value = place.formatted_address;
+      }
+
+      let city = "";
+      let country = "";
+
+      if (place.address_components) {
+        place.address_components.forEach((component) => {
+          if (component.types.includes("locality") || component.types.includes("postal_town")) {
+            city = component.long_name;
+          }
+          if (component.types.includes("country")) {
+            country = component.long_name;
+          }
+        });
+      }
+
+      document.getElementById("patient-city").value = city;
+      document.getElementById("patient-country").value = country;
+    });
+  });
+
+  if (window.intlTelInput) {
+    const phoneInput = document.getElementById("patient-phone");
+    window.iti = window.intlTelInput(phoneInput, {
+      initialCountry: "ie",
+      separateDialCode: true,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+  } else {
+    console.error("intlTelInput not loaded");
+  }
   const autocompleteList = document.getElementById("autocomplete-results");
 
   const nameInput = document.getElementById("patient-name");

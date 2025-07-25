@@ -1,4 +1,4 @@
-import { getAllAvailability, getAllPatients, get, post } from './apiService.js';
+import { getAllAvailability, getAllPatients, get, post, getDoctorAvailability, createAppointment } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const patientSearch = document.getElementById("patientSearchInput");
@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    get(`/api/availability/doctor/${doctorId}`)
+    getDoctorAvailability(doctorId)
       .then((slots) => {
         const activeSlots = slots.filter(slot =>
           slot.status === "AVAILABLE"
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
       reason,
     };
 
-    post("/api/appointments", payload)
+    createAppointment(payload)
       .then(() => {
         showMessage("Appointment scheduled successfully!", "success");
         form.reset();
