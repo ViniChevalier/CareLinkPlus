@@ -1,11 +1,13 @@
 package com.carelink.medicalhistory.controller;
 
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
+
 import com.carelink.medicalhistory.dto.MedicalRecordDto;
 import com.carelink.medicalhistory.dto.MedicalRecordUpdateDto;
 import com.carelink.medicalhistory.entity.MedicalRecord;
 import com.carelink.medicalhistory.service.AzureBlobService;
 import com.carelink.medicalhistory.service.MedicalRecordService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,6 @@ public class MedicalHistoryController {
     private final MedicalRecordService medicalRecordService;
     private final AzureBlobService azureBlobService;
 
-    @Autowired
     public MedicalHistoryController(MedicalRecordService medicalRecordService,
                                     AzureBlobService azureBlobService) {
         this.medicalRecordService = medicalRecordService;
@@ -45,7 +46,7 @@ public class MedicalHistoryController {
             try {
                 blobName = azureBlobService.uploadFile(file, "medical-records");
             } catch (Exception e) {
-                return ResponseEntity.status(500).build();
+                throw new BusinessLogicException("Failed to upload medical record file.");
             }
         }
 
@@ -85,9 +86,9 @@ public class MedicalHistoryController {
     @GetMapping("/{recordId}")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<MedicalRecordDto> getRecordById(@PathVariable Integer recordId) {
-        Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
-        return optionalRecord.map(record -> ResponseEntity.ok(convertToDto(record)))
-                .orElse(ResponseEntity.notFound().build());
+        MedicalRecord record = medicalRecordService.findById(recordId)
+            .orElseThrow(() -> new ResourceNotFoundException("Medical record not found with ID: " + recordId));
+        return ResponseEntity.ok(convertToDto(record));
     }
 
     @PutMapping("/{recordId}")
@@ -96,12 +97,8 @@ public class MedicalHistoryController {
         @PathVariable Integer recordId,
         @RequestBody MedicalRecordUpdateDto request
     ) {
-        Optional<MedicalRecord> optionalRecord = medicalRecordService.findById(recordId);
-        if (!optionalRecord.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        MedicalRecord record = optionalRecord.get();
+        MedicalRecord record = medicalRecordService.findById(recordId)
+            .orElseThrow(() -> new ResourceNotFoundException("Medical record not found with ID: " + recordId));
 
         if (request.getNotes() != null) {
             record.setNotes(request.getNotes());
@@ -123,8 +120,12 @@ public class MedicalHistoryController {
     @DeleteMapping("/{recordId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteRecord(@PathVariable Integer recordId) {
-        medicalRecordService.deleteById(recordId);
-        return ResponseEntity.ok("Record deleted successfully.");
+        try {
+            medicalRecordService.deleteById(recordId);
+            return ResponseEntity.ok("Record deleted successfully.");
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to delete medical record with ID: " + recordId);
+        }
     }
 
     private MedicalRecordDto convertToDto(MedicalRecord record) {

@@ -5,6 +5,8 @@ import com.carelink.account.model.UserCredentials;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.repository.UserRepository;
 import com.carelink.account.dto.UpdateProfileRequest;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 
 import java.util.Random;
 
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
-import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -121,7 +122,7 @@ public class AccountServiceImpl implements AccountService {
 
             mailSender.send(message);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send email", e);
+            throw new BusinessLogicException("Failed to send email");
         }
     }
 
@@ -137,7 +138,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void updateUserProfile(UpdateProfileRequest request) {
         User user = userRepository.findById(request.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + request.getUserId()));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());

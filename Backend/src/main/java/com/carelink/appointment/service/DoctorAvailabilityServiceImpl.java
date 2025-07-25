@@ -5,9 +5,10 @@ import com.carelink.appointment.dto.SlotDTO;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.model.AvailabilityStatus;
 import com.carelink.appointment.repository.DoctorAvailabilityRepository;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
             );
 
             if (conflictExists) {
-                throw new IllegalArgumentException("Conflict with existing availability slot on " + slot.getAvailableDate() +
+                throw new BusinessLogicException("Conflict with existing availability slot on " + slot.getAvailableDate() +
                     " from " + slot.getStartTime() + " to " + slot.getEndTime());
             }
 
@@ -60,7 +61,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
 
     public DoctorAvailability getAvailabilityById(Integer id) {
         return availabilityRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Availability not found with id " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id " + id));
     }
 
     @Scheduled(fixedRate = 300000)
@@ -79,7 +80,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
     public void cancelAvailabilitySlot(Integer availabilityId, Integer doctorId) {
         int updated = availabilityRepository.cancelSlot(availabilityId, doctorId);
         if (updated == 0) {
-            throw new RuntimeException("Slot not found or does not belong to doctor.");
+            throw new ResourceNotFoundException("Slot not found or does not belong to doctor.");
         }
     }
 

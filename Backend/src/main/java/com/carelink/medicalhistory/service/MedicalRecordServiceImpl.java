@@ -3,7 +3,6 @@ package com.carelink.medicalhistory.service;
 import com.carelink.medicalhistory.entity.MedicalRecord;
 import com.carelink.medicalhistory.repository.MedicalRecordRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +13,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private final MedicalRecordRepository medicalRecordRepository;
 
-    @Autowired
     public MedicalRecordServiceImpl(MedicalRecordRepository medicalRecordRepository) {
         this.medicalRecordRepository = medicalRecordRepository;
     }

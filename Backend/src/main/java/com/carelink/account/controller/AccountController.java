@@ -10,15 +10,17 @@ import com.carelink.account.dto.UpdatePasswordRequest;
 import com.carelink.account.dto.UserResponse;
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
-import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.service.AccountService;
 import com.carelink.security.JwtUtil;
+import com.carelink.notification.emailService.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.access.AccessDeniedException;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 import org.springframework.web.bind.annotation.*;
 import java.text.SimpleDateFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,16 +31,14 @@ import java.util.List;
 @RequestMapping("/api/account")
 public class AccountController {
 
-    private final UserCredentialsRepository userCredentialsRepository;
-
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
 
-    public AccountController(AccountService accountService, JwtUtil jwtUtil,
-            UserCredentialsRepository userCredentialsRepository) {
+    public AccountController(AccountService accountService, JwtUtil jwtUtil, EmailService emailService) {
         this.accountService = accountService;
         this.jwtUtil = jwtUtil;
-        this.userCredentialsRepository = userCredentialsRepository;
+        this.emailService = emailService;
     }
 
     @PostMapping("/register")
@@ -96,81 +96,73 @@ public class AccountController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile() {
-        try {
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
-                Integer userId = userDetails.getId();
+        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
+            Integer userId = userDetails.getId();
 
-                UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
-                if (creds == null || creds.getUser() == null)
-                    return ResponseEntity.status(404).body(null);
+            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
+            if (creds == null || creds.getUser() == null)
+                throw new ResourceNotFoundException("User or credentials not found for ID: " + userId);
 
-                return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
-            }
-
-            return ResponseEntity.status(401).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
         }
+
+        throw new RuntimeException("Failed to retrieve profile.");
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
-        try {
-            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-            UserCredentials creds = accountService.getUserCredentialsByUsername(username);
-            if (creds == null)
-                return ResponseEntity.status(404).body(null);
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null)
+            throw new ResourceNotFoundException("User credentials not found for username: " + username);
 
-            User user = creds.getUser();
-            if (user == null)
-                return ResponseEntity.status(404).body(null);
+        User user = creds.getUser();
+        if (user == null)
+            throw new ResourceNotFoundException("User not found.");
 
-            if (updatedInfo.getEmail() != null)
-                user.setEmail(updatedInfo.getEmail());
-            if (updatedInfo.getLastName() != null)
-                user.setLastName(updatedInfo.getLastName());
-            if (updatedInfo.getPhoneNumber() != null)
-                user.setPhoneNumber(updatedInfo.getPhoneNumber());
-            if (updatedInfo.getGender() != null)
-                user.setGender(updatedInfo.getGender());
-            if (updatedInfo.getAddress() != null)
-                user.setAddress(updatedInfo.getAddress());
-            if (updatedInfo.getCity() != null)
-                user.setCity(updatedInfo.getCity());
-            if (updatedInfo.getCountry() != null)
-                user.setCountry(updatedInfo.getCountry());
-            if (updatedInfo.getNotificationPreference() != null)
-                user.setNotificationPreference(updatedInfo.getNotificationPreference());
+        if (updatedInfo.getEmail() != null)
+            user.setEmail(updatedInfo.getEmail());
+        if (updatedInfo.getLastName() != null)
+            user.setLastName(updatedInfo.getLastName());
+        if (updatedInfo.getPhoneNumber() != null)
+            user.setPhoneNumber(updatedInfo.getPhoneNumber());
+        if (updatedInfo.getGender() != null)
+            user.setGender(updatedInfo.getGender());
+        if (updatedInfo.getAddress() != null)
+            user.setAddress(updatedInfo.getAddress());
+        if (updatedInfo.getCity() != null)
+            user.setCity(updatedInfo.getCity());
+        if (updatedInfo.getCountry() != null)
+            user.setCountry(updatedInfo.getCountry());
+        if (updatedInfo.getNotificationPreference() != null)
+            user.setNotificationPreference(updatedInfo.getNotificationPreference());
 
-            accountService.updateUser(user);
+        accountService.updateUser(user);
 
-            UserResponse response = new UserResponse();
-            response.setEmail(user.getEmail());
-            response.setFirstName(user.getFirstName());
-            response.setLastName(user.getLastName());
-            response.setPhoneNumber(user.getPhoneNumber());
-            response.setGender(user.getGender());
-            response.setAddress(user.getAddress());
-            response.setCity(user.getCity());
-            response.setCountry(user.getCountry());
-            response.setRole(user.getRole());
-            response.setNotificationPreference(user.getNotificationPreference());
+        UserResponse response = new UserResponse();
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setGender(user.getGender());
+        response.setAddress(user.getAddress());
+        response.setCity(user.getCity());
+        response.setCountry(user.getCountry());
+        response.setRole(user.getRole());
+        response.setNotificationPreference(user.getNotificationPreference());
 
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(null);
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reset")
     public ResponseEntity<String> requestPasswordReset(@RequestBody RequestResetDto dto) {
         String username = dto.getUsername();
         if (username == null || username.isEmpty()) {
-            return ResponseEntity.badRequest().body("Username must not be empty.");
+            throw new BusinessLogicException("Username must not be empty.");
         }
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
@@ -184,50 +176,7 @@ public class AccountController {
         accountService.updateUser(user);
 
         String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/reset-password.html?token=" + token;
-
-        String subject = "Reset Your Password – CareLink+";
-        String htmlBody = String.format(
-                """
-                        <html>
-                            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-                                <table style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <h2 style="color: #2a7ec5;">CareLink+</h2>
-                                            <p style="font-size: 18px; color: #333;">Password Reset Request</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Hi %s,</p>
-                                            <p>We received a request to reset your password for your CareLink+ account. Click the button below to reset it:</p>
-                                            <p style="text-align: center;">
-                                                <a href="%s" style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reset Password</a>
-                                            </p>
-                                            <p>If the button doesn't work, copy and paste the following link into your browser:</p>
-                                            <p><a href="%s">%s</a></p>
-                                            <hr style="margin-top: 30px;">
-                                            <p style="font-size: 12px; color: #888;">If you didn’t request a password reset, please ignore this email.</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </body>
-                        </html>
-                        """,
-                user.getFirstName() != null ? user.getFirstName() : "User", resetLink, resetLink, resetLink);
-
-        String plainText = String.format("""
-                Hello %s,
-
-                We received a request to reset your password for your CareLink+ account.
-
-                To reset your password, click the link below:
-                %s
-
-                If you did not request this, please ignore this email.
-                """, user.getFirstName() != null ? user.getFirstName() : "User", resetLink);
-
-        accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetLink);
 
         return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
     }
@@ -243,7 +192,7 @@ public class AccountController {
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null || creds.getUser() == null) {
-            return ResponseEntity.status(404).body("User not found.");
+            throw new ResourceNotFoundException("User not found.");
         }
 
         User user = creds.getUser();
@@ -257,75 +206,22 @@ public class AccountController {
 
         accountService.updateUserCredentials(creds);
         accountService.updateUser(user);
-        String subject = "CareLink+ – Your Password Has Been Reset";
-
-        String htmlBody = String.format(
-                """
-                        <html>
-                            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-                                <table style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                    <tr>
-                                        <td style="text-align: center;">
-                                            <h2 style="color: #2a7ec5;">CareLink+</h2>
-                                            <p style="font-size: 18px; color: #333;">Password Reset Notification</p>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Hi %s,</p>
-                                            <p>Your password has been reset by a CareLink+ administrator.</p>
-                                            <p><strong>Temporary Password:</strong> <code style="background-color: #eee; padding: 4px 8px; border-radius: 4px;">%s</code></p>
-                                            <p style="text-align: center; margin-top: 20px;">
-                                                <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/login"
-                                                   style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-                                                   Log In to Your Account
-                                                </a>
-                                            </p>
-                                            <p style="margin-top: 30px;">For your security, please change this password immediately after logging in.</p>
-                                            <hr style="margin-top: 30px;">
-                                            <p style="font-size: 12px; color: #888;">If you did not expect this email, please contact our support team.</p>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </body>
-                        </html>
-                        """,
-                user.getFirstName() != null ? user.getFirstName() : "User",
-                generatedPassword);
-
-        String plainText = String.format("""
-                Hello %s,
-
-                Your password has been reset by a CareLink+ administrator.
-
-                Temporary Password: %s
-
-                Please log in and change your password immediately for security.
-
-                Log in: https://calm-sky-0157a6e03.1.azurestaticapps.net/login
-
-                If you did not expect this reset, please contact our support team.
-                """,
-                user.getFirstName() != null ? user.getFirstName() : "User",
-                generatedPassword);
-
-        accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
-
+        emailService.sendAdminResetEmail(user.getEmail(), user.getFirstName(), generatedPassword);
         return ResponseEntity.ok("Password reset successfully and email sent to user.");
     }
 
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
         if (request.getToken() == null || request.getToken().isEmpty()) {
-            return ResponseEntity.badRequest().body("Token must not be empty.");
+            throw new BusinessLogicException("Token must not be empty.");
         }
         if (request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
-            return ResponseEntity.badRequest().body("New password must not be empty.");
+            throw new BusinessLogicException("New password must not be empty.");
         }
 
         UserCredentials creds = accountService.getUserCredentialsByResetToken(request.getToken());
         if (creds == null) {
-            return ResponseEntity.status(404).body("Invalid or expired token.");
+            throw new ResourceNotFoundException("Invalid or expired token.");
         }
 
         String hashedPassword = accountService.encodePassword(request.getNewPassword());
@@ -344,11 +240,11 @@ public class AccountController {
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null) {
-            return ResponseEntity.status(404).body("User not found.");
+            throw new ResourceNotFoundException("User not found.");
         }
 
         if (!BCrypt.checkpw(request.getOldPassword(), creds.getPasswordHash())) {
-            return ResponseEntity.status(401).body("Old password is incorrect.");
+            throw new BusinessLogicException("Old password is incorrect.");
         }
 
         String hashedPassword = accountService.encodePassword(request.getNewPassword());
@@ -364,12 +260,12 @@ public class AccountController {
     public ResponseEntity<UserResponse> getProfileById(@PathVariable Integer id) {
         UserCredentials creds = accountService.getUserCredentialsByUserId(id);
         if (creds == null) {
-            return ResponseEntity.status(404).body(null);
+            throw new ResourceNotFoundException("User or credentials not found for ID: " + id);
         }
 
         User user = creds.getUser();
         if (user == null) {
-            return ResponseEntity.status(404).body(null);
+            throw new ResourceNotFoundException("User or credentials not found for ID: " + id);
         }
 
         return ResponseEntity.ok(buildUserResponse(creds, user));
@@ -402,7 +298,7 @@ public class AccountController {
     public ResponseEntity<String> deactivateUser(@PathVariable Integer id) {
         UserCredentials creds = accountService.getUserCredentialsByUserId(id);
         if (creds == null || creds.getUser() == null) {
-            return ResponseEntity.status(404).body("User not found.");
+            throw new ResourceNotFoundException("User not found.");
         }
 
         User user = creds.getUser();
@@ -417,7 +313,7 @@ public class AccountController {
     public ResponseEntity<String> updateUserRole(@PathVariable Integer id, @RequestParam String role) {
         UserCredentials creds = accountService.getUserCredentialsByUserId(id);
         if (creds == null || creds.getUser() == null) {
-            return ResponseEntity.status(404).body("User not found.");
+            throw new ResourceNotFoundException("User not found.");
         }
 
         User user = creds.getUser();
@@ -457,21 +353,7 @@ public class AccountController {
         String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
         String generatedPassword = createdUser.getTransientPassword();
 
-        String subject = "Welcome to CareLink+ – Your Access Details";
-        String body = String.format("""
-            Hello %s,
-
-            Your account has been created successfully.
-
-            Username: %s
-            Temporary Password: %s
-
-            Please log in and change your password as soon as possible.
-
-            Access the platform at: https://calm-sky-0157a6e03.1.azurestaticapps.net/login
-            """, user.getFirstName(), generatedUsername, generatedPassword);
-
-        accountService.sendEmail(user.getEmail(), subject, body, body);
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), generatedUsername, generatedPassword);
 
         UserResponse response = new UserResponse();
         response.setUserId(createdUser.getUserID().longValue());
@@ -487,11 +369,7 @@ public class AccountController {
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/update-profile")
     public ResponseEntity<String> updateUserProfile(@RequestBody UpdateProfileRequest request) {
-        try {
-            accountService.updateUserProfile(request);
-            return ResponseEntity.ok("User profile updated successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Failed to update user profile.");
-        }
+        accountService.updateUserProfile(request);
+        return ResponseEntity.ok("User profile updated successfully.");
     }
 }

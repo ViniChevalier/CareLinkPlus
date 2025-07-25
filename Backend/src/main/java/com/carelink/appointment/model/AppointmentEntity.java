@@ -3,7 +3,6 @@ package com.carelink.appointment.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import com.carelink.account.model.User;
-import com.carelink.appointment.model.DoctorAvailability;
 
 @Entity
 @Table(name = "appointments")

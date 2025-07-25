@@ -1,10 +1,11 @@
 package com.carelink.medicalhistory.controller;
 
 import com.carelink.medicalhistory.dto.PatientMedicalHistoryDto;
-import com.carelink.medicalhistory.dto.PatientMedicalHistoryForm;
 import com.carelink.medicalhistory.entity.PatientMedicalHistory;
 import com.carelink.medicalhistory.service.AzureBlobService;
 import com.carelink.medicalhistory.service.PatientMedicalHistoryService;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class PatientMedicalHistoryController {
             try {
                 blobName = azureBlobService.uploadFile(file, "medical-histories");
             } catch (Exception e) {
-                return ResponseEntity.status(500).build();
+                throw new BusinessLogicException("Failed to upload medical history file.");
             }
         }
 
@@ -59,16 +60,14 @@ public class PatientMedicalHistoryController {
                 history.setDiagnosisDate(Date.valueOf(diagnosisDate.trim()));
             }
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid date format: " + diagnosisDate);
-            return ResponseEntity.badRequest().build();
+            throw new BusinessLogicException("Invalid diagnosis date format: " + diagnosisDate);
         }
 
         if (updatedBy != null && !updatedBy.trim().isEmpty()) {
             try {
                 history.setUpdateBy(Integer.parseInt(updatedBy.trim()));
             } catch (NumberFormatException e) {
-                System.err.println("Invalid updatedBy: " + updatedBy);
-                return ResponseEntity.badRequest().build();
+                throw new BusinessLogicException("Invalid updatedBy value: " + updatedBy);
             }
         } else {
             history.setUpdateBy(null);
@@ -123,7 +122,7 @@ public class PatientMedicalHistoryController {
 
             return ResponseEntity.ok(dto);
         } else {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Patient medical history not found with ID: " + historyId);
         }
     }
 
@@ -169,7 +168,7 @@ public class PatientMedicalHistoryController {
         Optional<PatientMedicalHistory> optional = service.findById(historyId);
 
         if (optional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Patient medical history not found with ID: " + historyId);
         }
 
         PatientMedicalHistory existing = optional.get();
@@ -184,8 +183,7 @@ public class PatientMedicalHistoryController {
             try {
                 existing.setDiagnosisDate(Date.valueOf(diagnosisDate.trim()));
             } catch (IllegalArgumentException e) {
-                System.err.println("Invalid date format: " + diagnosisDate);
-                return ResponseEntity.badRequest().build();
+                throw new BusinessLogicException("Invalid diagnosis date format: " + diagnosisDate);
             }
         }
         if (status != null) {
@@ -195,8 +193,7 @@ public class PatientMedicalHistoryController {
             try {
                 existing.setUpdateBy(Integer.parseInt(updatedBy.trim()));
             } catch (NumberFormatException e) {
-                System.err.println("Invalid updatedBy: " + updatedBy);
-                return ResponseEntity.badRequest().build();
+                throw new BusinessLogicException("Invalid updatedBy value: " + updatedBy);
             }
         }
 
@@ -205,7 +202,7 @@ public class PatientMedicalHistoryController {
                 String blobName = azureBlobService.uploadFile(file, "medical-histories");
                 existing.setAttachmentName(blobName);
             } catch (Exception e) {
-                return ResponseEntity.status(500).build();
+                throw new BusinessLogicException("Failed to upload medical history file.");
             }
         }
 
@@ -234,7 +231,11 @@ public class PatientMedicalHistoryController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{historyId}")
     public ResponseEntity<?> deleteHistory(@PathVariable Integer historyId) {
-        service.deleteById(historyId);
-        return ResponseEntity.ok("History deleted successfully");
+        try {
+            service.deleteById(historyId);
+            return ResponseEntity.ok("History deleted successfully");
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to delete patient medical history with ID: " + historyId);
+        }
     }
 }

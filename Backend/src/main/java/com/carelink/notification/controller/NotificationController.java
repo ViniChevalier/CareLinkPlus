@@ -3,6 +3,8 @@ package com.carelink.notification.controller;
 import com.carelink.notification.dto.NotificationRequestDTO;
 import com.carelink.notification.model.Notification;
 import com.carelink.notification.service.NotificationService;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +27,18 @@ public class NotificationController {
         notification.setMessage(dto.getMessage());
         notification.setIsRead(false);
 
-        return notificationService.createNotification(notification, dto.getUserEmail(), dto.getUserPhone());
+        try {
+            return notificationService.createNotification(notification, dto.getUserEmail(), dto.getUserPhone());
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to create notification.");
+        }
     }
 
     @GetMapping("/{id}")   
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SYSTEM') or hasRole('PATIENT') or hasRole('RECEPTIONIST')')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SYSTEM') or hasRole('PATIENT') or hasRole('RECEPTIONIST')")
     public Notification getNotification(@PathVariable Integer id) {
         return notificationService.getNotificationById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with ID: " + id));
     }
 
     @GetMapping("/user/{userId}")
@@ -45,12 +51,20 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SYSTEM')")
     public Notification markAsRead(@PathVariable Integer id) {
-        return notificationService.markAsRead(id);
+        try {
+            return notificationService.markAsRead(id);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Notification not found with ID: " + id);
+        }
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteNotification(@PathVariable Integer id) {
-        notificationService.deleteNotification(id);
+        try {
+            notificationService.deleteNotification(id);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Notification not found with ID: " + id);
+        }
     }
 }

@@ -112,7 +112,7 @@ public class AppointmentGrpcService extends AppointmentServiceGrpc.AppointmentSe
             AppointmentRequestDTO dto = new AppointmentRequestDTO();
             dto.setReason(reason);
 
-            AppointmentEntity updated = appointmentService.updateAppointment(appointmentId, dto);
+            appointmentService.updateAppointment(appointmentId, dto);
 
             UpdateAppointmentResponse response = UpdateAppointmentResponse.newBuilder()
                 .setSuccess(true)

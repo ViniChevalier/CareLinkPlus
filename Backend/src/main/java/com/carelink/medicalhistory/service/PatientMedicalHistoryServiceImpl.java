@@ -2,6 +2,7 @@ package com.carelink.medicalhistory.service;
 
 import com.carelink.medicalhistory.entity.PatientMedicalHistory;
 import com.carelink.medicalhistory.repository.PatientMedicalHistoryRepository;
+import com.carelink.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,9 @@ public class PatientMedicalHistoryServiceImpl implements PatientMedicalHistorySe
 
     @Override
     public void deleteById(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Patient medical history not found with ID: " + id);
+        }
         repository.deleteById(id);
     }
 }

@@ -1,7 +1,5 @@
 package com.carelink.appointment.model;
 
-import com.carelink.appointment.model.AvailabilityStatus;
-
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +17,7 @@ public class DoctorAvailability {
     @Column(name = "DoctorID", nullable = false)
     private Integer doctorId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "DoctorID", insertable = false, updatable = false)
     private User doctor;
 
@@ -103,5 +101,12 @@ public class DoctorAvailability {
 
     public void setStatus(AvailabilityStatus status) {
         this.status = status;
+    }
+    @Transient
+    public String getDoctorName() {
+        if (doctor != null) {
+            return doctor.getFirstName() + " " + doctor.getLastName();
+        }
+        return "";
     }
 }

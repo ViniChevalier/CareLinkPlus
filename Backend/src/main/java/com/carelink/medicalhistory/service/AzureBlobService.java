@@ -1,5 +1,7 @@
 package com.carelink.medicalhistory.service;
 
+import com.carelink.exception.BusinessLogicException;
+
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
@@ -27,18 +29,22 @@ public class AzureBlobService {
         this.blobServiceClient = blobServiceClient;
     }
 
-    public String uploadFile(MultipartFile file, String folder) throws Exception {
-        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+    public String uploadFile(MultipartFile file, String folder) {
+        try {
+            BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
 
-        if (!containerClient.exists()) {
-            containerClient.create();
+            if (!containerClient.exists()) {
+                containerClient.create();
+            }
+
+            String blobName = folder + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+            BlobClient blobClient = containerClient.getBlobClient(blobName);
+            blobClient.upload(file.getInputStream(), file.getSize(), true);
+
+            return blobName;
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to upload file to Azure Blob Storage.");
         }
-
-        String blobName = folder + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
-        BlobClient blobClient = containerClient.getBlobClient(blobName);
-        blobClient.upload(file.getInputStream(), file.getSize(), true);
-
-        return blobName;
     }
 
     public String generateSasUrl(String blobName) {

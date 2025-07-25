@@ -312,7 +312,6 @@ const slotSelect = document.getElementById("rescheduleSlotSelect");
 const doctorSelect = document.getElementById("rescheduleDoctorSelect");
 const errorDiv = document.getElementById("reschedule-error");
 
-// Substitui alert de reagendamento pela lógica de modal
 const appointmentsTable = document.querySelector("#appointments-table tbody");
 appointmentsTable.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-action='reschedule']");
@@ -412,7 +411,6 @@ document.getElementById("confirmRescheduleBtn").addEventListener("click", () => 
     return createAppointment(payload);
   }).then(() => {
     rescheduleModal.hide();
-    // Força atualização da lista após fechar o modal, com leve atraso para garantir DOM livre
     setTimeout(() => {
       if (currentPatientId) {
         loadAppointments(currentPatientId);

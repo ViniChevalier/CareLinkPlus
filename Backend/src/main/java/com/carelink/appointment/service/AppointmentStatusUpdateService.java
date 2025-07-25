@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import com.carelink.appointment.model.AppointmentEntity;
-import com.carelink.appointment.model.AvailabilityStatus;
 
 @Service
 public class AppointmentStatusUpdateService {

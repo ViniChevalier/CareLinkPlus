@@ -1,5 +1,7 @@
 package com.carelink.notification.service;
 
+import com.carelink.exception.ResourceNotFoundException;
+
 import com.carelink.notification.model.Notification;
 import com.carelink.notification.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +64,7 @@ public class NotificationServiceImpl implements NotificationService {
             notif.setIsRead(true);
             return notificationRepository.save(notif);
         }
-        throw new RuntimeException("Notification not found");
+        throw new ResourceNotFoundException("Notification not found with ID: " + id);
     }
 
     @Override

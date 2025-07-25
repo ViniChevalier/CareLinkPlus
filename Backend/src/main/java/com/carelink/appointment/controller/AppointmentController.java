@@ -5,6 +5,8 @@ import com.carelink.appointment.dto.AppointmentWithPatientDTO;
 import com.carelink.appointment.dto.AppointmentDTO;
 import com.carelink.appointment.model.AppointmentEntity;
 import com.carelink.appointment.service.AppointmentServiceImpl;
+import com.carelink.exception.ResourceNotFoundException;
+import com.carelink.exception.BusinessLogicException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -73,6 +75,9 @@ public class AppointmentController {
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable int id) {
         AppointmentEntity appointment = appointmentService.getAppointmentById(id);
+        if (appointment == null) {
+            throw new ResourceNotFoundException("Appointment not found with ID: " + id);
+        }
         Integer doctorId = appointment.getDoctor() != null ? appointment.getDoctor().getUserID() : null;
         String doctorName = appointment.getDoctor() != null
             ? appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName()
@@ -90,46 +95,74 @@ public class AppointmentController {
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @PutMapping("/{id}")
     public ResponseEntity<AppointmentEntity> updateAppointment(@PathVariable int id, @RequestBody AppointmentRequestDTO dto) {
-        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
+        AppointmentEntity updated = appointmentService.updateAppointment(id, dto);
+        if (updated == null) {
+            throw new ResourceNotFoundException("Appointment to update not found with ID: " + id);
+        }
+        return ResponseEntity.ok(updated);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable int id) {
-        appointmentService.deleteAppointment(id);
-        return ResponseEntity.noContent().build();
+        try {
+            appointmentService.deleteAppointment(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Appointment to delete not found with ID: " + id);
+        }
     }
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @PostMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelAppointment(@PathVariable int id) {
-        appointmentService.cancelAppointment(id);
-        return ResponseEntity.ok().build();
+        try {
+            appointmentService.cancelAppointment(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to cancel appointment with ID: " + id);
+        }
     }
 
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/{id}/check-in")
     public ResponseEntity<Void> checkInAppointment(@PathVariable int id) {
-        appointmentService.checkInAppointment(id);
-        return ResponseEntity.ok().build();
+        try {
+            appointmentService.checkInAppointment(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to check-in appointment with ID: " + id);
+        }
     }
 
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/{id}/no-show")
     public ResponseEntity<Void> markNoShowAppointment(@PathVariable int id) {
-        appointmentService.markNoShow(id);
-        return ResponseEntity.ok().build();
+        try {
+            appointmentService.markNoShow(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to mark no-show for appointment with ID: " + id);
+        }
     }
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/{id}/undo-check-in")
     public ResponseEntity<Void> undoCheckInAppointment(@PathVariable int id) {
-        appointmentService.undoCheckIn(id);
-        return ResponseEntity.ok().build();
+        try {
+            appointmentService.undoCheckIn(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to undo check-in for appointment with ID: " + id);
+        }
     }
 
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/{id}/undo-no-show")
     public ResponseEntity<Void> undoNoShowAppointment(@PathVariable int id) {
-        appointmentService.undoNoShow(id);
-        return ResponseEntity.ok().build();
+        try {
+            appointmentService.undoNoShow(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            throw new BusinessLogicException("Failed to undo no-show for appointment with ID: " + id);
+        }
     }
 }
