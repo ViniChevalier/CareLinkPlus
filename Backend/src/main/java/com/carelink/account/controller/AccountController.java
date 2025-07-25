@@ -2,6 +2,7 @@ package com.carelink.account.controller;
 
 import com.carelink.account.dto.AdminResetDto;
 import com.carelink.account.dto.ChangePasswordRequest;
+import com.carelink.account.dto.UpdateProfileRequest;
 import com.carelink.account.dto.LoginRequest;
 import com.carelink.account.dto.RegisterRequest;
 import com.carelink.account.dto.RequestResetDto;
@@ -396,7 +397,7 @@ public class AccountController {
         return response;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @PutMapping("/deactivate/{id}")
     public ResponseEntity<String> deactivateUser(@PathVariable Integer id) {
         UserCredentials creds = accountService.getUserCredentialsByUserId(id);
@@ -456,7 +457,6 @@ public class AccountController {
         String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
         String generatedPassword = createdUser.getTransientPassword();
 
-        // Envia e-mail de boas-vindas
         String subject = "Welcome to CareLink+ – Your Access Details";
         String body = String.format("""
             Hello %s,
@@ -482,5 +482,16 @@ public class AccountController {
         response.setLastName(createdUser.getLastName());
 
         return ResponseEntity.status(201).body(response);
+    }
+
+    @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
+    @PutMapping("/update-profile")
+    public ResponseEntity<String> updateUserProfile(@RequestBody UpdateProfileRequest request) {
+        try {
+            accountService.updateUserProfile(request);
+            return ResponseEntity.ok("User profile updated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to update user profile.");
+        }
     }
 }

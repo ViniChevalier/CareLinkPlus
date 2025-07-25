@@ -71,8 +71,20 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @GetMapping("/{id}")
-    public ResponseEntity<AppointmentEntity> getAppointmentById(@PathVariable int id) {
-        return ResponseEntity.ok(appointmentService.getAppointmentById(id));
+    public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable int id) {
+        AppointmentEntity appointment = appointmentService.getAppointmentById(id);
+        Integer doctorId = appointment.getDoctor() != null ? appointment.getDoctor().getUserID() : null;
+        String doctorName = appointment.getDoctor() != null
+            ? appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName()
+            : "Unknown";
+
+        AppointmentDTO dto = new AppointmentDTO(appointment, doctorId, doctorName);
+
+        if (appointment.getAvailability() != null) {
+            dto.setAvailabilityId(appointment.getAvailability().getId());
+        }
+
+        return ResponseEntity.ok(dto);
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")

@@ -4,6 +4,7 @@ import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
 import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.repository.UserRepository;
+import com.carelink.account.dto.UpdateProfileRequest;
 
 import java.util.Random;
 
@@ -132,5 +133,27 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public java.util.List<User> getAllUsersByRole(String role) {
         return userRepository.findByRole(role);
+    }
+    @Transactional
+    public void updateUserProfile(UpdateProfileRequest request) {
+        User user = userRepository.findById(request.getUserId())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        if (request.getDateOfBirth() != null) {
+            user.setDateOfBirth(java.sql.Date.valueOf(request.getDateOfBirth()));
+        } else {
+            user.setDateOfBirth(null);
+        }
+        user.setGender(request.getGender());
+        user.setAddress(request.getAddress());
+        user.setCity(request.getCity());
+        user.setCountry(request.getCountry());
+        user.setNotificationPreference(request.getNotificationPreference());
+
+        userRepository.save(user);
     }
 }

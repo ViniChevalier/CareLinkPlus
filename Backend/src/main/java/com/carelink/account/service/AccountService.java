@@ -2,6 +2,7 @@ package com.carelink.account.service;
 
 import com.carelink.account.model.User;
 import com.carelink.account.model.UserCredentials;
+import com.carelink.account.dto.UpdateProfileRequest;
 import java.util.List;
 
 public interface AccountService {
@@ -32,4 +33,6 @@ public interface AccountService {
     UserCredentials getUserCredentialsByUserId(Integer UserID);
 
     List<User> getAllUsersByRole(String role);
+
+    void updateUserProfile(UpdateProfileRequest request);
 }

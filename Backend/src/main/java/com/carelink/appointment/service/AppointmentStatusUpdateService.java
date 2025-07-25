@@ -21,7 +21,7 @@ public class AppointmentStatusUpdateService {
         List<AppointmentEntity> appointments = appointmentRepository.findAttendedAppointmentsFromYesterday(yesterday);
 
         for (AppointmentEntity appointment : appointments) {
-            appointment.setAppointmentStatus("COMPLETED");
+            appointment.setAppointmentStatus("Completed");
         }
 
         appointmentRepository.saveAll(appointments);

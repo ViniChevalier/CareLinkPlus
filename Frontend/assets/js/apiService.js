@@ -1,5 +1,5 @@
-const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
-//const BASE_URL = "http://localhost:8080";
+//const BASE_URL = "https://carelinkplus-backend-hbe9c2egbmfgg6h5.francecentral-01.azurewebsites.net";
+const BASE_URL = "http://localhost:8080";
 
 function getAuthHeaders() {
     const token = localStorage.getItem('token');
@@ -290,6 +290,10 @@ export function getProfileById(userId) {
 
 export function updateProfile(data) {
     return put("/api/account/profile", data);
+}
+
+export function updateUserProfile(data) {
+    return put("/api/account/update-profile", data);
 }
 
 export function changePassword(data) {
