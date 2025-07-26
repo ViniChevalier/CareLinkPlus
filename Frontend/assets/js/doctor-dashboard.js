@@ -50,7 +50,7 @@ export async function loadPatientsInModal() {
     }
 }
 
-// Register modal show event
+
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('patientsModal');
     if (modal) {
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         window.viewPatientProfile = function(patientId) {
             localStorage.setItem("selectedPatientId", patientId);
-            window.location.href = "patient-profile.html";
+            window.location.href = "patient_profile.html";
         };
 
         const availability = await getDoctorAvailability(doctorId);

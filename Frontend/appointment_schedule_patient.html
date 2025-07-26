@@ -12,16 +12,6 @@
   <link rel="stylesheet" href="assets/css/animate.css">
   <link rel="stylesheet" href="assets/css/tiny-slider.css">
   <link rel="stylesheet" href="assets/css/main.css">
-  <style>
-    .select-tall {
-      height: 48px;
-    }
-  </style>
-</head>
-    .select-height {
-      height: 48px;
-    }
-  </style>
 </head>
 
 <body>
@@ -74,46 +64,54 @@
         </div>
       </div>
     </div>
-
+  </header>
+  <!-- ========================= header end ========================= -->
     <!-- ========================= schedule appointment section ========================= -->
-    <section id="schedule-appointment" class="login-section pt-75 pb-75">
+<section id="schedule-appointment" class="login-section pt-75 pb-75">
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-xl-8 col-lg-10">
             <div class="section-title text-center mb-55">
               <h2 class="mb-15">Schedule an Appointment</h2>
-                <select id="doctorSelect" class="form-control select-tall" required>
-                  <option value="">Loading doctors...</option>
-                </select>
-              </div>
-              <div class="form-group mb-3">
-                <label for="slotSelect">Select Available Slot</label>
-                <select id="slotSelect" class="form-control select-tall" disabled required>
-                  <option value="">Please select a doctor first</option>
-                </select>
-              <div class="form-group mb-3">
-                <label for="slotSelect">Select Available Slot</label>
-                <select id="slotSelect" class="form-control" style="height: 48px;" disabled required>
-                  <option value="">Please select a doctor first</option>
-                </select>
-              </div>
-              <div class="form-group mb-3">
-                <label for="reason">Reason for Appointment</label>
-                <textarea id="reason" class="form-control" maxlength="250" rows="3"
-                  placeholder="Describe your reason (max 250 chars)" required></textarea>
-              </div>
+              <p>Choose your doctor, select a slot, and book your appointment easily.</p>
+            </div>
+            <form id="scheduleAppointmentForm">
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="doctorSelect" class="form-label">Select Doctor</label>
+                  <select id="doctorSelect" class="form-control" required>
+                    <option value="">Loading doctors...</option>
+                  </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="slotSelect" class="form-label">Select Available Slot</label>
+                  <select id="slotSelect" class="form-control" disabled required>
+                    <option value="">Please select a doctor first</option>
+                  </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label for="reason" class="form-label">Reason for Appointment</label>
+                  <textarea id="reason" class="form-control" maxlength="250" rows="3"
+                    placeholder="Describe your reason (max 250 chars)" required></textarea>
+                </div>
 
-              <div id="message" class="alert text-center d-none"></div>
+                <div id="message" class="alert text-center d-none"></div>
 
-              <button type="submit" class="btn theme-btn w-100">Schedule Appointment</button>
+                <div class="col-md-12">
+                  <button type="submit"
+                    class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 animate__animated animate__fadeInUp mt-2">
+                    <i class="lni lni-calendar"></i>
+                    <span class="default-label">Schedule Appointment</span>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>
       </div>
     </section>
     <!-- ========================= schedule appointment section end ========================= -->
-  </header>
-  <!-- ========================= header end ========================= -->
 
   <!-- ========================= footer will be loaded dynamically ========================= -->
 

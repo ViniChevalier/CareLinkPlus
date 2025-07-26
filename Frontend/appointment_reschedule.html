@@ -73,32 +73,37 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-xl-8 col-lg-10">
-            <div class="section-title text-center mb-55">
-              <h2 class="mb-15">Reschedule Appointment</h2>
-              <p>Select your current appointment, choose a new doctor and slot, and confirm your rescheduling easily.
-              </p>
+            <div class="text-center mb-5 animate__animated animate__fadeInDown">
+              <h2 class="fw-bold">Reschedule Appointment</h2>
+              <p class="text-muted">Select your current appointment, choose a new doctor and slot, and confirm your rescheduling easily.</p>
             </div>
-            <form id="rescheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
-              <div class="form-group mb-3">
-                <label for="appointmentSelect">Your Scheduled Appointments</label>
-                <select id="appointmentSelect" class="form-select" style="height: 48px;" required>
+            <form id="rescheduleAppointmentForm" class="row g-3 animate__animated animate__fadeInUp">
+              <div class="col-12">
+                <label for="appointmentSelect" class="form-label">Your Scheduled Appointments</label>
+                <select id="appointmentSelect" class="form-select" required>
                   <option value="">Loading your appointments...</option>
                 </select>
               </div>
-              <div class="form-group mb-3 d-none" id="doctorGroup">
-                <label for="doctorSelect">Select New Doctor</label>
-                <select id="doctorSelect" class="form-select" style="height: 48px;" required>
+              <div class="col-md-6 d-none" id="doctorGroup">
+                <label for="doctorSelect" class="form-label">Select New Doctor</label>
+                <select id="doctorSelect" class="form-select" required>
                   <option value="">Please select</option>
                 </select>
               </div>
-              <div class="form-group mb-3 d-none" id="slotGroup">
-                <label for="slotSelect">Select New Slot</label>
-                <select id="slotSelect" class="form-select" style="height: 48px;" required>
+              <div class="col-md-6 d-none" id="slotGroup">
+                <label for="slotSelect" class="form-label">Select New Slot</label>
+                <select id="slotSelect" class="form-select" required>
                   <option value="">Please select a doctor first</option>
                 </select>
               </div>
-              <div id="message" class="alert text-center d-none"></div>
-              <button type="submit" class="btn theme-btn w-100 d-none" id="submitBtn">Confirm Reschedule</button>
+              <div class="col-12">
+                <div id="message" class="alert text-center d-none"></div>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 d-none" id="submitBtn">
+                  <i class="lni lni-calendar"></i> Confirm Reschedule
+                </button>
+              </div>
             </form>
           </div>
         </div>

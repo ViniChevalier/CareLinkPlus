@@ -114,48 +114,53 @@ public class AccountController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
-        if (creds == null)
-            throw new ResourceNotFoundException("User credentials not found for username: " + username);
+        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
+            Integer userId = userDetails.getId();
 
-        User user = creds.getUser();
-        if (user == null)
-            throw new ResourceNotFoundException("User not found.");
+            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
+            if (creds == null || creds.getUser() == null) {
+                throw new ResourceNotFoundException("User or credentials not found for ID: " + userId);
+            }
 
-        if (updatedInfo.getEmail() != null)
-            user.setEmail(updatedInfo.getEmail());
-        if (updatedInfo.getLastName() != null)
-            user.setLastName(updatedInfo.getLastName());
-        if (updatedInfo.getPhoneNumber() != null)
-            user.setPhoneNumber(updatedInfo.getPhoneNumber());
-        if (updatedInfo.getGender() != null)
-            user.setGender(updatedInfo.getGender());
-        if (updatedInfo.getAddress() != null)
-            user.setAddress(updatedInfo.getAddress());
-        if (updatedInfo.getCity() != null)
-            user.setCity(updatedInfo.getCity());
-        if (updatedInfo.getCountry() != null)
-            user.setCountry(updatedInfo.getCountry());
-        if (updatedInfo.getNotificationPreference() != null)
-            user.setNotificationPreference(updatedInfo.getNotificationPreference());
+            User user = creds.getUser();
 
-        accountService.updateUser(user);
+            if (updatedInfo.getEmail() != null)
+                user.setEmail(updatedInfo.getEmail());
+            if (updatedInfo.getLastName() != null)
+                user.setLastName(updatedInfo.getLastName());
+            if (updatedInfo.getPhoneNumber() != null)
+                user.setPhoneNumber(updatedInfo.getPhoneNumber());
+            if (updatedInfo.getGender() != null)
+                user.setGender(updatedInfo.getGender());
+            if (updatedInfo.getAddress() != null)
+                user.setAddress(updatedInfo.getAddress());
+            if (updatedInfo.getCity() != null)
+                user.setCity(updatedInfo.getCity());
+            if (updatedInfo.getCountry() != null)
+                user.setCountry(updatedInfo.getCountry());
+            if (updatedInfo.getNotificationPreference() != null)
+                user.setNotificationPreference(updatedInfo.getNotificationPreference());
 
-        UserResponse response = new UserResponse();
-        response.setEmail(user.getEmail());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
-        response.setPhoneNumber(user.getPhoneNumber());
-        response.setGender(user.getGender());
-        response.setAddress(user.getAddress());
-        response.setCity(user.getCity());
-        response.setCountry(user.getCountry());
-        response.setRole(user.getRole());
-        response.setNotificationPreference(user.getNotificationPreference());
+            accountService.updateUser(user);
 
-        return ResponseEntity.ok(response);
+            UserResponse response = new UserResponse();
+            response.setEmail(user.getEmail());
+            response.setFirstName(user.getFirstName());
+            response.setLastName(user.getLastName());
+            response.setPhoneNumber(user.getPhoneNumber());
+            response.setGender(user.getGender());
+            response.setAddress(user.getAddress());
+            response.setCity(user.getCity());
+            response.setCountry(user.getCountry());
+            response.setRole(user.getRole());
+            response.setNotificationPreference(user.getNotificationPreference());
+
+            return ResponseEntity.ok(response);
+        }
+
+        throw new RuntimeException("Failed to retrieve authenticated user.");
     }
 
     @PostMapping("/reset")
@@ -175,7 +180,7 @@ public class AccountController {
         creds.setResetPasswordToken(token);
         accountService.updateUser(user);
 
-        String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/reset-password.html?token=" + token;
+        String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/pwd_reset.html?token=" + token;
         emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetLink);
 
         return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");

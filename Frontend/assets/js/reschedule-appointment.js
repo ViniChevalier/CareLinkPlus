@@ -1,11 +1,10 @@
-import { get, put, post, getAllAvailability, getAppointmentsByPatient, cancelAppointment, createAppointment } from './apiService.js';
+import {getAllAvailability, getAppointmentsByPatient, cancelAppointment, createAppointment, getDoctorAvailability } from './apiService.js';
 
 document.addEventListener("DOMContentLoaded", () => {
   const appointmentSelect = document.getElementById("appointmentSelect");
   const doctorSelect = document.getElementById("doctorSelect");
   const slotSelect = document.getElementById("slotSelect");
   const form = document.getElementById("rescheduleAppointmentForm");
-  const messageDiv = document.getElementById("message");
   const doctorGroup = document.getElementById("doctorGroup");
   const slotGroup = document.getElementById("slotGroup");
   const submitBtn = document.getElementById("submitBtn");
@@ -212,11 +211,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-function showMessage(msg, type) {
-  const messageDiv = document.getElementById("message");
-  messageDiv.className = `alert alert-${type} text-center`;
-  messageDiv.textContent = msg;
-  messageDiv.classList.remove("d-none");
+function showMessage(message, type = "info") {
+  let toastContainer = document.getElementById("toast-top-right");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-top-right";
+    toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+    document.body.appendChild(toastContainer);
+  }
+
+  const toastElement = document.createElement("div");
+  toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+  toastElement.setAttribute("role", "alert");
+  toastElement.setAttribute("aria-live", "assertive");
+  toastElement.setAttribute("aria-atomic", "true");
+
+  toastElement.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  toastContainer.appendChild(toastElement);
+  const bsToast = new bootstrap.Toast(toastElement);
+  bsToast.show();
+
+  setTimeout(() => {
+    toastElement.remove();
+  }, 5000);
 }
 
 function rescheduleAppointment(currentAppointmentId, doctorId, slotId) {

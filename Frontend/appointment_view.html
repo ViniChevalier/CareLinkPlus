@@ -72,13 +72,18 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-11">
-          <div class="section-title text-center mb-55">
-            <h2 class="mb-15">Manage Appointments</h2>
-            <p>View, filter, reschedule or cancel appointments with ease.</p>
+          <div class="text-center mb-5 animate__animated animate__fadeInDown">
+            <h2 class="fw-bold">Manage Appointments</h2>
+            <p class="text-muted">View, filter, reschedule or cancel appointments with ease.</p>
           </div>
           <div class="w-100">
-            <form id="scheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
-              <div class="row mb-3 bg-white p-3 rounded shadow-sm mb-4">
+            <div id="loadingSpinner" class="text-center mb-4" style="display: none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <form id="scheduleAppointmentForm" class="animate__animated animate__fadeInUp">
+              <div class="row mb-4">
                 <div class="col-md-3">
                   <input type="text" id="filterPatient" class="form-control" placeholder="Filter by patient name">
                 </div>
@@ -89,11 +94,13 @@
                   <input type="date" id="filterDate" class="form-control">
                 </div>
                 <div class="col-md-3">
-                  <button type="button" id="clearFilters" class="btn btn-secondary w-100">Clear Filters</button>
+                  <button type="button" id="clearFilters" class="btn btn-outline-secondary w-100 animate__animated animate__fadeInUp">
+                    <i class="lni lni-brush"></i> Clear Filters
+                  </button>
                 </div>
               </div>
               <div class="table-wrapper" style="max-height: 600px; overflow-y: auto;">
-                <div class="table-responsive shadow rounded">
+                <div class="table-responsive animate__animated animate__fadeInUp">
                   <table class="table table-bordered table-hover align-middle text-center table-striped">
                     <thead style="background-color: #2E8B57; color: white;">
                       <tr>

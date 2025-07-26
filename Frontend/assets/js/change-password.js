@@ -12,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const newPassword = document.getElementById('newPassword');
   const confirmPassword = document.getElementById('confirmPassword');
   const messageDiv = document.getElementById('message');
-  const passwordCriteria = document.getElementById('passwordCriteria');
+  const mismatchWarning = document.getElementById('passwordMismatch');
+  const criteriaBox = document.getElementById("passwordCriteriaBox");
+  const lengthCheck = document.getElementById("lengthCheck");
+  const numberCheck = document.getElementById("numberCheck");
+  const symbolCheck = document.getElementById("symbolCheck");
 
   function showMessage(content, type = 'success') {
     messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning');
@@ -32,31 +36,46 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkPasswordsMatch() {
     if (newPassword.value && confirmPassword.value) {
       if (newPassword.value === confirmPassword.value) {
-        showMessage('New passwords match!', 'success');
+        mismatchWarning.classList.add("d-none");
       } else {
-        showMessage('New passwords do not match!', 'error');
+        mismatchWarning.classList.remove("d-none");
       }
     } else {
-      messageDiv.classList.add('d-none');
-      messageDiv.classList.remove('alert', 'alert-success', 'alert-danger', 'alert-warning');
+      mismatchWarning.classList.add("d-none");
     }
   }
 
-  function togglePasswordCriteria(show) {
+  function toggleCriteriaBox(show) {
     if (show) {
-      passwordCriteria.classList.remove('d-none');
-      passwordCriteria.classList.add('show');
+      criteriaBox.classList.remove("d-none");
     } else {
-      passwordCriteria.classList.add('d-none');
-      passwordCriteria.classList.remove('show');
+      criteriaBox.classList.add("d-none");
     }
   }
 
-  newPassword.addEventListener('input', checkPasswordsMatch);
-  confirmPassword.addEventListener('input', checkPasswordsMatch);
+  function updateCriteriaFeedback(value) {
+    toggleCheck(lengthCheck, value.length >= 8);
+    toggleCheck(numberCheck, /\d/.test(value));
+    toggleCheck(symbolCheck, /[!@#$%^&*(),.?":{}|<>]/.test(value));
+  }
 
-  newPassword.addEventListener('focus', () => togglePasswordCriteria(true));
-  newPassword.addEventListener('blur', () => togglePasswordCriteria(false));
+  function toggleCheck(element, condition) {
+    element.classList.remove("text-success", "text-danger");
+    element.classList.add(condition ? "text-success" : "text-danger");
+
+    const icon = element.querySelector("i");
+    if (icon) {
+      icon.className = condition ? "lni lni-checkmark-circle" : "lni lni-close";
+    }
+  }
+
+  newPassword.addEventListener('focus', () => toggleCriteriaBox(true));
+  newPassword.addEventListener('blur', () => setTimeout(() => toggleCriteriaBox(false), 200));
+  newPassword.addEventListener('input', () => {
+    checkPasswordsMatch();
+    updateCriteriaFeedback(newPassword.value);
+  });
+  confirmPassword.addEventListener('input', checkPasswordsMatch);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -72,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (newPassword.value !== confirmPassword.value) {
-      showMessage('New passwords do not match!', 'error');
+      mismatchWarning.classList.remove("d-none");
       return;
     }
 

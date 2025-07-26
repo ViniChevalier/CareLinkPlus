@@ -3,13 +3,25 @@ import { login, getProfile } from './apiService.js';
 const loginForm = document.getElementById('loginForm');
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const loginBtn = loginForm.querySelector("button[type='submit']");
   const message = document.getElementById('message');
-  message.textContent = 'Logging in...';
+
+  // Reset visual states
+  usernameInput.classList.remove("is-invalid");
+  passwordInput.classList.remove("is-invalid");
+  message.textContent = '';
+  message.classList.remove('text-success', 'text-danger');
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Logging in...';
 
   try {
-    const data = await login({ username, password });
+    const data = await login({
+      username: usernameInput.value,
+      password: passwordInput.value,
+    });
 
     localStorage.setItem('token', data.token);
 
@@ -19,31 +31,38 @@ loginForm.addEventListener('submit', async (e) => {
     localStorage.setItem('role', profile.role);
     localStorage.setItem('name', profile.firstName);
     console.log('Profile received:', profile);
-    console.log('Saved userId:', localStorage.getItem('userId'));
 
     message.textContent = 'Login successful! Redirecting...';
-    message.style.color = 'green';
+    message.classList.add('text-success');
 
     setTimeout(() => {
-      if (profile.role === 'DOCTOR') {
-        window.location.href = 'dashboard_doctor.html';
-      } else if (profile.role === 'PATIENT') {
-        window.location.href = 'dashboard_patient.html';
-      } else if (profile.role === 'RECEPTIONIST') {
-        window.location.href = 'dashboard_receptionist.html';
-      } else if (profile.role === 'ADMIN') {
-        window.location.href = 'dashboard_admin.html';
+      const roleRedirects = {
+        DOCTOR: 'dashboard_doctor.html',
+        PATIENT: 'dashboard_patient.html',
+        RECEPTIONIST: 'dashboard_receptionist.html',
+        ADMIN: 'dashboard_admin.html',
+      };
+      const redirectUrl = roleRedirects[profile.role];
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       } else {
         message.textContent = 'Unknown user role. Access denied.';
-        message.style.color = 'red';
+        message.classList.remove('text-success');
+        message.classList.add('text-danger');
       }
     }, 1000);
   } catch (error) {
+    usernameInput.classList.add("is-invalid");
+    passwordInput.classList.add("is-invalid");
+
     if (error.response && error.response.status === 403) {
       message.textContent = 'Invalid username or password. Please try again.';
     } else {
-      message.textContent = error.message || 'An unexpected error occurred. Please try again later.';
+      message.textContent = error.message || 'An unexpected error occurred.';
     }
-    message.style.color = 'red';
+    message.classList.add('text-danger');
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Login';
   }
 });

@@ -70,7 +70,7 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-xl-8 col-lg-10">
-          <div class="card shadow-sm p-4">
+          <div class="p-4 mb-4 bg-transparent border-0 animate__animated animate__fadeInUp">
             <div class="d-flex align-items-center mb-3">
               <div class="flex-shrink-0 me-3">
                 <i class="lni lni-user text-primary display-5"></i>
@@ -109,11 +109,11 @@
           <!-- <div class="text-end mb-3">
             <button class="btn btn-outline-primary btn-sm">+ Add Medical History</button>
           </div> -->
-          <div class="section-title text-center mb-4">
+          <div class="section-title text-center mb-4 animate__animated animate__fadeInDown">
             <h2 class="mb-3">Medical History</h2>
             <p>Review of patient’s past and ongoing medical conditions.</p>
           </div>
-          <div class="card shadow-sm p-4">
+          <div class="p-4 mb-4 bg-transparent border-0 animate__animated animate__fadeInUp">
             <div class="mb-3">
               <h5>Pre-existing Conditions</h5>
               <p id="viewPreExistingConditionsFallback" class="text-muted d-none">Loading...</p>
@@ -144,7 +144,7 @@
           <div class="modal fade" id="viewMedicalHistoryModal" tabindex="-1"
             aria-labelledby="viewMedicalHistoryModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl">
-              <div class="modal-content">
+              <div class="modal-content border-0 rounded-3 shadow-sm">
                 <div class="modal-header">
                   <h5 class="modal-title" id="viewMedicalHistoryModalLabel">Patient Medical History</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -182,13 +182,12 @@
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div id="feedbackMessage" class="alert d-none" role="alert"></div>
 
           <!-- Add Medical History Modal -->
           <div class="modal fade" id="medicalHistoryModal" tabindex="-1" aria-labelledby="medicalHistoryModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-lg">
-              <div class="modal-content">
+              <div class="modal-content border-0 rounded-3 shadow-sm">
                 <form id="medicalHistoryForm">
                   <div class="modal-header">
                     <h5 class="modal-title" id="medicalHistoryModalLabel">Add Medical History</h5>
@@ -224,7 +223,7 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                   </div>
-                  <div id="medicalHistoryFeedback" class="alert d-none mt-2" role="alert"></div>
+                  <!-- <div id="medicalHistoryFeedback" class="alert d-none mt-2" role="alert"></div> -->
                 </form>
               </div>
             </div>
@@ -244,11 +243,11 @@
           <!-- <div class="text-end mb-3">
             <button class="btn btn-outline-success btn-sm">+ Add Prescription</button>
           </div> -->
-          <div class="section-title text-center mb-4">
+          <div class="section-title text-center mb-4 animate__animated animate__fadeInDown">
             <h2 class="mb-3">Prescriptions</h2>
             <p>Here are the current prescriptions for this patient.</p>
           </div>
-          <div class="card shadow-sm p-4">
+          <div class="p-4 mb-4 bg-transparent border-0 animate__animated animate__fadeInUp">
             <ul id="prescriptionsList" class="list-group list-group-flush">
               <li class="list-group-item text-center">
                 <div class="spinner-border text-primary" role="status">
@@ -256,7 +255,7 @@
                 </div>
               </li>
             </ul>
-            <div id="prescriptionFeedback" class="alert d-none mt-2" role="alert"></div>
+            <!-- <div id="prescriptionFeedback" class="alert d-none mt-2" role="alert"></div> -->
           </div>
           <div class="d-flex justify-content-end gap-3 mt-4">
             <button id="btnAddPrescription" class="btn btn-outline-success flex-fill">+ Add Prescription</button>
@@ -267,7 +266,7 @@
           <div class="modal fade" id="viewPrescriptionModal" tabindex="-1" aria-labelledby="viewPrescriptionModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-xl">
-              <div class="modal-content">
+              <div class="modal-content border-0 rounded-3 shadow-sm">
                 <div class="modal-header">
                   <h5 class="modal-title" id="viewPrescriptionModalLabel">Prescription History</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -304,7 +303,6 @@
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
-          <div id="feedbackMessagePrescription" class="alert d-none" role="alert"></div>
         </div>
       </div>
     </div>
@@ -316,11 +314,11 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-xl-8 col-lg-10">
-          <div class="section-title text-center mb-4">
+          <div class="section-title text-center mb-4 animate__animated animate__fadeInDown">
             <h2 class="mb-3">Appointments & Consultations</h2>
             <p>Manage and view all your upcoming and past interactions with the patient.</p>
           </div>
-          <div class="card shadow-sm p-4">
+          <div class="p-4 mb-4 bg-transparent border-0 animate__animated animate__fadeInUp">
             <ul class="nav nav-tabs" id="appointmentsTab" role="tablist">
               <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="future-tab" data-bs-toggle="tab" data-bs-target="#future"
@@ -331,7 +329,7 @@
                   role="tab">Past Consultations</button>
               </li>
             </ul>
-            <div class="tab-content border border-top-0 p-3" id="appointmentsTabContent">
+            <div class="tab-content bg-transparent p-3 animate__animated animate__fadeInUp" id="appointmentsTabContent">
               <div class="tab-pane fade show active" id="future" role="tabpanel">
                 <ul class="list-group" id="upcomingAppointmentsList"></ul>
               </div>
@@ -363,6 +361,34 @@
   <script src="assets/js/logout.js"></script>
   <script src="assets/js/footer.js"></script>
 
+  <div id="toast-top-right" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+  <script>
+    function toast(message, type = "info") {
+      const toastContainer = document.getElementById("toast-top-right");
+      const toastElement = document.createElement("div");
+
+      toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+      toastElement.setAttribute("role", "alert");
+      toastElement.setAttribute("aria-live", "assertive");
+      toastElement.setAttribute("aria-atomic", "true");
+
+      toastElement.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">${message}</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      `;
+
+      toastContainer.appendChild(toastElement);
+      const bsToast = new bootstrap.Toast(toastElement);
+      bsToast.show();
+
+      setTimeout(() => {
+        toastElement.remove();
+      }, 5000);
+    }
+  </script>
 
 </body>
 

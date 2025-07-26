@@ -191,7 +191,7 @@ public class EmailTemplateBuilder {
         <p><strong>Date:</strong> %s<br/>
         <strong>Time:</strong> %s</p>
         <p style="text-align: center; margin-top: 20px;">
-            <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/view-appointments.html"
+            <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/appointment_view.html"
                style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
                View Appointment
             </a>
@@ -292,7 +292,7 @@ public class EmailTemplateBuilder {
         <p>Your appointment with <strong>Dr. %s</strong> on <strong>%s</strong> at <strong>%s</strong> has been cancelled.</p>
         <p>If this was a mistake or you wish to reschedule, please visit your account:</p>
         <p style="text-align: center; margin-top: 20px;">
-            <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/view-appointments.html"
+            <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/appointment_view.html"
                style="background-color: #2a7ec5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
                Manage Appointments
             </a>

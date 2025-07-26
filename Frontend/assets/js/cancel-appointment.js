@@ -109,12 +109,34 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  function showMessage(msg, type) {
-    messageDiv.className = `alert alert-${type} text-center`;
-    messageDiv.textContent = msg;
-    messageDiv.classList.remove("d-none");
+  function showMessage(message, type = "info") {
+    let toastContainer = document.getElementById("toast-top-right");
+    if (!toastContainer) {
+      toastContainer = document.createElement("div");
+      toastContainer.id = "toast-top-right";
+      toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+      document.body.appendChild(toastContainer);
+    }
+
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+    toastElement.setAttribute("role", "alert");
+    toastElement.setAttribute("aria-live", "assertive");
+    toastElement.setAttribute("aria-atomic", "true");
+
+    toastElement.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+
+    toastContainer.appendChild(toastElement);
+    const bsToast = new bootstrap.Toast(toastElement);
+    bsToast.show();
+
     setTimeout(() => {
-      messageDiv.classList.add("d-none");
-    }, 3000);
+      toastElement.remove();
+    }, 5000);
   }
 });

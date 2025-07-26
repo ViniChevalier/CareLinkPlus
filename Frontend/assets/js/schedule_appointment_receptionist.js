@@ -2,15 +2,13 @@ import { getAllAvailability, getAllPatients, get, post, getDoctorAvailability, c
 
 document.addEventListener("DOMContentLoaded", () => {
   const patientSearch = document.getElementById("patientSearchInput");
-  const patientNameConfirm = document.getElementById("patientNameConfirm");
-
-  const patientOptions = document.getElementById("patientOptions");
 
   const doctorSelect = document.getElementById("doctorSelect");
   const slotSelect = document.getElementById("slotSelect");
   const form = document.getElementById("scheduleAppointmentForm");
   const messageDiv = document.getElementById("message");
 
+  doctorSelect.disabled = true;
 
   let selectedPatientId = null;
   const patientMap = new Map();
@@ -19,38 +17,43 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(patients => {
       console.log(patients);
       patients.forEach(patient => {
-        const option = document.createElement("option");
         const patientLabel = `${patient.firstName} ${patient.lastName} (${patient.email}${patient.phoneNumber ? ' - ' + patient.phoneNumber : ''})`;
-        option.value = patientLabel;
         patientMap.set(patientLabel, patient.userId);
-        console.log("Patient Option:", option.value);
-        patientOptions.appendChild(option);
+      });
+
+      const autocompleteResults = document.getElementById("autocomplete-results");
+
+      patientSearch.addEventListener("input", () => {
+        const val = patientSearch.value.toLowerCase();
+        autocompleteResults.innerHTML = "";
+        autocompleteResults.classList.add("d-none");
+
+        if (val === "") return;
+
+        const matched = Array.from(patientMap.entries()).filter(([label]) =>
+          label.toLowerCase().includes(val)
+        );
+
+        if (matched.length > 0) {
+          matched.forEach(([label, userId]) => {
+            const li = document.createElement("li");
+            li.className = "list-group-item list-group-item-action";
+            li.textContent = label;
+            li.addEventListener("click", () => {
+              patientSearch.value = label;
+              selectedPatientId = userId;
+              autocompleteResults.classList.add("d-none");
+              doctorSelect.disabled = false;
+            });
+            autocompleteResults.appendChild(li);
+          });
+          autocompleteResults.classList.remove("d-none");
+        }
       });
     })
     .catch(error => {
       console.error("Error loading patients:", error);
     });
-
-  patientSearch.addEventListener("input", () => {
-    const val = patientSearch.value.toLowerCase();
-    const options = Array.from(document.getElementById("patientOptions").options);
-
-    const matchedOption = options.find(option =>
-      option.value.toLowerCase().includes(val)
-    );
-
-    if (matchedOption) {
-      selectedPatientId = patientMap.get(patientSearch.value);
-      patientNameConfirm.value = matchedOption.value;
-      patientNameConfirm.classList.remove("is-invalid");
-      patientNameConfirm.classList.add("is-valid");
-    } else {
-      selectedPatientId = null;
-      patientNameConfirm.value = "";
-      patientNameConfirm.classList.remove("is-valid");
-      patientNameConfirm.classList.add("is-invalid");
-    }
-  });
 
   getAllAvailability()
     .then(async (availabilities) => {
@@ -86,6 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const doctorId = doctorSelect.value;
     slotSelect.disabled = true;
     slotSelect.innerHTML = `<option value="">Loading slots...</option>`;
+
+    if (!selectedPatientId) {
+      slotSelect.disabled = true;
+      slotSelect.innerHTML = `<option value="">Please select a patient first</option>`;
+      showMessage("Please select a patient before choosing a doctor.", "warning");
+      doctorSelect.value = "";
+      return;
+    }
+
     if (!doctorId) {
       slotSelect.disabled = true;
       slotSelect.innerHTML = `<option value="">Please select a doctor first</option>`;
@@ -171,8 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
         slotSelect.disabled = true;
         slotSelect.innerHTML = `<option value="">Please select a doctor first</option>`;
         selectedPatientId = null;
-        patientNameConfirm.value = "";
-        patientNameConfirm.classList.remove("is-valid", "is-invalid");
         submitBtn.disabled = false;
         submitBtn.textContent = "Schedule Appointment";
       })
@@ -184,9 +194,34 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   });
 
-  function showMessage(msg, type) {
-    messageDiv.className = `alert alert-${type} text-center`;
-    messageDiv.textContent = msg;
-    messageDiv.classList.remove("d-none");
+  function showMessage(message, type = "info") {
+    let toastContainer = document.getElementById("toast-top-right");
+    if (!toastContainer) {
+      toastContainer = document.createElement("div");
+      toastContainer.id = "toast-top-right";
+      toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+      document.body.appendChild(toastContainer);
+    }
+
+    const toastElement = document.createElement("div");
+    toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+    toastElement.setAttribute("role", "alert");
+    toastElement.setAttribute("aria-live", "assertive");
+    toastElement.setAttribute("aria-atomic", "true");
+
+    toastElement.innerHTML = `
+      <div class="d-flex">
+        <div class="toast-body">${message}</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `;
+
+    toastContainer.appendChild(toastElement);
+    const bsToast = new bootstrap.Toast(toastElement);
+    bsToast.show();
+
+    setTimeout(() => {
+      toastElement.remove();
+    }, 5000);
   }
 });

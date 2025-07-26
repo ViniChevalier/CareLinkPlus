@@ -1,15 +1,20 @@
 import { getAllAppointments, cancelAppointment, getAllAvailability, createAppointment } from "./apiService.js";
 
+const loadingSpinner = document.getElementById("loadingSpinner");
+
 let originalAppointments = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    loadingSpinner.style.display = "block";
     originalAppointments = await getAllAppointments();
+    loadingSpinner.style.display = "none";
     originalAppointments = originalAppointments
       .filter(app => app.status !== "Completed" && app.status !== "Cancelled")
       .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
     renderAppointments(originalAppointments);
   } catch (err) {
+    loadingSpinner.style.display = "none";
     const tableBody = document.getElementById("appointmentsTableBody");
     tableBody.innerHTML = `<tr><td colspan='5' class="text-danger">${err.message}</td></tr>`;
   }
@@ -44,15 +49,27 @@ function renderAppointments(appointments) {
   appointments.forEach(app => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${new Date(app.dateTime).toLocaleString()}</td>
+      <td>
+        <div><strong>${new Date(app.dateTime).toLocaleDateString()}</strong></div>
+        <div class="text-muted">${new Date(app.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+      </td>
       <td>${app.patientName || app.patient?.fullName || "N/A"}</td>
       <td>${app.doctorName || app.doctor?.fullName || "N/A"}</td>
       <td>${formatStatus(app.status)}</td>
       <td>
-        <button class="btn btn-sm btn-warning me-2" data-id="${app.id}" data-patient-id="${app.patientId}" data-action="reschedule">Reschedule</button>
-        <button class="btn btn-sm btn-danger" data-id="${app.id}" data-action="cancel">Cancel</button>
+        <div class="d-flex flex-column gap-2">
+          <button class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center gap-1 w-100"
+                  data-id="${app.id}" data-patient-id="${app.patientId}" data-action="reschedule" title="Reschedule Appointment">
+            <i class="bi bi-arrow-repeat"></i> Reschedule
+          </button>
+          <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center gap-1 w-100"
+                  data-id="${app.id}" data-action="cancel" title="Cancel Appointment">
+            <i class="bi bi-x-circle"></i> Cancel
+          </button>
+        </div>
       </td>
     `;
+    row.classList.add("fade-in");
     tableBody.appendChild(row);
   });
 }
@@ -81,7 +98,9 @@ document.addEventListener("click", async (e) => {
     try {
       await cancelAppointment(id);
       alert("Appointment canceled successfully.");
+      loadingSpinner.style.display = "block";
       originalAppointments = await getAllAppointments();
+      loadingSpinner.style.display = "none";
       originalAppointments = originalAppointments
         .filter(app => app.status !== "Completed" && app.status !== "Cancelled")
         .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
@@ -102,7 +121,9 @@ document.addEventListener("click", async (e) => {
     const patientId = e.target.dataset.patientId;
 
     try {
+      loadingSpinner.style.display = "block";
       const allAppointments = await getAllAppointments();
+      loadingSpinner.style.display = "none";
       const appointment = allAppointments.find(a => a.id === parseInt(appointmentId));
       if (!appointment) {
         alert("Appointment not found.");
@@ -176,7 +197,9 @@ document.addEventListener("click", async (e) => {
           alert("Appointment rescheduled successfully.");
           setTimeout(async () => {
             bootstrap.Modal.getInstance(document.getElementById("rescheduleModal"))?.hide();
+            loadingSpinner.style.display = "block";
             originalAppointments = await getAllAppointments();
+            loadingSpinner.style.display = "none";
             originalAppointments = originalAppointments
               .filter(app => app.status !== "Completed" && app.status !== "Cancelled")
               .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
@@ -195,4 +218,24 @@ document.addEventListener("click", async (e) => {
     }
   }
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+  tooltipTriggerList.forEach(el => {
+    new bootstrap.Tooltip(el);
+  });
+});
+
+const style = document.createElement("style");
+style.textContent = `
+  .fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+document.head.appendChild(style);
 

@@ -8,10 +8,29 @@ import {
 } from './apiService.js';
 
 const STATUS_COLORS = {
-  Scheduled: "bg-primary",
-  Confirmed: "bg-success",
-  Cancelled: "bg-danger",
-  Completed: "bg-secondary"
+  AVAILABLE: "bg-warning",
+  BOOKED: "bg-warning",
+  EXPIRED: "bg-secondary",
+  CANCELLED: "bg-danger",
+  SCHEDULED: "bg-warning",
+  COMPLETED: "bg-success",
+  NO_SHOW: "bg-danger",
+  PENDING: "bg-warning",
+  CONFIRMED: "bg-success",
+  ATTENDED: "bg-info"
+};
+
+const STATUS_LABELS = {
+  AVAILABLE: "Available",
+  BOOKED: "Booked",
+  EXPIRED: "Expired",
+  CANCELLED: "Cancelled",
+  SCHEDULED: "Scheduled",
+  COMPLETED: "Completed",
+  NO_SHOW: "No Show",
+  PENDING: "Pending",
+  CONFIRMED: "Confirmed",
+  ATTENDED: "Attended"
 };
 
 
@@ -230,7 +249,8 @@ async function loadPrescriptions(patientId) {
     const latestPrescriptions = prescriptions.slice(0, 5);
     latestPrescriptions.forEach(p => {
       const li = document.createElement("li");
-      li.className = "list-group-item";
+      // Modern, animated, interactive style for prescription item
+      li.className = "list-group-item list-group-item-action animate__animated animate__fadeInUp";
       let medInfo = {};
       try {
         medInfo = JSON.parse(p.prescriptions || '{}');
@@ -249,6 +269,11 @@ async function loadPrescriptions(patientId) {
       list.appendChild(li);
 
       li.style.cursor = "pointer";
+      // Animated hover effect
+      li.style.transition = "background-color 0.3s ease";
+      li.addEventListener("mouseenter", () => li.style.backgroundColor = "#f8f9fa");
+      li.addEventListener("mouseleave", () => li.style.backgroundColor = "");
+
       li.addEventListener("click", () => {
         const modalWrapper = document.createElement("div");
         modalWrapper.className = "modal fade";
@@ -288,7 +313,10 @@ async function loadPrescriptions(patientId) {
     if (prescriptions.length > 5) {
       const showMoreBtn = document.createElement("li");
       showMoreBtn.className = "list-group-item text-center";
-      showMoreBtn.innerHTML = `<button class="btn btn-link">Show All Prescriptions</button>`;
+      showMoreBtn.innerHTML = `
+        <button class="btn btn-outline-primary d-flex align-items-center gap-2 px-4 py-2 animate__animated animate__fadeInUp">
+          <i class="lni lni-folder"></i> Show All Prescriptions
+        </button>`;
       showMoreBtn.querySelector("button").addEventListener("click", () => {
         const modalWrapper = document.createElement("div");
         modalWrapper.className = "modal fade";
@@ -305,7 +333,7 @@ async function loadPrescriptions(patientId) {
             medInfo = JSON.parse(p.prescriptions || '{}');
           } catch { }
           return `
-                  <li class="list-group-item">
+                  <li class="list-group-item list-group-item-action animate__animated animate__fadeInUp">
                     <strong>${medInfo.medication || 'Unnamed Medication'}</strong> - ${medInfo.dosage || 'N/A'} (${medInfo.frequency || 'N/A'})<br/>
                     <small>Prescribed on: ${medInfo.startDate ? new Date(medInfo.startDate).toLocaleDateString() : 'Unknown date'}</small>
                   </li>
@@ -349,7 +377,9 @@ async function loadConsultationHistory(patientId) {
     pastAppointments.forEach(app => {
       const li = document.createElement("li");
       li.className = "list-group-item";
-      const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
+      const statusKey = (app.status || "COMPLETED").toUpperCase();
+      const statusBadgeColor = STATUS_COLORS[statusKey] || "bg-secondary";
+      const statusLabel = STATUS_LABELS[statusKey] || app.status;
       li.innerHTML = `
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -357,7 +387,7 @@ async function loadConsultationHistory(patientId) {
             <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
             <span>Motivo: ${app.type || 'General Consultation'}</span>
           </div>
-          <span class="badge ${statusBadgeColor}">${app.status || 'Completed'}</span>
+          <span class="badge ${statusBadgeColor}">${statusLabel}</span>
         </div>
       `;
       list.appendChild(li);
@@ -382,7 +412,9 @@ async function loadConsultationHistory(patientId) {
             .filter(app => new Date(app.dateTime) < new Date())
             .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime))
             .map(app => {
-              const statusBadgeColor = STATUS_COLORS[app.status] || "bg-secondary";
+              const statusKey = (app.status || "COMPLETED").toUpperCase();
+              const statusBadgeColor = STATUS_COLORS[statusKey] || "bg-secondary";
+              const statusLabel = STATUS_LABELS[statusKey] || app.status;
               return `
                       <li class="list-group-item">
                         <div class="d-flex justify-content-between align-items-start">
@@ -391,7 +423,7 @@ async function loadConsultationHistory(patientId) {
                             <small>Doctor: ${app.doctorName || 'Unknown Doctor'}</small><br/>
                             <span>Motivo: ${app.type || 'General Consultation'}</span>
                           </div>
-                          <span class="badge ${statusBadgeColor}">${app.status || 'Completed'}</span>
+                          <span class="badge ${statusBadgeColor}">${statusLabel}</span>
                         </div>
                       </li>
                     `;
@@ -411,22 +443,6 @@ async function loadConsultationHistory(patientId) {
     console.error("Error loading consultation history:", err);
     if (spinner) spinner.style.display = "none";
   }
-}
-
-function showFeedbackMessage(message, type) {
-  let msgBox = document.getElementById("feedbackMessage");
-  if (!msgBox) {
-    msgBox = document.createElement("div");
-    msgBox.id = "feedbackMessage";
-    msgBox.className = "alert d-none";
-    document.body.prepend(msgBox);
-  }
-  msgBox.className = `alert alert-${type}`;
-  msgBox.textContent = message;
-  msgBox.style.display = "block";
-  setTimeout(() => {
-    msgBox.style.display = "none";
-  }, 3000);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -521,7 +537,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           !form.allergies.value.trim() ||
           !form.familyHistory.value.trim()
         ) {
-          alert("All clinical fields must be filled.");
+          toast("All clinical fields must be filled.", "danger");
           return;
         }
 
@@ -581,13 +597,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             formObject.diagnosisDate,
             formObject.file
           );
-          showFeedbackMessage("History added successfully!", "success");
+          toast("Medical history successfully saved.", "success");
           bsModal.hide();
           loadMedicalHistory(patientId);
         } catch (error) {
           console.error("Failed to create medical history:", error);
           const message = error?.message || "Failed to save history. Please check the data and try again.";
-          showModalFeedback(message);
+          toast(message, "danger");
         }
       });
     });
@@ -647,7 +663,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         e.preventDefault();
         const form = e.target;
         if (!form.medication.value.trim() || !form.dosage.value.trim() || !form.frequency.value.trim()) {
-          alert("Please fill out all required fields.");
+          toast("Please fill out all required fields.", "danger");
           return;
         }
         const patientId = localStorage.getItem("selectedPatientId");
@@ -687,7 +703,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             prescriptionPayload.historyId,
             form.file && form.file.files.length > 0 ? form.file.files[0] : null
           );
-          showFeedbackMessage("Prescription added successfully!", "success");
+          toast("Prescription successfully registered.", "success");
           bsModal.hide();
           loadPrescriptions(patientId);
         } catch (err) {
@@ -697,7 +713,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             modalFeedback.textContent = err?.message || "Failed to add prescription. Please check the data.";
             modalFeedback.classList.remove("d-none");
           } else {
-            showFeedbackMessage("Failed to add prescription.", "danger");
+            toast("Failed to add prescription.", "danger");
           }
         }
       });
@@ -855,3 +871,34 @@ async function loadPrescriptionHistory() {
 
 window.loadMedicalHistoryModal = loadMedicalHistoryModal;
 window.loadPrescriptionHistory = loadPrescriptionHistory;
+
+function toast(message, type = "info") {
+  let toastContainer = document.getElementById("toast-top-right");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-top-right";
+    toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+    document.body.appendChild(toastContainer);
+  }
+
+  const toastElement = document.createElement("div");
+  toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+  toastElement.setAttribute("role", "alert");
+  toastElement.setAttribute("aria-live", "assertive");
+  toastElement.setAttribute("aria-atomic", "true");
+
+  toastElement.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  toastContainer.appendChild(toastElement);
+  const bsToast = new bootstrap.Toast(toastElement);
+  bsToast.show();
+
+  setTimeout(() => {
+    toastElement.remove();
+  }, 5000);
+}

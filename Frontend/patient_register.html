@@ -73,33 +73,32 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-xl-10 col-lg-11">
-            <div class="section-title text-center mb-55">
-              <h2 class="mb-15">Register New Patient</h2>
-              <p>Fill out the form below to add a new patient to the system.</p>
+            <div class="text-center mb-5 animate__animated animate__fadeInDown">
+              <h2 class="fw-bold">Register New Patient</h2>
+              <p class="text-muted">Fill out the form below to add a new patient to the system.</p>
             </div>
-            <div class="w-100">
-              <form id="registerPatientForm" class="p-4 border rounded bg-light shadow-sm">
-                <div class="mb-3">
+              <form id="registerPatientForm" class="row g-3 animate__animated animate__fadeInUp">
+                <div class="col-md-6">
                   <label for="firstName" class="form-label">First Name</label>
                   <input type="text" class="form-control" id="firstName" placeholder="Enter first name" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="lastName" class="form-label">Last Name</label>
                   <input type="text" class="form-control" id="lastName" placeholder="Enter last name" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" placeholder="Enter email" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6 d-flex flex-column">
                   <label for="phoneNumber" class="form-label">Phone Number</label>
                   <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="dateOfBirth" class="form-label">Date of Birth</label>
                   <input type="date" class="form-control" id="dateOfBirth" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="gender" class="form-label">Gender</label>
                   <select class="form-select" id="gender" required>
                     <option value="" disabled selected>Select gender</option>
@@ -109,20 +108,20 @@
                     <option value="prefer_not_to_say">Prefer not to say</option>
                   </select>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-12">
                   <label for="address" class="form-label">Address</label>
                   <input type="text" class="form-control" id="address" placeholder="Start typing your address..."
                     required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="city" class="form-label">City</label>
                   <input type="text" class="form-control" id="city" placeholder="Enter city" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-6">
                   <label for="country" class="form-label">Country</label>
                   <input type="text" class="form-control" id="country" placeholder="Enter country" required>
                 </div>
-                <div class="mb-3">
+                <div class="col-md-12">
                   <label for="notificationPreference" class="form-label">Notification Preference</label>
                   <select class="form-select" id="notificationPreference" required>
                     <option value="" disabled selected>Select notification preference</option>
@@ -132,24 +131,23 @@
                     <option value="letter">Letter</option>
                   </select>
                 </div>
-                <div class="d-grid">
-                  <button id="registerBtn" type="submit" class="btn btn-primary w-100" disabled>
+                <div class="col-12">
+                  <button id="registerBtn" type="submit" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 animate__animated animate__fadeInUp mt-3" disabled>
+                    <i class="lni lni-user-plus"></i>
                     <span id="registerText">Register Patient</span>
-                    <span id="spinner" class="spinner-border spinner-border-sm d-none ms-2" role="status"
-                      aria-hidden="true"></span>
+                    <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                   </button>
                 </div>
               </form>
               <!-- Toast for successful registration -->
               <div class="toast-container position-fixed top-0 end-0 p-3">
-                <div id="successToast" class="toast text-bg-success" role="alert" aria-live="assertive"
-                  aria-atomic="true">
-                  <div class="toast-body">
-                    Patient registered successfully.
+                <div id="successToast" class="toast align-items-center text-white bg-success border-0 animate__animated animate__fadeInDown" role="alert" aria-live="assertive" aria-atomic="true">
+                  <div class="d-flex">
+                    <div class="toast-body">Patient registered successfully.</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>

@@ -92,29 +92,42 @@
             <h2 class="mb-15">Change Your Password</h2>
             <p>Enter your current password and choose a new one.</p>
           </div>
-          <form id="changePasswordForm" class="p-4 border rounded bg-light shadow-sm">
-            <div class="form-group mb-3">
-              <label for="currentPassword">Current Password</label>
-              <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password"
-                required autocomplete="current-password">
+          <form id="changePasswordForm">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="currentPassword" class="form-label">Current Password</label>
+                <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password" required autocomplete="current-password">
+              </div>
+              <div class="col-md-12 mb-3">
+                <label for="newPassword" class="form-label">New Password</label>
+                <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required autocomplete="new-password">
+              </div>
+              <div class="col-md-12 mb-3">
+                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" required autocomplete="new-password">
+                <div id="passwordMismatch" class="text-danger mt-1 d-none animate__animated animate__fadeIn">
+                  New passwords do not match!
+                </div>
+              </div>
+              <div id="message" class="alert text-center d-none"></div>
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 animate__animated animate__fadeInUp mt-2">
+                  <i class="lni lni-lock-alt"></i>
+                  <span class="default-label">Change Password</span>
+                  <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+              </div>
+              <div class="col-md-12">
+                <div id="passwordCriteriaBox" class="p-3 mt-2 border rounded bg-light d-none animate__animated animate__fadeIn">
+                  <strong>Password must include:</strong>
+                  <ul class="mb-0" style="list-style: none; padding-left: 0;">
+                    <li id="lengthCheck" class="text-danger"><i class="lni lni-close me-1"></i> <span>At least 8 characters</span></li>
+                    <li id="numberCheck" class="text-danger"><i class="lni lni-close me-1"></i> <span>A number</span></li>
+                    <li id="symbolCheck" class="text-danger"><i class="lni lni-close me-1"></i> <span>A symbol</span></li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div class="form-group mb-3">
-              <label for="newPassword">New Password</label>
-              <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required
-                autocomplete="new-password">
-            </div>
-            <div class="form-group mb-3">
-              <label for="confirmPassword">Confirm New Password</label>
-              <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password"
-                required autocomplete="new-password">
-            </div>
-
-            <div id="message" class="alert text-center d-none"></div>
-
-            <button type="submit" class="btn theme-btn w-100">Change Password</button>
-            <small id="passwordCriteria" class="form-text text-muted mt-2 d-none">
-              Password must be at least 8 characters, include a number and a symbol.
-            </small>
           </form>
         </div>
       </div>

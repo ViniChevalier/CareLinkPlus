@@ -11,7 +11,10 @@ document.querySelectorAll('.btn-duration').forEach(btn => {
     const time = document.getElementById('time').value;
     const duration = parseInt(btn.dataset.duration);
 
-    if (!date || !time || !duration) return alert('Please fill in all fields.');
+    if (!date || !time || !duration) return toast('Please fill in all fields.', 'danger');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
 
     const start = new Date(`${date}T${time}`);
     const end = new Date(start.getTime() + duration * 60000);
@@ -27,12 +30,15 @@ document.querySelectorAll('.btn-duration').forEach(btn => {
           }
         ]
       });
-      alert(`Availability added for ${duration} minutes.`);
+      toast(`Availability added for ${duration === 60 ? '1 hour' : duration + ' minutes'}.`, 'success');
       if (document.getElementById('viewDate').value === date) {
         await displayAvailability(date);
       }
     } catch (err) {
-      alert('Error adding availability: ' + err.message);
+      toast('Error adding availability: ' + err.message, 'danger');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="lni lni-plus"></i> Add 1-Hour Slot';
     }
   });
 });
@@ -72,7 +78,7 @@ async function displayAvailability(date) {
           await deleteAvailability(id);
           btn.closest('li').remove();
         } catch (err) {
-          alert('Failed to delete: ' + err.message);
+          toast('Failed to delete: ' + err.message, 'danger');
         }
       });
     });
@@ -102,9 +108,12 @@ document.querySelectorAll('.auto-populate-btn').forEach(btn => {
     const slotSize = parseInt(btn.dataset.slot);
 
     if (!date || !workStart || !workEnd || !slotSize) {
-      alert("Please fill in all required fields.");
+      toast("Please fill in all required fields.", "danger");
       return;
     }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Populating...';
 
     const slots = [];
     const start = new Date(`${date}T${workStart}`);
@@ -127,18 +136,54 @@ document.querySelectorAll('.auto-populate-btn').forEach(btn => {
     }
 
     if (slots.length === 0) {
-      alert("No valid slots generated for the selected configuration.");
+      toast("No valid slots generated for the selected configuration.", "warning");
+      btn.disabled = false;
+      btn.innerHTML = '<i class="lni lni-plus"></i> Populate 1-Hour Slots';
       return;
     }
 
     try {
       await addDoctorAvailability({ doctorId, availableSlots: slots });
-      alert(`${slots.length} slots added for ${date}.`);
+      toast(`${slots.length} slots added for ${date}.`, "success");
       if (document.getElementById('viewDate').value === date) {
         await displayAvailability(date);
       }
     } catch (err) {
-      alert('Error adding slots: ' + err.message);
+      toast('Error adding slots: ' + err.message, 'danger');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="lni lni-plus"></i> Populate 1-Hour Slots';
     }
   });
 });
+
+function toast(message, type = "info") {
+  let topRightContainer = document.getElementById("toast-top-right");
+  if (!topRightContainer) {
+    topRightContainer = document.createElement("div");
+    topRightContainer.id = "toast-top-right";
+    topRightContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+    document.body.appendChild(topRightContainer);
+  }
+
+  const toastElement = document.createElement("div");
+  toastElement.className = `toast align-items-center text-white bg-${type} border-0 m-2 animate__animated animate__fadeInDown`;
+  toastElement.setAttribute("role", "alert");
+  toastElement.setAttribute("aria-live", "assertive");
+  toastElement.setAttribute("aria-atomic", "true");
+
+  toastElement.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  topRightContainer.appendChild(toastElement);
+  const bsToast = new bootstrap.Toast(toastElement);
+  bsToast.show();
+
+  setTimeout(() => {
+    toastElement.remove();
+  }, 4000);
+}

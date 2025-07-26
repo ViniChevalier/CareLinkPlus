@@ -1,7 +1,6 @@
 import { getProfile, updateProfile, getGoogleMapsApiKey } from './apiService.js';
 
 window.addEventListener("load", async () => {
-  // Initialize intlTelInput
   if (window.intlTelInput) {
     const phoneInput = document.getElementById("phoneNumber");
     window.iti = window.intlTelInput(phoneInput, {
@@ -13,7 +12,6 @@ window.addEventListener("load", async () => {
     console.error("intlTelInput not loaded");
   }
 
-  // Load Google Maps for address autocomplete
   function loadGoogleMaps(callback) {
     getGoogleMapsApiKey()
       .then(key => {
@@ -60,7 +58,6 @@ window.addEventListener("load", async () => {
   });
 
   const form = document.getElementById("updateProfileForm");
-  const messageDiv = document.getElementById("message");
 
   try {
     const profile = await getProfile();
@@ -126,20 +123,45 @@ window.addEventListener("load", async () => {
 
     try {
       await updateProfile(data);
-      messageDiv.className = "alert alert-success text-center";
-      messageDiv.textContent = "Profile updated successfully!";
-      messageDiv.classList.remove("d-none");
+      toast("Profile updated successfully!", "success");
       submitButton.disabled = false;
       submitButton.innerHTML = originalButtonHTML;
-      setTimeout(() => {
-        messageDiv.classList.add("d-none");
-      }, 5000);
     } catch (error) {
-      messageDiv.className = "alert alert-danger text-center";
-      messageDiv.textContent = error.message || "Failed to update profile.";
-      messageDiv.classList.remove("d-none");
+      toast(error.message || "Failed to update profile.", "danger");
       submitButton.disabled = false;
       submitButton.innerHTML = originalButtonHTML;
     }
   });
 });
+
+function toast(message, type = "info") {
+  // Ensure the toast container at top-right exists
+  let topRightContainer = document.getElementById("toast-top-right");
+  if (!topRightContainer) {
+    topRightContainer = document.createElement("div");
+    topRightContainer.id = "toast-top-right";
+    topRightContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+    document.body.appendChild(topRightContainer);
+  }
+
+  const toastContainer = document.createElement("div");
+  toastContainer.className = `toast align-items-center text-white bg-${type} border-0 m-3 animate__animated animate__fadeInDown`;
+  toastContainer.setAttribute("role", "alert");
+  toastContainer.setAttribute("aria-live", "assertive");
+  toastContainer.setAttribute("aria-atomic", "true");
+
+  toastContainer.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  topRightContainer.appendChild(toastContainer);
+  const bsToast = new bootstrap.Toast(toastContainer);
+  bsToast.show();
+
+  setTimeout(() => {
+    toastContainer.remove();
+  }, 4000);
+}

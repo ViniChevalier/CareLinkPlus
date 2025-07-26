@@ -72,45 +72,40 @@
       <div class="container">
         <div class="row justify-content-center">
           <div class="col-xl-8 col-lg-10">
-            <div class="section-title text-center mb-55">
-              <h2 class="mb-15">Schedule an Appointment</h2>
-              <p>Choose your doctor, select a slot, and book your appointment easily.</p>
+            <div class="text-center mb-5 animate__animated animate__fadeInDown">
+              <h2 class="fw-bold">Schedule an Appointment</h2>
+              <p class="text-muted">Choose your doctor, select a slot, and book your appointment easily.</p>
             </div>
-            <form id="scheduleAppointmentForm" class="p-4 border rounded bg-light shadow-sm">
-              <div class="form-group mb-3" id="patientSearch">
-                <label for="patientSearchInput">Search Patient</label>
-                <input class="form-control" id="patientSearchInput" placeholder="Search patient by name, email or phone"
-                  list="patientOptions" autocomplete="off" required />
-                <datalist id="patientOptions"></datalist>
-                <div class="form-group mb-3">
-                  <label for="patientNameConfirm">Patient Full Name</label>
-                  <input type="text" id="patientNameConfirm" class="form-control" readonly disabled
-                    placeholder="No patient selected" />
-                  <div class="invalid-feedback">No matching patient found.</div>
-                </div>
+            <form id="scheduleAppointmentForm" class="row g-3 animate__animated animate__fadeInUp">
+              <div class="col-md-12">
+                <label for="patientSearchInput" class="form-label">Search Patient</label>
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="Search by name, email or phone..." autocomplete="off" required>
+                <ul class="list-group mt-2 d-none" id="autocomplete-results"></ul>
               </div>
-              <div class="form-group mb-3">
-                <label for="doctorSelect">Select Doctor</label>
-                <select id="doctorSelect" class="form-control" style="height: 48px;">
+              <div class="col-md-6">
+                <label for="doctorSelect" class="form-label">Select Doctor</label>
+                <select id="doctorSelect" class="form-select" required>
                   <option value="">Loading doctors, please wait...</option>
                 </select>
               </div>
-              <div class="form-group mb-3">
-                <label for="slotSelect">Select Available Slot</label>
-                <select id="slotSelect" class="form-control bg-light text-muted" style="height: 48px;" disabled
-                  required>
+              <div class="col-md-6">
+                <label for="slotSelect" class="form-label">Select Available Slot</label>
+                <select id="slotSelect" class="form-select bg-light text-muted" disabled required>
                   <option value="">Please select a doctor first</option>
                 </select>
               </div>
-              <div class="form-group mb-3">
-                <label for="reason">Reason for Appointment</label>
-                <textarea id="reason" class="form-control" maxlength="250" rows="3"
-                  placeholder="Describe your reason (max 250 chars)" required></textarea>
+              <div class="col-12">
+                <label for="reason" class="form-label">Reason for Appointment</label>
+                <textarea id="reason" class="form-control" maxlength="250" rows="3" placeholder="Describe your reason (max 250 chars)" required></textarea>
               </div>
-
-              <div id="message" class="alert text-center d-none"></div>
-
-              <button type="submit" class="btn theme-btn w-100">Schedule Appointment</button>
+              <div class="col-12">
+                <div id="message" class="alert text-center d-none"></div>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                  <i class="lni lni-calendar"></i> Schedule Appointment
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -91,7 +91,7 @@
                     <label for="email" class="form-label">Email</label>
                     <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                   </div>
-                  <div class="col-md-6 mb-3">
+                <div class="col-md-6 d-flex flex-column">
                     <label for="phoneNumber" class="form-label d-block">Phone Number</label>
                     <input type="tel" id="phoneNumber" class="form-control" required>
                   </div>
@@ -144,7 +144,11 @@
 
                 <div id="message" class="alert text-center d-none"></div>
 
-                <button type="submit" class="btn theme-btn w-100 mt-3">Update Profile</button>
+                <button type="submit" id="updateProfileBtn" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 animate__animated animate__fadeInUp mt-3">
+                  <i class="lni lni-user"></i>
+                  <span class="default-label">Update Profile</span>
+                  <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
               </form>
             </div>
           </div>
@@ -163,7 +167,6 @@
   <script src="assets/js/wow.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
-  <script src="assets/js/config.js"></script>
   <script src="assets/js/update-profile.js" type="module"></script>
   <script src="assets/js/navigation.js"></script>
   <script src="assets/js/logout.js"></script>

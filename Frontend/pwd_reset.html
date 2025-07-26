@@ -28,6 +28,24 @@
     #passwordCriteria.hide {
       opacity: 0;
     }
+
+    /* ===== Badge Status Styles (for appointment statuses) ===== */
+    .badge {
+      font-size: 0.85em;
+      padding: 0.4em 0.65em;
+      border-radius: 0.5rem;
+    }
+
+    .badge-AVAILABLE { background-color: #0dcaf0; color: #fff; }
+    .badge-BOOKED { background-color: #ffc107; color: #212529; }
+    .badge-EXPIRED { background-color: #6c757d; color: #fff; }
+    .badge-CANCELLED { background-color: #dc3545; color: #fff; }
+    .badge-SCHEDULED { background-color: #0d6efd; color: #fff; }
+    .badge-COMPLETED { background-color: #198754; color: #fff; }
+    .badge-NO_SHOW { background-color: #343a40; color: #fff; }
+    .badge-PENDING { background-color: #ffc107; color: #212529; }
+    .badge-CONFIRMED { background-color: #198754; color: #fff; }
+    .badge-ATTENDED { background-color: #198754; color: #fff; }
   </style>
 </head>
 
@@ -93,25 +111,30 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-xl-6 col-lg-8">
-          <div class="section-title text-center mb-55">
-            <h2 class="mb-15">Reset Your Password</h2>
-            <p>Enter your new password below.</p>
+          <div class="text-center mb-5 animate__animated animate__fadeInDown">
+            <h2 class="fw-bold">Reset Your Password</h2>
+            <p class="text-muted">Enter your new password below.</p>
           </div>
-          <form id="resetPasswordForm" class="p-4 border rounded bg-light">
-            <div class="form-group mb-3">
-              <label for="newPassword">New Password</label>
+          <form id="resetPasswordForm" class="row g-3 animate__animated animate__fadeInUp">
+            <div class="col-12">
+              <label for="newPassword" class="form-label">New Password</label>
               <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required>
               <small id="passwordCriteria" class="form-text text-muted mt-2 hide">
                 Password must be at least 8 characters, include a number and a symbol.
               </small>
             </div>
-            <div class="form-group mb-4">
-              <label for="confirmPassword">Confirm New Password</label>
-              <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password"
-                required>
+            <div class="col-12">
+              <label for="confirmPassword" class="form-label">Confirm New Password</label>
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" required>
             </div>
-            <button type="submit" class="btn theme-btn w-100">Set New Password</button>
-            <div id="message" class="mt-3 text-center"></div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="lni lni-lock-alt"></i> Set New Password
+              </button>
+            </div>
+            <div class="col-12">
+              <div id="message" class="text-center"></div>
+            </div>
           </form>
         </div>
       </div>

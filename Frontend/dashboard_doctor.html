@@ -67,53 +67,54 @@
   <!-- ========================= dashboard section start ========================= -->
   <section id="dashboard" class="pt-100 pb-75">
     <div class="container">
-      <div class="section-title text-center mb-55">
+      <div class="text-center mb-5 animate__animated animate__fadeInDown">
         <h2><span id="doctor-name">Loading...</span></h2>
-        <p>Access all your main tools and patient information in one place.</p>
+        <p class="text-muted">Here’s a quick overview of your schedule and patients.</p>
       </div>
-
       <div class="row g-4">
-
         <!-- Upcoming Appointments -->
         <div class="col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Upcoming Appointments</h5>
-              <div id="upcomingAppointments">
-                <p>Loading upcoming appointments...</p>
-              </div>
-              <a href="appointment_list.html" class="btn btn-outline-primary mt-2">View All Appointments</a>
+          <div
+            class="p-4 bg-white border-start border-4 border-primary rounded-3 shadow-sm animate__animated animate__fadeInUp wow h-100">
+            <h5 class="fw-semibold d-flex align-items-center gap-2 mb-3">
+              <i class="lni lni-calendar"></i> Upcoming Appointments
+            </h5>
+            <div id="upcomingAppointments">
+              <p>Loading upcoming appointments...</p>
             </div>
+            <a href="appointment_list.html" class="btn btn-outline-primary mt-3">View All Appointments</a>
           </div>
         </div>
 
         <!-- My Patients -->
         <div class="col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">My Patients</h5>
-              <div id="myPatients">
-                <!-- Patient buttons will be injected here by JavaScript -->
-              </div>
-              <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#patientsModal">View
-                Patients</button>
+          <div
+            class="p-4 bg-white border-start border-4 border-primary rounded-3 shadow-sm animate__animated animate__fadeInUp wow h-100">
+            <h5 class="fw-semibold d-flex align-items-center gap-2 mb-3">
+              <i class="lni lni-users"></i> My Patients
+            </h5>
+            <div id="myPatients">
+              <!-- Patient buttons will be injected here by JavaScript -->
             </div>
+            <button class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#patientsModal">View
+              Patients</button>
           </div>
         </div>
 
         <!-- Availability -->
         <div class="col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Availability</h5>
-              <div id="availabilityStatus">
-                <p>Manage your availability schedule.</p>
-              </div>
-              <a href="manage_availability.html" class="btn btn-outline-primary mt-2">Manage Availability</a>
-              <button class="btn btn-outline-secondary mt-2" data-bs-toggle="modal" data-bs-target="#availabilityModal">
-                View Availability
-              </button>
+          <div
+            class="p-4 bg-white border-start border-4 border-primary rounded-3 shadow-sm animate__animated animate__fadeInUp wow h-100">
+            <h5 class="fw-semibold d-flex align-items-center gap-2 mb-3">
+              <i class="lni lni-clock"></i> Availability
+            </h5>
+            <div id="availabilityStatus">
+              <p>Manage your availability schedule.</p>
             </div>
+            <a href="manage_availability.html" class="btn btn-outline-primary mt-3">Manage Availability</a>
+            <button class="btn btn-outline-secondary mt-3" data-bs-toggle="modal" data-bs-target="#availabilityModal">
+              View Availability
+            </button>
           </div>
         </div>
 
