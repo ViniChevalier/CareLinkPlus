@@ -126,6 +126,13 @@ public class AccountController {
             user.setLastName(updatedInfo.getLastName());
         if (updatedInfo.getPhoneNumber() != null)
             user.setPhoneNumber(updatedInfo.getPhoneNumber());
+        if (updatedInfo.getDateOfBirth() != null) {
+            try {
+                user.setDateOfBirth(java.sql.Date.valueOf(updatedInfo.getDateOfBirth()));
+            } catch (IllegalArgumentException e) {
+                throw new BusinessLogicException("Invalid date format for dateOfBirth. Expected format: yyyy-MM-dd");
+            }
+        }
         if (updatedInfo.getGender() != null)
             user.setGender(updatedInfo.getGender());
         if (updatedInfo.getAddress() != null)
@@ -144,6 +151,7 @@ public class AccountController {
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setPhoneNumber(user.getPhoneNumber());
+        response.setDateOfBirth(user.getDateOfBirth() != null ? new SimpleDateFormat("dd/MM/yyyy").format(user.getDateOfBirth()) : null);
         response.setGender(user.getGender());
         response.setAddress(user.getAddress());
         response.setCity(user.getCity());
@@ -332,18 +340,35 @@ public class AccountController {
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PostMapping("/register-patient")
     public ResponseEntity<UserResponse> registerPatient(@RequestBody RegisterRequest request) {
+        if (request.getFirstName() == null || request.getLastName() == null ||
+            request.getEmail() == null || request.getPhoneNumber() == null ||
+            request.getNotificationPreference() == null) {
+            throw new BusinessLogicException("First name, last name, email, phone number, and notification preference are required.");
+        }
+
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setDateOfBirth(java.sql.Date.valueOf(request.getDateOfBirth()));
-        user.setGender(request.getGender());
-        user.setAddress(request.getAddress());
-        user.setCity(request.getCity());
-        user.setCountry(request.getCountry());
-        user.setNotificationPreference(request.getNotificationPreference());
         user.setRole("PATIENT");
+        user.setNotificationPreference(request.getNotificationPreference());
+
+        if (request.getDateOfBirth() != null) {
+            user.setDateOfBirth(java.sql.Date.valueOf(request.getDateOfBirth()));
+        }
+        if (request.getGender() != null) {
+            user.setGender(request.getGender());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getCity() != null) {
+            user.setCity(request.getCity());
+        }
+        if (request.getCountry() != null) {
+            user.setCountry(request.getCountry());
+        }
 
         User createdUser = accountService.createUser(user);
 

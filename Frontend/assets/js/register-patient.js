@@ -102,11 +102,6 @@ function validateFormFields() {
     'lastName',
     'email',
     'phoneNumber',
-    'dateOfBirth',
-    'gender',
-    'address',
-    'city',
-    'country',
     'notificationPreference'
   ];
 
