@@ -59,9 +59,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean validateLogin(String username, String password) {
-        UserCredentials creds = credentialsRepository.findByUsername(username);
-        if (creds == null)
+        java.util.Optional<UserCredentials> credsOpt = credentialsRepository.findByUsername(username);
+        if (!credsOpt.isPresent())
             return false;
+        UserCredentials creds = credsOpt.get();
         return BCrypt.checkpw(password, creds.getPasswordHash());
     }
 
@@ -92,7 +93,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public UserCredentials getUserCredentialsByUsername(String username) {
-        return credentialsRepository.findByUsername(username);
+        return credentialsRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("User credentials not found for username: " + username));
     }
 
     @Override

@@ -3,7 +3,9 @@ package com.carelink.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-
+import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
+import java.util.Base64;
 import java.security.Key;
 import java.util.Date;
 import javax.crypto.SecretKey;
@@ -13,20 +15,25 @@ public class JwtUtil {
 
     private SecretKey jwtSecretKey;
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     // 1 hour
     private final long jwtExpirationMs = 1000 * 60 * 60;
 
-    public JwtUtil() {
-        jwtSecretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        jwtSecretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public Key getSigningKey() {
         return jwtSecretKey;
     }
 
-    public String generateToken(Integer userId, String email, String role) {
+    public String generateToken(Integer userId, String username, String role) {
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(username)
                 .claim("userId", userId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
@@ -60,5 +67,16 @@ public class JwtUtil {
         } catch (JwtException e) {
             return false;
         }
+    }
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

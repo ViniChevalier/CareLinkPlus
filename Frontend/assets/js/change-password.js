@@ -11,27 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentPassword = document.getElementById('currentPassword');
   const newPassword = document.getElementById('newPassword');
   const confirmPassword = document.getElementById('confirmPassword');
-  const messageDiv = document.getElementById('message');
   const mismatchWarning = document.getElementById('passwordMismatch');
   const criteriaBox = document.getElementById("passwordCriteriaBox");
   const lengthCheck = document.getElementById("lengthCheck");
   const numberCheck = document.getElementById("numberCheck");
   const symbolCheck = document.getElementById("symbolCheck");
 
-  function showMessage(content, type = 'success') {
-    messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning');
-    messageDiv.classList.add('alert');
-
-    if (type === 'success') {
-      messageDiv.classList.add('alert-success');
-    } else if (type === 'error') {
-      messageDiv.classList.add('alert-danger');
-    } else if (type === 'warning') {
-      messageDiv.classList.add('alert-warning');
-    }
-
-    messageDiv.textContent = content;
-  }
 
   function checkPasswordsMatch() {
     if (newPassword.value && confirmPassword.value) {
@@ -81,12 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
-      showMessage('Please fill in all fields.', 'warning');
+      showToast('Please fill in all fields.', 'warning');
       return;
     }
 
     if (!validatePassword(newPassword.value)) {
-      showMessage('Password must be at least 8 characters, include a number and a symbol.', 'warning');
+      showToast('Password must be at least 8 characters, include a number and a symbol.', 'warning');
       return;
     }
 
@@ -97,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      showMessage('You are not logged in.', 'error');
+      showToast('You are not logged in.', 'danger');
       return;
     }
 
@@ -107,14 +92,45 @@ document.addEventListener('DOMContentLoaded', () => {
         newPassword: newPassword.value
       });
 
-      showMessage('Password changed successfully! Redirecting...', 'success');
+      showToast('Password changed successfully!', 'success');
       form.reset();
 
       setTimeout(() => {
         history.back();
       }, 2000);
     } catch (error) {
-      showMessage(`${error.message || 'Error changing password.'}`, 'error');
+      showToast(`${error.message || 'Error changing password.'}`, 'danger');
     }
   });
 });
+
+function showToast(message, type = "info") {
+  let toastContainer = document.getElementById("toast-top-right");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "toast-top-right";
+    toastContainer.className = "toast-container position-fixed top-0 end-0 p-3";
+    document.body.appendChild(toastContainer);
+  }
+
+  const toastElement = document.createElement("div");
+  toastElement.className = `toast align-items-center text-white bg-${type} border-0 mb-2 animate__animated animate__fadeInDown`;
+  toastElement.setAttribute("role", "alert");
+  toastElement.setAttribute("aria-live", "assertive");
+  toastElement.setAttribute("aria-atomic", "true");
+
+  toastElement.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${message}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  `;
+
+  toastContainer.appendChild(toastElement);
+  const bsToast = new bootstrap.Toast(toastElement);
+  bsToast.show();
+
+  setTimeout(() => {
+    toastElement.remove();
+  }, 8000);
+}

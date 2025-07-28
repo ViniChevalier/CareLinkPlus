@@ -96,71 +96,62 @@ public class AccountController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("🔍 Token username (getProfile): " + username);
 
-        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
-            Integer userId = userDetails.getId();
-
-            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
-            if (creds == null || creds.getUser() == null)
-                throw new ResourceNotFoundException("User or credentials not found for ID: " + userId);
-
-            return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null || creds.getUser() == null) {
+            throw new ResourceNotFoundException("User or credentials not found for username: " + username);
         }
 
-        throw new RuntimeException("Failed to retrieve profile.");
+        return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("🔍 Token username (updateProfile): " + username);
 
-        if (principal instanceof com.carelink.security.CustomUserDetails userDetails) {
-            Integer userId = userDetails.getId();
-
-            UserCredentials creds = accountService.getUserCredentialsByUserId(userId);
-            if (creds == null || creds.getUser() == null) {
-                throw new ResourceNotFoundException("User or credentials not found for ID: " + userId);
-            }
-
-            User user = creds.getUser();
-
-            if (updatedInfo.getEmail() != null)
-                user.setEmail(updatedInfo.getEmail());
-            if (updatedInfo.getLastName() != null)
-                user.setLastName(updatedInfo.getLastName());
-            if (updatedInfo.getPhoneNumber() != null)
-                user.setPhoneNumber(updatedInfo.getPhoneNumber());
-            if (updatedInfo.getGender() != null)
-                user.setGender(updatedInfo.getGender());
-            if (updatedInfo.getAddress() != null)
-                user.setAddress(updatedInfo.getAddress());
-            if (updatedInfo.getCity() != null)
-                user.setCity(updatedInfo.getCity());
-            if (updatedInfo.getCountry() != null)
-                user.setCountry(updatedInfo.getCountry());
-            if (updatedInfo.getNotificationPreference() != null)
-                user.setNotificationPreference(updatedInfo.getNotificationPreference());
-
-            accountService.updateUser(user);
-
-            UserResponse response = new UserResponse();
-            response.setEmail(user.getEmail());
-            response.setFirstName(user.getFirstName());
-            response.setLastName(user.getLastName());
-            response.setPhoneNumber(user.getPhoneNumber());
-            response.setGender(user.getGender());
-            response.setAddress(user.getAddress());
-            response.setCity(user.getCity());
-            response.setCountry(user.getCountry());
-            response.setRole(user.getRole());
-            response.setNotificationPreference(user.getNotificationPreference());
-
-            return ResponseEntity.ok(response);
+        UserCredentials creds = accountService.getUserCredentialsByUsername(username);
+        if (creds == null || creds.getUser() == null) {
+            throw new ResourceNotFoundException("User or credentials not found for username: " + username);
         }
 
-        throw new RuntimeException("Failed to retrieve authenticated user.");
+        User user = creds.getUser();
+
+        if (updatedInfo.getEmail() != null)
+            user.setEmail(updatedInfo.getEmail());
+        if (updatedInfo.getLastName() != null)
+            user.setLastName(updatedInfo.getLastName());
+        if (updatedInfo.getPhoneNumber() != null)
+            user.setPhoneNumber(updatedInfo.getPhoneNumber());
+        if (updatedInfo.getGender() != null)
+            user.setGender(updatedInfo.getGender());
+        if (updatedInfo.getAddress() != null)
+            user.setAddress(updatedInfo.getAddress());
+        if (updatedInfo.getCity() != null)
+            user.setCity(updatedInfo.getCity());
+        if (updatedInfo.getCountry() != null)
+            user.setCountry(updatedInfo.getCountry());
+        if (updatedInfo.getNotificationPreference() != null)
+            user.setNotificationPreference(updatedInfo.getNotificationPreference());
+
+        accountService.updateUser(user);
+
+        UserResponse response = new UserResponse();
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setGender(user.getGender());
+        response.setAddress(user.getAddress());
+        response.setCity(user.getCity());
+        response.setCountry(user.getCountry());
+        response.setRole(user.getRole());
+        response.setNotificationPreference(user.getNotificationPreference());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/reset")
@@ -242,6 +233,7 @@ public class AccountController {
     @PutMapping("/update-password")
     public ResponseEntity<String> updatePassword(@Valid @RequestBody UpdatePasswordRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("🔍 Token username: " + username);
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null) {
