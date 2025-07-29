@@ -27,7 +27,6 @@ let currentPatientId = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("patient-search");
-  // --- Google Maps Autocomplete for Address ---
   loadGoogleMaps(() => {
     const addressInput = document.getElementById("patient-address");
     const autocomplete = new google.maps.places.Autocomplete(addressInput, {
@@ -128,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
       nameInput.value = `${profile.firstName} ${profile.lastName}`;
       emailInput.value = profile.email || '';
       phoneInput.value = profile.phoneNumber || '';
-      // Populate new fields
       document.getElementById("patient-dob").value = profile.dateOfBirth || '';
       document.getElementById("patient-gender").value = profile.gender || '';
       document.getElementById("patient-address").value = profile.address || '';
@@ -145,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     nameInput.disabled = false;
     emailInput.disabled = false;
     phoneInput.disabled = false;
-    // Enable new fields
     document.getElementById("patient-dob").disabled = false;
     document.getElementById("patient-gender").disabled = false;
     document.getElementById("patient-address").disabled = false;
@@ -161,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
     nameInput.value = `${originalProfile.firstName} ${originalProfile.lastName}`;
     emailInput.value = originalProfile.email || '';
     phoneInput.value = originalProfile.phoneNumber || '';
-    // Reset and disable new fields
     document.getElementById("patient-dob").value = originalProfile.dateOfBirth || '';
     document.getElementById("patient-gender").value = originalProfile.gender || '';
     document.getElementById("patient-address").value = originalProfile.address || '';
@@ -195,7 +191,6 @@ document.addEventListener("DOMContentLoaded", () => {
       email: emailInput.value.trim(),
       phoneNumber: phoneInput.value.trim()
     };
-    // Add new fields to payload
     updated.dateOfBirth = document.getElementById("patient-dob").value;
     updated.gender = document.getElementById("patient-gender").value;
     updated.address = document.getElementById("patient-address").value;
@@ -207,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
       nameInput.disabled = true;
       emailInput.disabled = true;
       phoneInput.disabled = true;
-      // Disable new fields after save
       document.getElementById("patient-dob").disabled = true;
       document.getElementById("patient-gender").disabled = true;
       document.getElementById("patient-address").disabled = true;
@@ -222,7 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Failed to update profile. Please try again.", "danger");
     });
   });
-  // --- Deactivate User Button Logic ---
   const deactivateBtn = document.getElementById("deactivate-user-btn");
   if (deactivateBtn) {
     deactivateBtn.addEventListener("click", () => {
@@ -242,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Bootstrap Toast utility ---
   function showToast(message, type = 'success') {
     const toastContainerId = 'toast-container';
     let container = document.getElementById(toastContainerId);
@@ -270,11 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// --- RESCHEDULE MODAL LOGIC ---
 
 let currentAppointmentToReschedule = null;
 
-// Cria modal de reagendamento
 const modalHTML = `
 <div class="modal fade" id="rescheduleModal" tabindex="-1" aria-labelledby="rescheduleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -461,14 +451,12 @@ function loadAppointments(patientId) {
       appointmentsTable.appendChild(tr);
     });
 
-    // Attach event listeners
     appointmentsTable.querySelectorAll("button[data-action]").forEach(btn => {
       btn.addEventListener("click", (e) => {
         const id = btn.dataset.id;
         const action = btn.dataset.action;
 
         if (action === "cancel") {
-          // Visual confirmation alert before cancelling
           if (!confirm("Are you sure you want to cancel this appointment?")) {
             return;
           }
@@ -490,7 +478,6 @@ function loadAppointments(patientId) {
             });
         }
 
-        // Rescheduling logic moved to global event listener below
       });
     });
   }).catch(err => {

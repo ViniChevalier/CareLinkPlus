@@ -1,4 +1,3 @@
-// assets/js/footer.js
 document.addEventListener("DOMContentLoaded", () => {
   const footerHTML = `
   <footer class="footer pt-95 img-bg" style="background-image:url('assets/img/bg/footer-bg.jpg');">

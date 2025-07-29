@@ -230,7 +230,7 @@ public class AccountController {
 
         String hashedPassword = accountService.encodePassword(request.getNewPassword());
         creds.setPasswordHash(hashedPassword);
-        creds.setResetPasswordToken(null); // Invalidate token
+        creds.setResetPasswordToken(null);
 
         accountService.updateUserCredentials(creds);
 

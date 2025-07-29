@@ -8,7 +8,6 @@ loginForm.addEventListener('submit', async (e) => {
   const loginBtn = loginForm.querySelector("button[type='submit']");
   const message = document.getElementById('message');
 
-  // Reset visual states
   usernameInput.classList.remove("is-invalid");
   passwordInput.classList.remove("is-invalid");
   message.textContent = '';

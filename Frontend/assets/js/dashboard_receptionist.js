@@ -169,7 +169,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
       attachCheckInAndNoShowListeners();
-      // Add event listeners for undo buttons
       document.querySelectorAll('.btn-undo-checkin').forEach(button => {
         button.addEventListener('click', async () => {
           const id = button.getAttribute('data-id');

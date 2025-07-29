@@ -167,7 +167,6 @@ fetchAppointments().then(appointments => {
   });
 
   calendar.render();
-  // Aplicar estilo Bootstrap moderno aos botões do calendário
   setTimeout(() => {
     const fcButtons = calendarEl.querySelectorAll('.fc-button');
     fcButtons.forEach(btn => {
@@ -183,7 +182,6 @@ fetchAppointments().then(appointments => {
         'animate__fadeInUp'
       );
       btn.style.minWidth = '110px';
-      // Adiciona ícones Font Awesome aos botões de navegação e visualização
       if (btn.getAttribute("aria-label") === "prev") {
         btn.innerHTML = '<i class="fas fa-chevron-left"></i> Prev';
       }

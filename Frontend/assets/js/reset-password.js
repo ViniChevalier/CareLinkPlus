@@ -15,7 +15,6 @@ document.getElementById("resetPasswordForm").addEventListener("submit", function
 
   const newPassword = document.getElementById("newPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
-  // const messageDiv = document.getElementById("message");
 
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
@@ -85,7 +84,6 @@ function showToast(message, type = "info") {
   }, 8000);
 }
 
-// Interactive password criteria display
 const passwordInput = document.getElementById("newPassword");
 const criteriaText = document.getElementById("passwordCriteria");
 

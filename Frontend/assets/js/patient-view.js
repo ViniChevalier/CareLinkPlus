@@ -55,11 +55,9 @@ async function loadMedicalHistory(patientId) {
 
     console.log("Using latest history entry:", latest);
 
-    // Only populate the individual fields
     if (latest.diagnosis && latest.diagnosis.trim().startsWith("{")) {
       try {
         const diag = JSON.parse(latest.diagnosis);
-        // Fill fields individually
         const pe = document.getElementById("viewPreExistingConditions");
         const su = document.getElementById("viewPastSurgeries");
         const al = document.getElementById("viewAllergies");
@@ -91,7 +89,6 @@ async function loadMedicalHistory(patientId) {
       if (pe) pe.textContent = latest.diagnosis || '--';
     }
 
-    // Optionally, populate other fields if needed (e.g., description, date, attachment, status)
     const desc = document.getElementById("viewDiagnosisDescription");
     if (desc) desc.textContent = latest.description || 'No description.';
     const date = document.getElementById("viewDiagnosisDate");
@@ -107,7 +104,6 @@ async function loadMedicalHistory(patientId) {
     const status = document.getElementById("viewDiagnosisStatus");
     if (status) status.textContent = latest.status || 'Active';
 
-    // Load doctor name and append it to the .doctor-name span, if present
     const doctorSpan = document.querySelector(".doctor-name[data-doctor-id]");
     if (doctorSpan) {
       const id = doctorSpan.getAttribute("data-doctor-id") || latest.doctorId;
@@ -137,7 +133,6 @@ async function loadMedicalHistory(patientId) {
   }
 }
 
-// Loads and populates the "Future Appointments" tab list
 async function loadUpcomingAppointments(patientId) {
   const spinner = document.getElementById("loadingSpinner");
   if (spinner) spinner.style.display = "block";
@@ -174,7 +169,6 @@ async function loadUpcomingAppointments(patientId) {
       list.appendChild(li);
     });
 
-    // Show All Appointments button and modal
     if (appointments.length > 5) {
       const showMoreBtn = document.createElement("li");
       showMoreBtn.className = "list-group-item text-center";
@@ -249,7 +243,6 @@ async function loadPrescriptions(patientId) {
     const latestPrescriptions = prescriptions.slice(0, 5);
     latestPrescriptions.forEach(p => {
       const li = document.createElement("li");
-      // Modern, animated, interactive style for prescription item
       li.className = "list-group-item list-group-item-action animate__animated animate__fadeInUp";
       let medInfo = {};
       try {
@@ -269,7 +262,6 @@ async function loadPrescriptions(patientId) {
       list.appendChild(li);
 
       li.style.cursor = "pointer";
-      // Animated hover effect
       li.style.transition = "background-color 0.3s ease";
       li.addEventListener("mouseenter", () => li.style.backgroundColor = "#f8f9fa");
       li.addEventListener("mouseleave", () => li.style.backgroundColor = "");
@@ -576,7 +568,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-          // Ensure doctorId is defined here
           const doctorId = localStorage.getItem("userId");
           const formObject = {
             patientId: parseInt(patientId),
@@ -669,7 +660,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const patientId = localStorage.getItem("selectedPatientId");
         const doctorId = localStorage.getItem("userId");
 
-        // Build the payload as specified
         const prescriptionPayload = {
           patientId: parseInt(patientId),
           doctorId: parseInt(doctorId),

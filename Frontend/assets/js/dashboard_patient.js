@@ -131,12 +131,10 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!data || data.length === 0) {
         el.innerHTML = "<p>No medical history found.</p>";
       } else {
-        // Filter for active status
         const activeHistories = data.filter(record => record.status === "Active" || record.status === "active");
         if (activeHistories.length === 0) {
           el.innerHTML = "<p>No active medical history found.</p>";
         } else {
-          // Get the last active record
           const lastRecord = activeHistories[activeHistories.length - 1];
 
           const createdAt = lastRecord.createdAt
@@ -326,7 +324,6 @@ if (fullHistoryBtn) {
       if (!data || data.length === 0) {
         cardsContainer.innerHTML = "<p>No medical history found.</p>";
       } else {
-        // Filter active records
         const activeHistories = data.filter(record => record.status === "Active" || record.status === "active");
 
         if (activeHistories.length === 0) {
