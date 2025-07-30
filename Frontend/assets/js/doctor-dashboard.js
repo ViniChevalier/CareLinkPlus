@@ -2,8 +2,6 @@ import {
     getProfileById,
     getAppointmentsByDoctor,
     getDoctorAvailability,
-    getPatientHistoriesByPatient,
-    getMedicalHistoryByPatient,
     cancelAvailabilitySlot
 } from './apiService.js';
 
@@ -144,7 +142,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.location.href = "patient_profile.html";
         };
 
-        const availability = await getDoctorAvailability(doctorId);
+        let availability = [];
+        try {
+            availability = await getDoctorAvailability(doctorId);
+        } catch (error) {
+            console.error("Error fetching availability:", error);
+            availability = [];
+        }
+
         const availabilityDiv = document.getElementById("availabilityStatus");
         const unbookedAvailability = availability.filter(slot => slot.status === 'AVAILABLE');
 
