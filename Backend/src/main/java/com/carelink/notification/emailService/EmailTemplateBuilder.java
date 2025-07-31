@@ -1,5 +1,10 @@
 package com.carelink.notification.emailService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
+
 public class EmailTemplateBuilder {
 
     public static String buildPasswordResetEmailHtml(String firstName, String resetLink) {
@@ -184,11 +189,15 @@ public class EmailTemplateBuilder {
     }
 
     public static String buildAppointmentNotificationEmail(String firstName, String doctorName, String date, String time) {
+        LocalDate parsedDate = LocalDate.parse(date);
+        String formattedDate = parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        String dayOfWeek = parsedDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+
         String title = "New Appointment Scheduled";
         String bodyContent = String.format("""
         <p>Hi %s,</p>
         <p>You have successfully scheduled an appointment with <strong>Dr. %s</strong>.</p>
-        <p><strong>Date:</strong> %s<br/>
+        <p><strong>Date:</strong> %s (%s)<br/>
         <strong>Time:</strong> %s</p>
         <p style="text-align: center; margin-top: 20px;">
             <a href="https://calm-sky-0157a6e03.1.azurestaticapps.net/appointment_view.html"
@@ -196,7 +205,7 @@ public class EmailTemplateBuilder {
                View Appointment
             </a>
         </p>
-        """, firstName, doctorName, date, time);
+        """, firstName, doctorName, formattedDate, dayOfWeek, time);
 
         return String.format("""
         <html>

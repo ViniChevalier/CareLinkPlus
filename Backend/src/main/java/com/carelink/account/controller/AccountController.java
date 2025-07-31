@@ -180,7 +180,7 @@ public class AccountController {
         accountService.updateUser(user);
 
         String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/pwd_reset.html?token=" + token;
-        emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetLink);
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetLink, user.getUserID());
 
         return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
     }
@@ -210,7 +210,7 @@ public class AccountController {
 
         accountService.updateUserCredentials(creds);
         accountService.updateUser(user);
-        emailService.sendAdminResetEmail(user.getEmail(), user.getFirstName(), generatedPassword);
+        emailService.sendAdminResetEmail(user.getEmail(), user.getFirstName(), generatedPassword, user.getUserID());
         return ResponseEntity.ok("Password reset successfully and email sent to user.");
     }
 
@@ -375,7 +375,7 @@ public class AccountController {
         String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
         String generatedPassword = createdUser.getTransientPassword();
 
-        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), generatedUsername, generatedPassword);
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), generatedUsername, generatedPassword, createdUser.getUserID());
 
         UserResponse response = new UserResponse();
         response.setUserId(createdUser.getUserID().longValue());

@@ -6,15 +6,11 @@ import com.carelink.account.repository.UserCredentialsRepository;
 import com.carelink.account.repository.UserRepository;
 import com.carelink.account.dto.UpdateProfileRequest;
 import com.carelink.exception.ResourceNotFoundException;
-import com.carelink.exception.BusinessLogicException;
-
 import java.util.Random;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -22,8 +18,6 @@ public class AccountServiceImpl implements AccountService {
     private final UserRepository userRepository;
     private final UserCredentialsRepository credentialsRepository;
 
-    @Autowired
-    private JavaMailSender mailSender;
 
     public AccountServiceImpl(UserRepository userRepository, UserCredentialsRepository credentialsRepository) {
         this.userRepository = userRepository;
@@ -110,22 +104,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public String encodePassword(String rawPassword) {
         return BCrypt.hashpw(rawPassword, BCrypt.gensalt());
-    }
-
-    @Override
-    public void sendEmail(String to, String subject, String htmlBody, String plainTextBody) {
-        try {
-            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
-            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(plainTextBody, htmlBody); 
-
-            mailSender.send(message);
-        } catch (Exception e) {
-            throw new BusinessLogicException("Failed to send email");
-        }
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.carelink.appointment.repository.AppointmentRepository;
 import com.carelink.appointment.repository.DoctorAvailabilityRepository;
 import com.carelink.exception.ResourceNotFoundException;
 import com.carelink.exception.BusinessLogicException;
+import com.carelink.account.model.User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,11 +23,16 @@ public class AppointmentServiceImpl {
     private final AppointmentRepository appointmentRepository;
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     private final EmailService emailService;
+    private final com.carelink.account.repository.UserRepository userRepository;
 
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, DoctorAvailabilityRepository doctorAvailabilityRepository, EmailService emailService) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
+                                  DoctorAvailabilityRepository doctorAvailabilityRepository,
+                                  EmailService emailService,
+                                  com.carelink.account.repository.UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
         this.doctorAvailabilityRepository = doctorAvailabilityRepository;
         this.emailService = emailService;
+        this.userRepository = userRepository;
     }
 
 
@@ -54,16 +60,18 @@ public class AppointmentServiceImpl {
 
         AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
 
-        if (savedAppointment.getPatient() != null) {
-            emailService.sendAppointmentNotificationEmail(
-                savedAppointment.getPatient().getEmail(),
-                savedAppointment.getPatient().getFirstName(),
-                availabilitySlot.getDoctorName(),
-                availabilitySlot.getAvailableDate().toString(),
-                availabilitySlot.getStartTime().toString()
-            );
-        }
+        User patient = userRepository.findById(savedAppointment.getPatientId())
+            .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
+        System.out.println("Sending email to: " + patient.getEmail());
+        emailService.sendAppointmentNotificationEmail(
+            patient.getEmail(),
+            patient.getFirstName(),
+            availabilitySlot.getDoctorName(),
+            availabilitySlot.getAvailableDate().toString(),
+            availabilitySlot.getStartTime().toString(),
+            patient.getUserID()
+        );
         return savedAppointment;
     }
 
@@ -117,7 +125,8 @@ public class AppointmentServiceImpl {
                     appointment.getPatient().getFirstName(),
                     newAvailabilitySlot.getDoctorName(),
                     newAvailabilitySlot.getAvailableDate().toString(),
-                    newAvailabilitySlot.getStartTime().toString()
+                    newAvailabilitySlot.getStartTime().toString(),
+                    appointment.getPatient().getUserID()
                 );
             }
         }
@@ -181,14 +190,14 @@ public class AppointmentServiceImpl {
         slot.setStatus(AvailabilityStatus.AVAILABLE);
         doctorAvailabilityRepository.save(slot);
 
-        // Send cancellation email to patient if exists
         if (appointment.getPatient() != null) {
             emailService.sendAppointmentCancellationEmail(
                 appointment.getPatient().getEmail(),
                 appointment.getPatient().getFirstName(),
                 slot.getDoctorName(),
                 slot.getAvailableDate().toString(),
-                slot.getStartTime().toString()
+                slot.getStartTime().toString(),
+                appointment.getPatient().getUserID()
             );
         }
     }

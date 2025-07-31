@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, Integer> {
        List<AppointmentEntity> findByPatientId(Integer patientId);
@@ -29,4 +30,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
 
        @Query("SELECT a FROM AppointmentEntity a WHERE DATE(a.appointmentDateTime) = :targetDate AND LOWER(a.appointmentStatus) <> 'cancelled'")
        List<AppointmentEntity> findUpcomingAppointmentsForReminder(@Param("targetDate") java.time.LocalDate targetDate);
+
+       @Query("SELECT a FROM AppointmentEntity a JOIN FETCH a.patient WHERE a.id = :id")
+       Optional<AppointmentEntity> findByIdWithPatient(@Param("id") int id);
 }

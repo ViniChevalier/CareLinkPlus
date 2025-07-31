@@ -35,7 +35,8 @@ public class SendAppointmentRemindersService {
                         appointment.getPatient().getFirstName(),
                         availabilitySlot.getDoctorName(),
                         availabilitySlot.getAvailableDate().toString(),
-                        availabilitySlot.getStartTime().toString()
+                        availabilitySlot.getStartTime().toString(),
+                        appointment.getPatient().getUserID()
                     );
                 }
             }

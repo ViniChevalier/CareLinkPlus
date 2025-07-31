@@ -18,16 +18,19 @@ import com.carelink.grpc.account.ChangePasswordResponse;
 import com.carelink.grpc.account.UpdatePasswordRequest;
 import com.carelink.grpc.account.UpdatePasswordResponse;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import com.carelink.notification.service.NotificationService;
 
 @Service
 public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBase {
 
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
+    private final NotificationService notificationService;
 
-    public AccountGrpcService(AccountService accountService, JwtUtil jwtUtil) {
+    public AccountGrpcService(AccountService accountService, JwtUtil jwtUtil, NotificationService notificationService) {
         this.accountService = accountService;
         this.jwtUtil = jwtUtil;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -158,7 +161,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
                 user.getFirstName() != null ? user.getFirstName() : "User", resetLink
             );
 
-            accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
+             notificationService.sendEmail(user.getEmail(), subject, htmlBody, plainText, user.getUserID());
             response.setSuccess(true).setMessage("Password reset link sent to email");
         }
 
@@ -238,7 +241,7 @@ public class AccountGrpcService extends AccountServiceGrpc.AccountServiceImplBas
                 user.getFirstName() != null ? user.getFirstName() : "User", newPassword
             );
 
-            accountService.sendEmail(user.getEmail(), subject, htmlBody, plainText);
+             notificationService.sendEmail(user.getEmail(), subject, htmlBody, plainText, user.getUserID());
             response.setSuccess(true).setMessage("Password reset successfully and email sent to user");
         }
 
