@@ -108,7 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
             if (notification.getUserId() != null) {
                 notificationRepository.save(notification);
             } else {
-                System.out.println("⚠️ Cannot save notification: userId is null");
+                System.out.println("userId is null");
             }
         } catch (Exception e) {
             throw new BusinessLogicException("Failed to send email");

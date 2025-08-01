@@ -87,21 +87,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const upcomingDiv = document.getElementById("upcomingAppointments");
         if (upcomingDiv) {
-            if (appointments.length === 0) {
+            const now = new Date();
+            const validStatuses = ['BOOKED', 'SCHEDULED', 'PENDING', 'CONFIRMED', 'ATTENDED'];
+            const upcomingAppointments = appointments.filter(appt => {
+                const dateObj = new Date(appt.appointmentDateTime || appt.date);
+                return !isNaN(dateObj.getTime()) &&
+                    dateObj > now &&
+                    validStatuses.includes(appt.appointmentStatus);
+            });
+
+            if (upcomingAppointments.length === 0) {
                 upcomingDiv.innerHTML = "<p>No upcoming appointments.</p>";
             } else {
                 upcomingDiv.innerHTML = "<ul class='list-group'>" +
-                    appointments.slice(0, 5).map(appt => {
+                    upcomingAppointments.slice(0, 5).map(appt => {
                         const dateObj = new Date(appt.appointmentDateTime || appt.date);
-                        const formattedDate = isNaN(dateObj.getTime()) ? "Unknown date" :
-                            dateObj.toLocaleString('en-IE', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false
-                            });
+                        const formattedDate = dateObj.toLocaleString('en-IE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
                         const patientId = appt.patientId;
                         const patientName = patientsMap?.[patientId] || "Unknown";
                         return `<li class='list-group-item'>${formattedDate} - ${patientName}</li>`;
