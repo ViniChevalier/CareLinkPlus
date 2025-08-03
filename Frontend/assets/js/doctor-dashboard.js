@@ -1,10 +1,4 @@
-import {
-    getProfileById,
-    getAppointmentsByDoctor,
-    getDoctorAvailability,
-    cancelAvailabilitySlot
-} from './apiService.js';
-
+import { getProfileById, getAppointmentsByDoctor, getDoctorAvailability, cancelAvailabilitySlot } from './apiService.js';
 import { loadDoctorName } from './userProfile.js';
 
 export async function loadPatientsInModal() {
@@ -145,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
-        window.viewPatientProfile = function(patientId) {
+        window.viewPatientProfile = function (patientId) {
             localStorage.setItem("selectedPatientId", patientId);
             window.location.href = "patient_profile.html";
         };
@@ -225,30 +219,42 @@ async function loadAvailabilityInModal() {
                 return `
                     <li class='list-group-item d-flex justify-content-between align-items-center'>
                       ${formattedStart} - ${endTime}
-                      <button class="btn btn-sm btn-outline-danger" onclick="cancelSlot('${slot.id}')">Cancel</button>
+                      <button class="btn btn-sm btn-outline-danger" onclick="cancelSlot('${slot.availabilityId}')">Cancel</button>
                     </li>
                 `;
             }).join("") +
             "</ul>";
     } catch (err) {
-        console.error(err);
-        modalBody.innerHTML = "<p class='text-danger'>Failed to load availability.</p>";
+console.error(err);
+        if (err.message && err.message.includes("No availability found")) {
+            modalBody.innerHTML = "<p>No availability has been added yet.</p>";
+        } else {
+            modalBody.innerHTML = "<p class='text-danger'>Failed to load availability.</p>";
+        }
     }
 }
 
-window.cancelSlot = async function(slotId) {
+window.cancelSlot = async function (slotId) {
     const doctorId = localStorage.getItem("userId");
     if (!doctorId) {
         alert("User not logged in.");
         return;
     }
 
+    const button = event.target;
+    button.disabled = true;
+    button.innerText = "Cancelling...";
+
     try {
         await cancelAvailabilitySlot(slotId);
+        showToast("Slot cancelled successfully", "success");
         loadAvailabilityInModal();
     } catch (err) {
         console.error("Error cancelling slot:", err);
         alert("Failed to cancel slot.");
+    } finally {
+        button.disabled = false;
+        button.innerText = "Cancel";
     }
 };
 
@@ -258,3 +264,27 @@ document.addEventListener("DOMContentLoaded", () => {
         availabilityModal.addEventListener("show.bs.modal", loadAvailabilityInModal);
     }
 });
+// Toast helper for feedback messages
+function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `toast align-items-center text-white bg-${type} border-0 show`;
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "assertive");
+    toast.setAttribute("aria-atomic", "true");
+
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.right = "20px";
+    toast.style.zIndex = "1055";
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}

@@ -522,6 +522,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       wrapper.querySelector("#historyForm").addEventListener("submit", async e => {
         e.preventDefault();
         const form = e.target;
+        const submitBtn = form.querySelector("button[type='submit']");
+        // Disable button and set text
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = "Submitting...";
 
         if (
           !form.preExisting.value.trim() ||
@@ -530,6 +535,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           !form.familyHistory.value.trim()
         ) {
           toast("All clinical fields must be filled.", "danger");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           return;
         }
 
@@ -588,10 +595,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             formObject.diagnosisDate,
             formObject.file
           );
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           toast("Medical history successfully saved.", "success");
           bsModal.hide();
           loadMedicalHistory(patientId);
         } catch (error) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           console.error("Failed to create medical history:", error);
           const message = error?.message || "Failed to save history. Please check the data and try again.";
           toast(message, "danger");
@@ -653,8 +664,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       wrapper.querySelector("form").addEventListener("submit", async e => {
         e.preventDefault();
         const form = e.target;
+        const submitBtn = form.querySelector("button[type='submit']");
+        // Disable button and set text
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = "Submitting...";
+
         if (!form.medication.value.trim() || !form.dosage.value.trim() || !form.frequency.value.trim()) {
           toast("Please fill out all required fields.", "danger");
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           return;
         }
         const patientId = localStorage.getItem("selectedPatientId");
@@ -693,10 +712,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             prescriptionPayload.historyId,
             form.file && form.file.files.length > 0 ? form.file.files[0] : null
           );
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           toast("Prescription successfully registered.", "success");
           bsModal.hide();
           loadPrescriptions(patientId);
         } catch (err) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
           console.error("Error posting prescription:", err);
           const modalFeedback = wrapper.querySelector("#modalPrescriptionFeedback");
           if (modalFeedback) {

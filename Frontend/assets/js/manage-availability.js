@@ -66,7 +66,7 @@ async function displayAvailability(date) {
       li.className = 'list-group-item d-flex justify-content-between align-items-center';
       li.innerHTML = `
         ${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}
-        <button class="btn btn-sm btn-danger" data-id="${slot.id}">Cancel</button>
+        <button class="btn btn-sm btn-danger" data-id="${slot.availabilityId}">Cancel</button>
       `;
       list.appendChild(li);
     });
@@ -74,11 +74,16 @@ async function displayAvailability(date) {
     list.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
+        btn.disabled = true;
+        btn.innerText = 'Cancelling...';
         try {
           await deleteAvailability(id);
+          toast('Availability slot cancelled successfully.', 'success');
           btn.closest('li').remove();
         } catch (err) {
           toast('Failed to delete: ' + err.message, 'danger');
+          btn.disabled = false;
+          btn.innerText = 'Cancel';
         }
       });
     });

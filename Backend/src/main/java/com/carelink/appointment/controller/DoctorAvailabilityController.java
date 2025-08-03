@@ -7,9 +7,9 @@ import com.carelink.appointment.dto.AvailabilityRequestDTO;
 import com.carelink.appointment.dto.SlotDTO;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.service.DoctorAvailabilityService;
-import com.carelink.security.CustomUserDetails;
 import com.carelink.exception.ResourceNotFoundException;
 import com.carelink.exception.BusinessLogicException;
+import com.carelink.account.repository.UserCredentialsRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +22,11 @@ import java.util.List;
 public class DoctorAvailabilityController {
 
     private final DoctorAvailabilityService availabilityService;
+    private final UserCredentialsRepository userCredentialsRepository;
 
-    public DoctorAvailabilityController(DoctorAvailabilityService availabilityService) {
+    public DoctorAvailabilityController(DoctorAvailabilityService availabilityService, UserCredentialsRepository userCredentialsRepository) {
         this.availabilityService = availabilityService;
+        this.userCredentialsRepository = userCredentialsRepository;
     }
 
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
@@ -72,13 +74,12 @@ public class DoctorAvailabilityController {
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     @PutMapping("/{availabilityId}/cancel")
     public ResponseEntity<Void> cancelAvailability(@PathVariable Integer availabilityId) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Integer userId = ((CustomUserDetails) authentication.getPrincipal()).getId();
-            availabilityService.cancelAvailabilitySlot(availabilityId, userId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            throw new BusinessLogicException("Failed to cancel availability slot with ID: " + availabilityId);
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        Integer userId = userCredentialsRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found for username: " + username))
+            .getUser().getUserID();
+        availabilityService.cancelAvailabilitySlot(availabilityId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

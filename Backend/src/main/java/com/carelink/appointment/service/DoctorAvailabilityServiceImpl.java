@@ -78,10 +78,19 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         }
     }
     public void cancelAvailabilitySlot(Integer availabilityId, Integer doctorId) {
-        int updated = availabilityRepository.cancelSlot(availabilityId, doctorId);
-        if (updated == 0) {
-            throw new ResourceNotFoundException("Slot not found or does not belong to doctor.");
+        DoctorAvailability slot = availabilityRepository.findById(availabilityId)
+            .orElseThrow(() -> new ResourceNotFoundException("Slot not found with ID: " + availabilityId));
+
+        if (!slot.getDoctor().getUserID().equals(doctorId)) {
+            throw new BusinessLogicException("This slot does not belong to the current doctor.");
         }
+
+        if (slot.getStatus() != AvailabilityStatus.AVAILABLE) {
+            throw new BusinessLogicException("Only AVAILABLE slots can be cancelled. Current status: " + slot.getStatus());
+        }
+
+        slot.setStatus(AvailabilityStatus.CANCELLED);
+        availabilityRepository.save(slot);
     }
 
     @Override
