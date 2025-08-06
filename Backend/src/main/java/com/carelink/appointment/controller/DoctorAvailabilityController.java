@@ -8,7 +8,6 @@ import com.carelink.appointment.dto.SlotDTO;
 import com.carelink.appointment.model.DoctorAvailability;
 import com.carelink.appointment.service.DoctorAvailabilityService;
 import com.carelink.exception.ResourceNotFoundException;
-import com.carelink.exception.BusinessLogicException;
 import com.carelink.account.repository.UserCredentialsRepository;
 
 import org.springframework.http.ResponseEntity;
