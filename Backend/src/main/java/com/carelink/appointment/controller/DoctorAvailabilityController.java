@@ -54,6 +54,7 @@ public class DoctorAvailabilityController {
             throw new ResourceNotFoundException("Availability slot not found with ID: " + availabilityId);
         }
     }
+
     @PreAuthorize("hasRole('ADMIN') or hasRole('RECEPTIONIST') or hasRole('PATIENT') or hasRole('DOCTOR')")
     @GetMapping("/all")
     public ResponseEntity<List<SlotDTO>> getAllAvailabilities() {
@@ -75,9 +76,11 @@ public class DoctorAvailabilityController {
     public ResponseEntity<Void> cancelAvailability(@PathVariable Integer availabilityId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
+        // Translate authenticated principal (username) into internal user id
         Integer userId = userCredentialsRepository.findByUsername(username)
             .orElseThrow(() -> new ResourceNotFoundException("User not found for username: " + username))
             .getUser().getUserID();
+        // Delegate cancellation (including validation) to service layer
         availabilityService.cancelAvailabilitySlot(availabilityId, userId);
         return ResponseEntity.noContent().build();
     }

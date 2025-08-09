@@ -33,9 +33,10 @@ public class AppointmentController {
     @GetMapping
     public ResponseEntity<List<AppointmentDTO>> getAllAppointments() {
         List<AppointmentDTO> dtos = appointmentService.getAllAppointments()
-            .stream()
-            .map(AppointmentDTO::new)
-            .toList();
+                .stream()
+                // Transform entity data into a DTO object
+                .map(AppointmentDTO::new)
+                .toList();
         return ResponseEntity.ok(dtos);
     }
 
@@ -44,24 +45,27 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatient(@PathVariable int patientId) {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPatient(patientId);
         List<AppointmentDTO> dtos = appointments.stream()
-            .map(a -> {
-                String doctorName = a.getDoctor() != null
-                    ? a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
-                    : "Unknown";
+                .map(a -> {
+                    // Retrieve doctor name only if doctor object exists
+                    String doctorName = a.getDoctor() != null
+                            ? a.getDoctor().getFirstName() + " " + a.getDoctor().getLastName()
+                            : "Unknown";
 
-                Integer doctorId = a.getDoctor() != null
-                    ? a.getDoctor().getUserID()
-                    : null;
+                    // Retrieve doctor ID only if doctor object exists
+                    Integer doctorId = a.getDoctor() != null
+                            ? a.getDoctor().getUserID()
+                            : null;
 
-                AppointmentDTO dto = new AppointmentDTO(a, doctorId, doctorName);
+                    AppointmentDTO dto = new AppointmentDTO(a, doctorId, doctorName);
 
-                if (a.getAvailability() != null) {
-                    dto.setAvailabilityId(a.getAvailability().getId());
-                }
+                    // Set availabilityId only when availability is present
+                    if (a.getAvailability() != null) {
+                        dto.setAvailabilityId(a.getAvailability().getId());
+                    }
 
-                return dto;
-            })
-            .toList();
+                    return dto;
+                })
+                .toList();
         return ResponseEntity.ok(dtos);
     }
 
@@ -75,16 +79,21 @@ public class AppointmentController {
     @GetMapping("/{id}")
     public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable int id) {
         AppointmentEntity appointment = appointmentService.getAppointmentById(id);
+        // Handle case where appointment is not found
         if (appointment == null) {
             throw new ResourceNotFoundException("Appointment not found with ID: " + id);
         }
+        // Retrieve doctor ID only if doctor object exists
         Integer doctorId = appointment.getDoctor() != null ? appointment.getDoctor().getUserID() : null;
+        // Retrieve doctor name only if doctor object exists
         String doctorName = appointment.getDoctor() != null
-            ? appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName()
-            : "Unknown";
+                ? appointment.getDoctor().getFirstName() + " " + appointment.getDoctor().getLastName()
+                : "Unknown";
 
+        // Transform entity data into a DTO object
         AppointmentDTO dto = new AppointmentDTO(appointment, doctorId, doctorName);
 
+        // Set availabilityId only when availability is present
         if (appointment.getAvailability() != null) {
             dto.setAvailabilityId(appointment.getAvailability().getId());
         }
@@ -94,8 +103,10 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @PutMapping("/{id}")
-    public ResponseEntity<AppointmentEntity> updateAppointment(@PathVariable int id, @RequestBody AppointmentRequestDTO dto) {
+    public ResponseEntity<AppointmentEntity> updateAppointment(@PathVariable int id,
+            @RequestBody AppointmentRequestDTO dto) {
         AppointmentEntity updated = appointmentService.updateAppointment(id, dto);
+        // Handle case where appointment to update is not found
         if (updated == null) {
             throw new ResourceNotFoundException("Appointment to update not found with ID: " + id);
         }
@@ -112,6 +123,7 @@ public class AppointmentController {
             throw new ResourceNotFoundException("Appointment to delete not found with ID: " + id);
         }
     }
+
     @PreAuthorize("hasRole('PATIENT') or hasRole('ADMIN') or hasRole('RECEPTIONIST')")
     @PostMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelAppointment(@PathVariable int id) {
@@ -144,6 +156,7 @@ public class AppointmentController {
             throw new BusinessLogicException("Failed to mark no-show for appointment with ID: " + id);
         }
     }
+
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/{id}/undo-check-in")
     public ResponseEntity<Void> undoCheckInAppointment(@PathVariable int id) {

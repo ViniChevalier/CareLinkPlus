@@ -25,6 +25,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         List<DoctorAvailability> savedSlots = new ArrayList<>();
         for (SlotDTO slot : dto.getAvailableSlots()) {
 
+            // Detect overlapping/conflicting slot for same doctor & date
             boolean conflictExists = availabilityRepository.existsByDoctorIdAndAvailableDateAndStartTimeLessThanAndEndTimeGreaterThan(
                 dto.getDoctorId(),
                 slot.getAvailableDate(),
@@ -33,19 +34,21 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
             );
 
             if (conflictExists) {
+                // Prevent inserting overlapping availability
                 throw new BusinessLogicException("Conflict with existing availability slot on " + slot.getAvailableDate() +
                     " from " + slot.getStartTime() + " to " + slot.getEndTime());
             }
 
+            // Build new availability entity
             DoctorAvailability availability = new DoctorAvailability();
             availability.setDoctorId(dto.getDoctorId());
             availability.setAvailableDate(slot.getAvailableDate());
             availability.setStartTime(slot.getStartTime());
             availability.setEndTime(slot.getEndTime());
-            availability.setIsBooked(false);
-            savedSlots.add(availabilityRepository.save(availability));
+            availability.setIsBooked(false); // Initially free
+            savedSlots.add(availabilityRepository.save(availability)); // Persist and collect
         }
-        return savedSlots;
+        return savedSlots; // Return all created slots
     }
 
     public List<DoctorAvailability> getAvailabilityByDoctor(Integer doctorId) {
@@ -55,6 +58,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
     public void deleteAvailability(Integer availabilityId) {
         availabilityRepository.deleteById(availabilityId);
     }
+
     public List<DoctorAvailability> getAllAvailabilities() {
         return availabilityRepository.findAll();
     }
@@ -64,12 +68,13 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
             .orElseThrow(() -> new ResourceNotFoundException("Availability not found with id " + id));
     }
 
+    // Runs every 5 minutes: mark past slots as EXPIRED
     @Scheduled(fixedRate = 300000)
     public void expireOldSlots() {
         List<DoctorAvailability> expiredSlots = availabilityRepository.findExpiredSlots();
 
         for (DoctorAvailability slot : expiredSlots) {
-            slot.setStatus(AvailabilityStatus.EXPIRED);
+            slot.setStatus(AvailabilityStatus.EXPIRED); // Mark expired slots
             availabilityRepository.save(slot);
         }
 
@@ -77,19 +82,22 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
             System.out.println("Expired " + expiredSlots.size() + " old availability slots.");
         }
     }
+
     public void cancelAvailabilitySlot(Integer availabilityId, Integer doctorId) {
         DoctorAvailability slot = availabilityRepository.findById(availabilityId)
             .orElseThrow(() -> new ResourceNotFoundException("Slot not found with ID: " + availabilityId));
 
+        // Ensure the authenticated doctor owns the slot
         if (!slot.getDoctor().getUserID().equals(doctorId)) {
             throw new BusinessLogicException("This slot does not belong to the current doctor.");
         }
 
+        // Only AVAILABLE slots can be cancelled (can't cancel booked/past states)
         if (slot.getStatus() != AvailabilityStatus.AVAILABLE) {
             throw new BusinessLogicException("Only AVAILABLE slots can be cancelled. Current status: " + slot.getStatus());
         }
 
-        slot.setStatus(AvailabilityStatus.CANCELLED);
+        slot.setStatus(AvailabilityStatus.CANCELLED); // Soft removal; may be released later
         availabilityRepository.save(slot);
     }
 
@@ -116,6 +124,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         return convertToSlotDTO(slot);
     }
 
+    // Converts a single entity to DTO
     private SlotDTO convertToSlotDTO(DoctorAvailability availability) {
         SlotDTO dto = new SlotDTO();
         dto.setAvailabilityId(availability.getId());
@@ -128,6 +137,7 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         return dto;
     }
 
+    // Converts a list of entities to DTOs
     private List<SlotDTO> convertToSlotDTOList(List<DoctorAvailability> availabilityList) {
         List<SlotDTO> dtoList = new ArrayList<>();
         for (DoctorAvailability availability : availabilityList) {
@@ -136,12 +146,13 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         return dtoList;
     }
 
+    // Releases any CANCELLED slots that were never booked
     @Scheduled(fixedRate = 300000)
     public void releaseCancelledUnbookedSlots() {
         List<DoctorAvailability> cancelledUnbookedSlots = availabilityRepository.findByIsBookedFalseAndStatus(AvailabilityStatus.CANCELLED);
 
         for (DoctorAvailability slot : cancelledUnbookedSlots) {
-            slot.setStatus(AvailabilityStatus.AVAILABLE);
+            slot.setStatus(AvailabilityStatus.AVAILABLE); // Re-open slot for booking
             availabilityRepository.save(slot);
         }
 

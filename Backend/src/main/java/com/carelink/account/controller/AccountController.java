@@ -41,6 +41,14 @@ public class AccountController {
         this.emailService = emailService;
     }
 
+    /**
+     * Registers a new patient account.
+     * Accessible by: Anyone (public).
+     * 
+     * @param request RegisterRequest containing user's first name, last name, and
+     *                email.
+     * @return UserResponse with generated username, email, and password.
+     */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
         User user = new User();
@@ -49,8 +57,10 @@ public class AccountController {
         user.setEmail(request.getEmail());
         user.setRole("PATIENT");
 
+        // Create the user in the system
         User createdUser = accountService.createUser(user);
 
+        // Retrieve generated username and password for the new user
         String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
         String generatedPassword = createdUser.getTransientPassword();
 
@@ -62,22 +72,34 @@ public class AccountController {
         return ResponseEntity.status(201).body(response);
     }
 
+    /**
+     * Authenticates a user and issues a JWT token upon successful login.
+     * Accessible by: Anyone (public).
+     * 
+     * @param request LoginRequest containing username and password.
+     * @return UserResponse with username, email, role, and JWT token.
+     */
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(@RequestBody LoginRequest request) {
+        // Retrieve credentials from username
         UserCredentials credentials = accountService.getUserCredentialsByUsername(request.getUsername());
         if (credentials == null) {
+            // User not found for the provided username
             throw new UsernameNotFoundException("User not found");
         }
 
+        // Check if the password matches the stored hash
         if (!BCrypt.checkpw(request.getPassword(), credentials.getPasswordHash())) {
             throw new BadCredentialsException("Invalid password");
         }
 
         User user = credentials.getUser();
+        // Prevent login for deactivated accounts
         if ("DEACTIVATED".equalsIgnoreCase(user.getRole())) {
             throw new AccessDeniedException("User account is deactivated.");
         }
 
+        // Generate JWT token for authenticated session
         String token = jwtUtil.generateToken(
                 user.getUserID(),
                 credentials.getUsername(),
@@ -93,20 +115,34 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieves the profile of the currently authenticated user.
+     * Accessible by: Authenticated users.
+     * 
+     * @return UserResponse containing profile information.
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getProfile() {
+        // Extract username from the security context (JWT token)
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("🔍 Token username (getProfile): " + username);
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null || creds.getUser() == null) {
+            // If either credentials or user entity is missing, throw error
             throw new ResourceNotFoundException("User or credentials not found for username: " + username);
         }
 
         return ResponseEntity.ok(buildUserResponse(creds, creds.getUser()));
     }
 
+    /**
+     * Updates the profile information of the currently authenticated user.
+     * Accessible by: Authenticated users.
+     * 
+     * @param updatedInfo UserResponse containing updated profile fields.
+     * @return UserResponse with updated profile information.
+     */
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/profile")
     public ResponseEntity<UserResponse> updateProfile(@RequestBody UserResponse updatedInfo) {
@@ -120,6 +156,7 @@ public class AccountController {
 
         User user = creds.getUser();
 
+        // Update only the provided fields in the user's profile
         if (updatedInfo.getEmail() != null)
             user.setEmail(updatedInfo.getEmail());
         if (updatedInfo.getLastName() != null)
@@ -130,6 +167,7 @@ public class AccountController {
             try {
                 user.setDateOfBirth(java.sql.Date.valueOf(updatedInfo.getDateOfBirth()));
             } catch (IllegalArgumentException e) {
+                // Handle invalid date format
                 throw new BusinessLogicException("Invalid date format for dateOfBirth. Expected format: yyyy-MM-dd");
             }
         }
@@ -144,6 +182,7 @@ public class AccountController {
         if (updatedInfo.getNotificationPreference() != null)
             user.setNotificationPreference(updatedInfo.getNotificationPreference());
 
+        // Persist the updated user profile
         accountService.updateUser(user);
 
         UserResponse response = new UserResponse();
@@ -151,7 +190,9 @@ public class AccountController {
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setDateOfBirth(user.getDateOfBirth() != null ? new SimpleDateFormat("dd/MM/yyyy").format(user.getDateOfBirth()) : null);
+        response.setDateOfBirth(
+                user.getDateOfBirth() != null ? new SimpleDateFormat("dd/MM/yyyy").format(user.getDateOfBirth())
+                        : null);
         response.setGender(user.getGender());
         response.setAddress(user.getAddress());
         response.setCity(user.getCity());
@@ -166,19 +207,23 @@ public class AccountController {
     public ResponseEntity<String> requestPasswordReset(@RequestBody RequestResetDto dto) {
         String username = dto.getUsername();
         if (username == null || username.isEmpty()) {
+            // Username must be provided
             throw new BusinessLogicException("Username must not be empty.");
         }
 
         UserCredentials creds = accountService.getUserCredentialsByUsername(username);
         if (creds == null || creds.getUser() == null) {
+            // Always return generic message for security (prevents user enumeration)
             return ResponseEntity.ok("If a user with that username exists, a reset link has been sent to their email.");
         }
 
         User user = creds.getUser();
+        // Generate a unique reset token and set it for the user
         String token = java.util.UUID.randomUUID().toString();
         creds.setResetPasswordToken(token);
         accountService.updateUser(user);
 
+        // Build the password reset link and send email
         String resetLink = "https://calm-sky-0157a6e03.1.azurestaticapps.net/pwd_reset.html?token=" + token;
         emailService.sendPasswordResetEmail(user.getEmail(), user.getFirstName(), resetLink, user.getUserID());
 
@@ -200,16 +245,19 @@ public class AccountController {
         }
 
         User user = creds.getUser();
+        // Use provided password or generate a random one
         String generatedPassword = (newPassword != null && !newPassword.isEmpty())
                 ? newPassword
                 : java.util.UUID.randomUUID().toString().substring(0, 8);
 
+        // Hash the new password before storing
         String hashedPassword = accountService.encodePassword(generatedPassword);
         creds.setPasswordHash(hashedPassword);
         creds.setResetPasswordToken(null);
 
         accountService.updateUserCredentials(creds);
         accountService.updateUser(user);
+        // Notify user of their new password by email
         emailService.sendAdminResetEmail(user.getEmail(), user.getFirstName(), generatedPassword, user.getUserID());
         return ResponseEntity.ok("Password reset successfully and email sent to user.");
     }
@@ -217,17 +265,21 @@ public class AccountController {
     @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
         if (request.getToken() == null || request.getToken().isEmpty()) {
+            // Token is required for password reset
             throw new BusinessLogicException("Token must not be empty.");
         }
         if (request.getNewPassword() == null || request.getNewPassword().isEmpty()) {
+            // New password must be provided
             throw new BusinessLogicException("New password must not be empty.");
         }
 
         UserCredentials creds = accountService.getUserCredentialsByResetToken(request.getToken());
         if (creds == null) {
+            // Token invalid or expired
             throw new ResourceNotFoundException("Invalid or expired token.");
         }
 
+        // Hash and update the new password, then clear the reset token
         String hashedPassword = accountService.encodePassword(request.getNewPassword());
         creds.setPasswordHash(hashedPassword);
         creds.setResetPasswordToken(null);
@@ -248,10 +300,12 @@ public class AccountController {
             throw new ResourceNotFoundException("User not found.");
         }
 
+        // Check that the old password matches before updating
         if (!BCrypt.checkpw(request.getOldPassword(), creds.getPasswordHash())) {
             throw new BusinessLogicException("Old password is incorrect.");
         }
 
+        // Hash and update the new password
         String hashedPassword = accountService.encodePassword(request.getNewPassword());
         creds.setPasswordHash(hashedPassword);
 
@@ -307,6 +361,7 @@ public class AccountController {
         }
 
         User user = creds.getUser();
+        // Mark user as deactivated by changing their role
         user.setRole("DEACTIVATED");
         accountService.updateUser(user);
 
@@ -322,28 +377,32 @@ public class AccountController {
         }
 
         User user = creds.getUser();
+        // Update the user's role to the specified value (in uppercase)
         user.setRole(role.toUpperCase());
         accountService.updateUser(user);
 
         return ResponseEntity.ok("User role updated to: " + role);
     }
-    
+
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @GetMapping("/patients")
     public ResponseEntity<List<UserResponse>> getAllPatients() {
         List<User> patients = accountService.getAllUsersByRole("PATIENT");
         List<UserResponse> responseList = patients.stream()
-            .map(user -> buildUserResponse(accountService.getUserCredentialsByUser(user), user))
-            .toList();
+                .map(user -> buildUserResponse(accountService.getUserCredentialsByUser(user), user))
+                .toList();
         return ResponseEntity.ok(responseList);
     }
+
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PostMapping("/register-patient")
     public ResponseEntity<UserResponse> registerPatient(@RequestBody RegisterRequest request) {
         if (request.getFirstName() == null || request.getLastName() == null ||
-            request.getEmail() == null || request.getPhoneNumber() == null ||
-            request.getNotificationPreference() == null) {
-            throw new BusinessLogicException("First name, last name, email, phone number, and notification preference are required.");
+                request.getEmail() == null || request.getPhoneNumber() == null ||
+                request.getNotificationPreference() == null) {
+            // Required fields check
+            throw new BusinessLogicException(
+                    "First name, last name, email, phone number, and notification preference are required.");
         }
 
         User user = new User();
@@ -370,12 +429,16 @@ public class AccountController {
             user.setCountry(request.getCountry());
         }
 
+        // Create the patient user in the system
         User createdUser = accountService.createUser(user);
 
+        // Retrieve generated credentials
         String generatedUsername = accountService.getUserCredentialsByUser(createdUser).getUsername();
         String generatedPassword = createdUser.getTransientPassword();
 
-        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), generatedUsername, generatedPassword, createdUser.getUserID());
+        // Send welcome email with credentials to the patient
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName(), generatedUsername, generatedPassword,
+                createdUser.getUserID());
 
         UserResponse response = new UserResponse();
         response.setUserId(createdUser.getUserID().longValue());
@@ -391,6 +454,7 @@ public class AccountController {
     @PreAuthorize("hasRole('RECEPTIONIST') or hasRole('ADMIN')")
     @PutMapping("/update-profile")
     public ResponseEntity<String> updateUserProfile(@RequestBody UpdateProfileRequest request) {
+        // Delegate profile update logic to service layer
         accountService.updateUserProfile(request);
         return ResponseEntity.ok("User profile updated successfully.");
     }

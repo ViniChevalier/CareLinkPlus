@@ -43,7 +43,7 @@ public class MedicalHistoryController {
         String blobName = "";
         if (file != null && !file.isEmpty()) {
             try {
-                blobName = azureBlobService.uploadFile(file, "medical-records");
+                blobName = azureBlobService.uploadFile(file, "medical-records"); // Store file, capture blob reference
             } catch (Exception e) {
                 throw new BusinessLogicException("Failed to upload medical record file.");
             }
@@ -58,13 +58,14 @@ public class MedicalHistoryController {
         record.setAttachmentName(blobName);
         record.setHistoryId(historyId);
 
-        MedicalRecord saved = medicalRecordService.save(record);
-        return ResponseEntity.ok(convertToDto(saved));
+        MedicalRecord saved = medicalRecordService.save(record); // Persist new record
+        return ResponseEntity.ok(convertToDto(saved)); // Convert to DTO with SAS link if file
     }
 
     @GetMapping("/patient/{patientId}")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<List<MedicalRecordDto>> getRecordsByPatient(@PathVariable Integer patientId) {
+        // Fetch, map each entity to DTO (adds signed URL) and return
         List<MedicalRecordDto> dtos = medicalRecordService.findByPatientId(patientId)
                 .stream()
                 .map(this::convertToDto)
@@ -99,6 +100,7 @@ public class MedicalHistoryController {
         MedicalRecord record = medicalRecordService.findById(recordId)
             .orElseThrow(() -> new ResourceNotFoundException("Medical record not found with ID: " + recordId));
 
+        // Apply only provided fields (partial update semantics)
         if (request.getNotes() != null) {
             record.setNotes(request.getNotes());
         }

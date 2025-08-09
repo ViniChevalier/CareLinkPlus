@@ -11,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.carelink.medicalhistory.service.AzureBlobService;
+import com.azure.storage.blob.BlobServiceClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,6 +34,12 @@ class AccountControllerLoginTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private AzureBlobService azureBlobService;
+
+    @MockBean
+    private BlobServiceClient blobServiceClient;
 
     private static String username;
     private static String generatedPassword;

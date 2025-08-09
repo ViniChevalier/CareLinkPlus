@@ -42,10 +42,11 @@ public class AppointmentServiceImpl {
         DoctorAvailability availabilitySlot = doctorAvailabilityRepository.findById(availabilityIdInt)
                 .orElseThrow(() -> new ResourceNotFoundException("Availability slot not found"));
 
-        if (availabilitySlot.getIsBooked()) {
+        if (availabilitySlot.getIsBooked()) { // Prevent double-booking
             throw new BusinessLogicException("This slot is already booked");
         }
 
+        // Build the appointment entity from request + slot info
         AppointmentEntity appointment = new AppointmentEntity();
         appointment.setPatientId(dto.getPatientId() != null ? dto.getPatientId().intValue() : null);
         appointment.setDoctorId(availabilitySlot.getDoctorId());
@@ -54,15 +55,18 @@ public class AppointmentServiceImpl {
         appointment.setAppointmentStatus("Scheduled");
         appointment.setAvailabilityId(availabilityIdInt);
 
+        // Update slot to booked state BEFORE saving appointment to reflect current capacity
         availabilitySlot.setIsBooked(true);
         availabilitySlot.setStatus(AvailabilityStatus.BOOKED);
-        doctorAvailabilityRepository.save(availabilitySlot);
+        doctorAvailabilityRepository.save(availabilitySlot); // Persist slot state change
 
-        AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
+        AppointmentEntity savedAppointment = appointmentRepository.save(appointment); // Persist new appointment
 
+        // Fetch patient for email personalization
         User patient = userRepository.findById(savedAppointment.getPatientId())
             .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
 
+        // (Could be moved to async/event in future) Notify patient of confirmation
         System.out.println("Sending email to: " + patient.getEmail());
         emailService.sendAppointmentNotificationEmail(
             patient.getEmail(),
@@ -104,6 +108,7 @@ public class AppointmentServiceImpl {
             oldAvailabilitySlot.setStatus(AvailabilityStatus.AVAILABLE);
             doctorAvailabilityRepository.save(oldAvailabilitySlot);
 
+            // Retrieve and validate the new slot
             DoctorAvailability newAvailabilitySlot = doctorAvailabilityRepository.findById(availabilityIdInt)
                 .orElseThrow(() -> new ResourceNotFoundException("New availability slot not found"));
 
@@ -111,14 +116,17 @@ public class AppointmentServiceImpl {
                 throw new BusinessLogicException("This slot is already booked");
             }
 
+            // Rebind appointment to new slot and update scheduling data
             appointment.setDoctorId(newAvailabilitySlot.getDoctorId());
             appointment.setAppointmentDateTime(LocalDateTime.of(newAvailabilitySlot.getAvailableDate(), newAvailabilitySlot.getStartTime()));
             appointment.setAvailabilityId(availabilityIdInt);
 
+            // Mark new slot as occupied
             newAvailabilitySlot.setIsBooked(true);
             newAvailabilitySlot.setStatus(AvailabilityStatus.BOOKED);
             doctorAvailabilityRepository.save(newAvailabilitySlot);
 
+            // Notify patient if the relationship is loaded (avoid lazy load issues if null)
             if (appointment.getPatient() != null) {
                 emailService.sendAppointmentNotificationEmail(
                     appointment.getPatient().getEmail(),
@@ -145,11 +153,11 @@ public class AppointmentServiceImpl {
         DoctorAvailability slot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
             .orElseThrow(() -> new ResourceNotFoundException("Slot not found"));
 
-        slot.setIsBooked(false);
+        slot.setIsBooked(false); // Free slot
         slot.setStatus(AvailabilityStatus.AVAILABLE);
         doctorAvailabilityRepository.save(slot);
 
-        appointmentRepository.deleteById(id);
+        appointmentRepository.deleteById(id); // Remove appointment record
     }
 
     public AppointmentEntity createAppointmentFromEntity(AppointmentEntity entity) {
@@ -160,7 +168,7 @@ public class AppointmentServiceImpl {
             throw new BusinessLogicException("This slot is already booked");
         }
 
-        slot.setIsBooked(true);
+        slot.setIsBooked(true); // Reserve slot
         slot.setStatus(AvailabilityStatus.BOOKED);
         doctorAvailabilityRepository.save(slot);
 
@@ -180,17 +188,17 @@ public class AppointmentServiceImpl {
         AppointmentEntity appointment = appointmentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
 
-        appointment.setAppointmentStatus("Cancelled");
+        appointment.setAppointmentStatus("Cancelled"); // Status transition only
         appointmentRepository.save(appointment);
 
         DoctorAvailability slot = doctorAvailabilityRepository.findById(appointment.getAvailabilityId())
             .orElseThrow(() -> new ResourceNotFoundException("Availability slot not found"));
 
-        slot.setIsBooked(false);
+        slot.setIsBooked(false); // Free slot for reuse
         slot.setStatus(AvailabilityStatus.AVAILABLE);
         doctorAvailabilityRepository.save(slot);
 
-        if (appointment.getPatient() != null) {
+        if (appointment.getPatient() != null) { // Notify patient (side effect)
             emailService.sendAppointmentCancellationEmail(
                 appointment.getPatient().getEmail(),
                 appointment.getPatient().getFirstName(),
